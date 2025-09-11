@@ -53,7 +53,7 @@
 }
 
 .hero {
-  @apply relative pt-32 pb-24 text-center text-white bg-gradient-to-r from-cyan-400 to-teal-500;
+  @apply relative pt-32 pb-12 text-center text-white bg-gradient-to-r from-cyan-400 to-teal-500;
 }
 .hero-title {
   @apply text-4xl md:text-5xl font-extrabold mb-6;
