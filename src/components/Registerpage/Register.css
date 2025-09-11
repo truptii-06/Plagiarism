@@ -1,23 +1,21 @@
-/* Background setup */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f4f8; /* lighter background, soft off-white */
+  background: #f7fafc; /* light background */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Login Box */
 .login-box {
-  background: #ffffff; /* white form background */
-  padding: 50px 40px;  /* increased padding for bigger form */
-  border-radius: 20px;  /* slightly more rounded corners */
-  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.15); /* stronger shadow */
-  width: 700px; /* increased width */
+  background: #ffffff;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.15);
+  width: 700px; /* form width */
   max-width: 90%;
   text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: all 0.3s ease; /* smooth expansion when new field appears */
 }
 
 .login-box:hover {
@@ -25,29 +23,26 @@
   box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* Title */
 .login-title {
   margin-bottom: 25px;
   color: #007bff;
-  font-size: 28px; /* slightly bigger */
+  font-size: 28px;
   font-weight: bold;
 }
 
-/* Form */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 18px; /* slightly more gap */
+  gap: 18px;
 }
 
-/* Inputs */
 .login-input {
-  padding: 14px; /* bigger input fields */
+  padding: 14px;
   border: 1px solid #ccc;
   border-radius: 10px;
   outline: none;
-  font-size: 16px; /* larger text */
-  transition: 0.3s;
+  font-size: 16px;
+  transition: all 0.3s ease; /* smooth focus and dynamic height */
 }
 
 .login-input:focus {
@@ -55,23 +50,21 @@
   box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.4);
 }
 
-/* Button */
 .login-btn {
-  padding: 14px; /* bigger button */
+  padding: 14px;
   background: #007bff;
   color: #fff;
   border: none;
   border-radius: 10px;
-  font-size: 18px; /* larger text */
+  font-size: 18px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
 
 .login-btn:hover {
   background: #0056b3;
 }
 
-/* Register Text */
 .register-text {
   margin-top: 18px;
   font-size: 15px;
