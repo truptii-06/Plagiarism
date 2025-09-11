@@ -63,15 +63,16 @@ const Homepage = () => {
       <section className="content">
         <div className="content-block">
           <img
-            src="https://placehold.co/600x400"
+            src="./src/assets/hero1.png"
             alt="collaboration"
             className="content-image"
           />
           <div className="content-text">
             <h2>The difference between originality and AI</h2>
             <p>
-              Turnitin is constantly building, learning, and developing new
-              technology to ensure trust in originality checks.
+             PlagiX goes beyond traditional plagiarism checkers by detecting not 
+             only copied text but also AI-generated content. Whether it’s academic writing, 
+             coding projects, or research papers, our platform ensures you know the true originality of the work.
             </p>
             <a href="#">Explore our AI resources →</a>
           </div>
@@ -79,17 +80,34 @@ const Homepage = () => {
 
         <div className="content-block reverse">
           <img
-            src="https://placehold.co/600x400"
+            src="src/assets/hero2.jpg"
             alt="student writing"
             className="content-image"
           />
           <div className="content-text">
             <h2>Empower students to do their best work</h2>
             <p>
-              Through rich, personalized feedback, Turnitin helps students
-              develop skills for success in academics and beyond.
+              With PlagiX, students can confidently submit assignments and projects 
+              knowing they’ll be checked against a vast database, multiple Indian languages, 
+              and even AI-generated sources. Educators gain access to clear reports, 
+              helping them guide students towards better academic integrity and skill development.
             </p>
             <a href="#">Learn about feedback tools →</a>
+          </div>
+        </div>
+
+        <div className="content-block">
+          <img
+            src="./src/assets/hero3.png"
+            alt="collaboration"
+            className="content-image"
+          />
+          <div className="content-text">
+            <h2>Check Plagiarism in Multiple Languages</h2>
+            <p>
+             PlagiX supports plagiarism detection in most Indian languages, making it easy for students and educators to ensure originality across Hindi, Marathi, Tamil, Bengali, Telugu, and more.
+            </p>
+            
           </div>
         </div>
       </section>
@@ -134,7 +152,7 @@ const Homepage = () => {
             </ul>
           </div>
         </div>
-        <p className="footer-copy">© 2023 Turnitin, LLC. All rights reserved.</p>
+        
       </footer>
     </div>
   );
