@@ -11,9 +11,7 @@
 .logo {
   @apply flex items-center;
 }
-.logo-text {
-  @apply ml-2 font-bold text-xl text-blue-900;
-}
+
 
 .nav-links {
   @apply hidden md:flex space-x-6 text-blue-900;
