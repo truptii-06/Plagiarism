@@ -1,5 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
+import { Link } from "react-router-dom";
 import './Homepage.css';
 
 const Homepage = () => {
@@ -16,17 +17,12 @@ const Homepage = () => {
           />
         </div>
 
-        <nav className="nav-links">
-          <a href="#">Products</a>
-          <a href="#">Solutions</a>
-          <a href="#">Resources</a>
-          <a href="#">About</a>
-          <a href="#">Pricing</a>
-        </nav>
+        
 
         <div className="nav-buttons">
+          <Link to="/login">
           <button className="btn-primary">Login</button>
-          <button className="btn-dark">Get a Demo</button>
+          </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -41,14 +37,9 @@ const Homepage = () => {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="mobile-menu">
-          <a href="#">Products</a>
-          <a href="#">Solutions</a>
-          <a href="#">Resources</a>
-          <a href="#">About</a>
-          <a href="#">Pricing</a>
           <div className="mobile-buttons">
             <button className="btn-primary">Login</button>
-            <button className="btn-dark">Get a Demo</button>
+            
           </div>
         </div>
       )}
@@ -57,15 +48,13 @@ const Homepage = () => {
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
-            Cultivate original thinking. Build a better writer.
+            AI-Resistant Plagiarism Detection for Projects & Code!
           </h1>
           <p className="hero-subtitle">
-            With a clear path from originality to improved writing, Turnitin
-            offers solutions that promote academic excellence.
+            Check plagiarism in reports, detect AI-generated code, and support multiple Indian languages.
           </p>
           <div className="hero-actions">
-            <button className="btn-dark">Get a Demo</button>
-            <button className="btn-outline">Watch the Video</button>
+            <button className="btn-dark">Get Started Free</button>
           </div>
         </div>
       </section>

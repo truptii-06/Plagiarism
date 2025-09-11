@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.logo img {
+  @apply h-[60px] w-auto;
+}
+
 .app {
   @apply bg-gray-50 text-gray-800;
 }
