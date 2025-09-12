@@ -1,0 +1,107 @@
+/* Body */
+.teacher-dashboard {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f9f9f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.td-header {
+  background: #007bff;
+  color: #fff;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Main */
+.td-main {
+  flex: 1;
+  padding: 30px;
+}
+
+/* Cards */
+.td-cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.td-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  flex: 1 1 250px;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.td-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.td-card h3 {
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.td-card p {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.td-card button {
+  padding: 10px 15px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.td-card button:hover {
+  background: #0056b3;
+}
+
+/* Stats */
+.td-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.td-stat {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  flex: 1 1 150px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.td-stat h4 {
+  color: #007bff;
+  margin-bottom: 8px;
+}
+
+.td-stat p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Footer */
+.td-footer {
+  background: #007bff;
+  color: #fff;
+  padding: 12px 30px;
+  text-align: center;
+  font-size: 14px;
+}

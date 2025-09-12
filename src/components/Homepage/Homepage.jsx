@@ -21,7 +21,10 @@ const Homepage = () => {
 
         <div className="nav-buttons">
           <Link to="/login">
-          <button className="btn-primary">Login</button>
+            <button className="btn-primary">Login</button>
+          </Link>
+          <Link to="/register">
+            <button className="btn-primary">Sign Up</button>
           </Link>
         </div>
 
@@ -33,17 +36,19 @@ const Homepage = () => {
           ☰
         </button>
       </header>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="mobile-menu">
-          <div className="mobile-buttons">
-            <button className="btn-primary">Login</button>
-            
-          </div>
-        </div>
-      )}
-
+{/* Mobile Menu */}
+{menuOpen && (
+  <div className="mobile-menu">
+    <div className="mobile-buttons">
+      <Link to="/login">
+        <button className="btn-primary">Login</button>
+      </Link>
+      <Link to="/register">
+        <button className="btn-primary">Sign Up</button>
+      </Link>
+    </div>
+  </div>
+)}
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">

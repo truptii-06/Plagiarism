@@ -1,31 +1,36 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./Loginpage.css"; // Import CSS file
-import logo from "../../assets/logo.png";
+import "./Loginpage.css";
 
 function Loginpage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student"); // default role
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Login clicked", { email, password });
-    navigate("/"); // Redirect to homepage after login
+
+    // Store email and role in localStorage
+    localStorage.setItem("email", email);
+    localStorage.setItem("role", role);
+
+    // Redirect based on role
+    if (role === "student") {
+      navigate("/student-dashboard");
+    } else if (role === "teacher") {
+      navigate("/teacher-dashboard");
+    }
   };
 
   return (
     <div className="app">
-      {/* Header */}
       <header className="header">
         <div className="logo">
-         <img src={logo} alt="logo" />
-
-
+          <img src="../../assets/logo.png" alt="Logo" />
         </div>
       </header>
 
-      {/* Login Form */}
       <div className="login-container">
         <div className="login-box">
           <h2 className="login-title">Welcome Back</h2>
@@ -46,6 +51,17 @@ function Loginpage() {
               className="login-input"
               required
             />
+
+            {/* Role Selector */}
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="login-input"
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+
             <button type="submit" className="login-btn">
               Login
             </button>
