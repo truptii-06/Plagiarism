@@ -2,36 +2,44 @@
 
 .login-page-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 65px - 200px); /* Full height minus navbar and footer */
-    background-color: #f0f2f5;
-    padding: 40px 20px;
+    align-items: center; /* This is the key change to center everything */
+    min-height: 100vh;
+    background-color: #ffffff; /* Changed to white like Turnitin */
+    padding: 20px;
     box-sizing: border-box;
 }
 
+.auth-logo {
+  height: 45px;
+  margin-bottom: 40px; /* Increased space between logo and card */
+}
+
 .login-card {
-    background-color: #ffffff;
+    background-color: #f7f9fa; /* A very light grey for the card */
+    border: 1px solid #e0e0e0; /* Subtle border */
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Softer shadow */
     width: 100%;
     max-width: 450px;
     text-align: center;
 }
 
 .login-title {
-    color: #007a8a; /* Your brand's teal color */
+    color: #0d1f33; /* Darker, more professional text color */
     font-size: 2.2em;
-    margin-bottom: 10px; /* Reduced margin */
+    margin-bottom: 10px;
     font-weight: 700;
 }
 
 .login-subtitle {
-    color: #666;
+    color: #555;
     margin-bottom: 30px;
-    font-size: 1.05em;
 }
+
+/* ... Rest of the styles remain the same ... */
 
 .error-message {
     color: #e74c3c;
@@ -42,7 +50,7 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Space between form groups */
+    gap: 20px;
 }
 
 .form-group {
@@ -60,7 +68,7 @@
 .form-input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1em;
     color: #555;
@@ -113,3 +121,4 @@
     color: #005f6b;
     text-decoration: underline;
 }
+

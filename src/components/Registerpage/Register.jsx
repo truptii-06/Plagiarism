@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// This now correctly points to your Register.css file
-import './Register.css'; 
+import './Register.css';
+import logo from '../../assets/logo1.png';
 
-// RENAMED the function to Register
 function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,28 +25,28 @@ function Register() {
 
   const handleRegister = (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-    
     setError("");
     console.log("Registering user:", { fullName, email, role });
-
     localStorage.setItem('email', email);
     localStorage.setItem('role', role);
-
     navigate('/dashboard');
   };
 
   return (
     <div className="register-page-container">
+      {/* --- Logo is now outside the card --- */}
+      <img src={logo} alt="PlagiX Logo" className="auth-logo" />
+
       <div className="register-card">
         <h2 className="register-title">Create Your Account</h2>
         {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleRegister} className="register-form">
+          {/* ... rest of the form ... */}
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input type="text" id="fullName" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="form-input"/>
@@ -90,5 +89,5 @@ function Register() {
   );
 }
 
-// RENAMED the export to Register
 export default Register;
+

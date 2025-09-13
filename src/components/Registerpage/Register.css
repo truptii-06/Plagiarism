@@ -2,12 +2,17 @@
 
 .register-page-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 65px - 200px); /* Adjust height for navbar and footer */
     background-color: #f0f2f5; /* Light background for the whole page */
     padding: 40px 20px; /* Add some padding around the form */
     box-sizing: border-box; /* Include padding in element's total width and height */
+}
+.auth-logo {
+  height: 45px; /* Adjust size as needed */
+  margin-bottom: 30px; /* Space between logo and card */
 }
 
 .register-card {
