@@ -7,6 +7,7 @@ import Loginpage from "./components/Loginpage/Loginpage";
 import Registerpage from "./components/Registerpage/Register";
 import StudentDashboard from "./components/Dashboard/StudentDashboard";
 import TeacherDashboard from "./components/Dashboard/TeacherDashboard";
+import ProductDetailPage from "./components/ProductDetailPage/ProductDetailPage";
 const App = () => {
   return (
     <Router>
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/register" element={<Registerpage />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+        <Route path="/product/clarity" element={<ProductDetailPage />} />
       </Routes>
       </main>
       <Footer/>

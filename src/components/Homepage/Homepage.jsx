@@ -46,7 +46,8 @@ const Homepage = () => {
           <p className="subtitle">
             Check plagiarism in reports, detect AI-generated code, and support multiple Indian languages.
           </p>
-          <button className="btn-start">Get Started</button>
+          <Link to="/product/clarity" className="btn-discover">Discover More</Link>
+          
         </div>
 
         {/* Right Image */}
