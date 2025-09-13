@@ -1,89 +1,115 @@
-/* Background setup */
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f0f4f8; /* lighter background, soft off-white */
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+/* src/components/Loginpage/Loginpage.css */
+
+.login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 65px - 200px); /* Full height minus navbar and footer */
+    background-color: #f0f2f5;
+    padding: 40px 20px;
+    box-sizing: border-box;
 }
 
-/* Login Box */
-.login-box {
-  background: #ffffff; /* white form background */
-  padding: 50px 40px;  /* increased padding for bigger form */
-  border-radius: 20px;  /* slightly more rounded corners */
-  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.15); /* stronger shadow */
-  width: 700px; /* increased width */
-  max-width: 90%;
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
+.login-card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
 }
 
-.login-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-/* Title */
 .login-title {
-  margin-bottom: 25px;
-  color: #007bff;
-  font-size: 28px; /* slightly bigger */
-  font-weight: bold;
+    color: #007a8a; /* Your brand's teal color */
+    font-size: 2.2em;
+    margin-bottom: 10px; /* Reduced margin */
+    font-weight: 700;
 }
 
-/* Form */
+.login-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1.05em;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
 .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px; /* slightly more gap */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between form groups */
 }
 
-/* Inputs */
-.login-input {
-  padding: 14px; /* bigger input fields */
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  outline: none;
-  font-size: 16px; /* larger text */
-  transition: 0.3s;
+.form-group {
+    text-align: left;
 }
 
-.login-input:focus {
-  border-color: #007bff;
-  box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.4);
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95em;
 }
 
-/* Button */
-.login-btn {
-  padding: 14px; /* bigger button */
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px; /* larger text */
-  cursor: pointer;
-  transition: 0.3s;
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #555;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
 }
 
-.login-btn:hover {
-  background: #0056b3;
+.form-input::placeholder {
+    color: #aaa;
 }
 
-/* Register Text */
-.register-text {
-  margin-top: 18px;
-  font-size: 15px;
-  color: #555;
+.form-input:focus {
+    border-color: #007a8a;
+    box-shadow: 0 0 0 3px rgba(0, 122, 138, 0.2);
+    outline: none;
+}
+
+.btn-login {
+    background-color: #007a8a;
+    color: #ffffff;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    background-color: #005f6b;
+    transform: translateY(-2px);
+}
+
+.register-link-text {
+    margin-top: 30px;
+    color: #666;
+    font-size: 0.9em;
 }
 
 .register-link {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: bold;
+    color: #007a8a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
 .register-link:hover {
-  text-decoration: underline;
+    color: #005f6b;
+    text-decoration: underline;
 }

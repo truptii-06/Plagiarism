@@ -1,78 +1,81 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import "./Loginpage.css";
+// src/components/Loginpage/Loginpage.jsx
+
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import './Loginpage.css'; // Make sure to link the CSS file
 
 function Loginpage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("student"); // default role
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Store email and role in localStorage
-    localStorage.setItem("email", email);
-    localStorage.setItem("role", role);
-
-    // Redirect based on role
-    if (role === "student") {
-      navigate("/student-dashboard");
-    } else if (role === "teacher") {
-      navigate("/teacher-dashboard");
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
     }
+    
+    // Simulate a successful login for now
+    console.log('Logging in with:', { email, password });
+    
+    // In a real app, you would make an API call here.
+    // try {
+    //   const response = await fetch('/api/login', { ... });
+    //   if (response.ok) {
+         navigate('/'); // Redirect to homepage on successful login
+    //   } else {
+    //     const data = await response.json();
+    //     setError(data.message || 'Invalid email or password.');
+    //   }
+    // } catch (apiError) {
+    //   setError('An error occurred. Please try again.');
+    // }
   };
 
   return (
-    <div className="app">
-      <header className="header">
-        <div className="logo">
-          <img src="../../assets/logo.png" alt="Logo" />
-        </div>
-      </header>
+    <div className="login-page-container">
+      <div className="login-card">
+        <h2 className="login-title">Welcome Back</h2>
+        <p className="login-subtitle">Please enter your details to sign in.</p>
+        
+        {error && <p className="error-message">{error}</p>}
 
-      <div className="login-container">
-        <div className="login-box">
-          <h2 className="login-title">Welcome Back</h2>
-          <form onSubmit={handleLogin} className="login-form">
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
             <input
               type="email"
-              placeholder="Enter Email"
+              id="email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="login-input"
               required
+              className="form-input"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
             <input
               type="password"
-              placeholder="Enter Password"
+              id="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="login-input"
               required
+              className="form-input"
             />
+          </div>
 
-            {/* Role Selector */}
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="login-input"
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-            </select>
+          <button type="submit" className="btn-login">Login</button>
+        </form>
 
-            <button type="submit" className="login-btn">
-              Login
-            </button>
-          </form>
-          <p className="register-text">
-            Not registered?{" "}
-            <Link to="/register" className="register-link">
-              Click here to Register
-            </Link>
-          </p>
-        </div>
+        <p className="register-link-text">
+          Don't have an account? <Link to="/register" className="register-link">Register here</Link>
+        </p>
       </div>
     </div>
   );
