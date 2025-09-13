@@ -1,103 +1,180 @@
- @import "tailwindcss";
- 
-.homepage {
-  @apply bg-white min-h-screen font-sans text-gray-800;
+/* General */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
 }
 
+a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+/* Navbar */
 .navbar {
-  @apply flex justify-between items-center py-4 px-8 md:px-16;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .logo img {
-  @apply h-12 w-auto;
+  width: 150px;
 }
 
-.menu .btn-primary {
-  @apply bg-transparent text-gray-700 font-semibold py-2 px-4 rounded-full border border-gray-400 hover:bg-gray-100 transition-colors duration-300;
+.menu button {
+  margin-left: 15px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 30px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
+.menu button:hover {
+  background-color: #0056b3;
+}
+
+/* Mobile toggle */
+.mobile-toggle {
+  display: none;
+  background: none;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .menu {
+    display: none;
+  }
+  .mobile-toggle {
+    display: block;
+  }
+  .mobile-menu {
+    display: flex;
+  }
+}
+
+/* Hero Section */
 .hero {
-  @apply flex flex-col md:flex-row items-center px-8 md:px-16 py-12;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 50px;
+  background-color: #f0f8ff;
 }
 
 .hero-left {
-  @apply flex-1 text-center md:text-left md:pr-12;
+  flex: 1;
+  min-width: 300px;
 }
 
-.title {
-  @apply text-4xl md:text-5xl font-extrabold leading-tight mb-4;
+.hero-left .title {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
 }
 
-.highlight {
-  @apply text-teal-500;
+.hero-left .highlight {
+  color: #007bff;
 }
 
-.subtitle {
-  @apply text-lg md:text-xl text-gray-600 mb-6;
+.hero-left .subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
 }
 
 .btn-start {
-  @apply bg-teal-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-start:hover {
+  background-color: #0056b3;
 }
 
 .hero-right {
-  @apply flex-1 mt-8 md:mt-0 flex justify-center;
+  flex: 1;
+  min-width: 300px;
 }
 
-.illustration {
-  @apply w-full max-w-lg h-auto;
+.hero-right img {
+  width: 100%;
+  max-width: 450px;
 }
 
-
+/* Content */
 .content {
-  @apply py-16 px-8 md:px-16 bg-white;
+  padding: 50px;
 }
 
 .content-block {
-  @apply flex flex-col md:flex-row items-center mb-16 gap-12;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 50px;
 }
 
 .content-block.reverse {
-  @apply md:flex-row-reverse;
+  flex-direction: row-reverse;
 }
 
 .content-image {
-  @apply w-full md:w-1/2 rounded-lg shadow-lg;
+  width: 50%;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .content-text {
-  @apply w-full md:w-1/2 text-center md:text-left;
+  flex: 1;
 }
 
 .content-text h2 {
-  @apply text-3xl md:text-4xl font-extrabold text-gray-800 mb-4;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
 }
 
 .content-text p {
-  @apply text-lg text-gray-600 mb-6;
+  font-size: 1rem;
+  margin-bottom: 10px;
 }
 
-.content-text a {
-  @apply text-teal-500 font-semibold hover:text-teal-600 transition-colors duration-300;
-}
-
-
+/* Footer */
 .footer {
-  @apply bg-gray-900 text-gray-400 py-12 px-8 md:px-16;
+  background-color: #007bff;
+  color: white;
+  padding: 50px;
 }
 
 .footer-columns {
-  @apply grid grid-cols-2 md:grid-cols-4 gap-8;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
-
-.footer-columns h3 {
-  @apply text-lg font-bold text-white mb-4;
-}
-
-.footer-columns ul li {
-  @apply mb-2;
-}
-
-.footer-columns ul li a {
-  @apply text-gray-400 hover:text-teal-500 transition-colors duration-300;
+.footer-columns div {
+  display: flex;
+  gap: 2rem;
 }
