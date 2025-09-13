@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Loginpage.css';
+import logo from '../../assets/logo1.png'; // Make sure this path is correct
 
 function Loginpage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] =  useState('student'); // Default role is student
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -15,23 +16,23 @@ function Loginpage() {
     e.preventDefault();
 
     if (!email || !password) {
-      setError('Please fill in all fields.');
+      setError('Please enter both email and password.');
       return;
     }
-
-    // In a real app, you would verify credentials with a backend API.
-    // For this simulation, we'll assume login is always successful.
-
-    // Store user info in localStorage to persist the session
+    
+    console.log('Logging in with:', { email, password, role });
+    
     localStorage.setItem('email', email);
     localStorage.setItem('role', role);
-
-    // Redirect to the main dashboard page
+    
     navigate('/dashboard');
   };
 
   return (
     <div className="login-page-container">
+      {/* --- Logo is now outside the card --- */}
+      <img src={logo} alt="PlagiX Logo" className="auth-logo" />
+
       <div className="login-card">
         <h2 className="login-title">Welcome Back</h2>
         <p className="login-subtitle">Please enter your details to sign in.</p>
@@ -41,44 +42,19 @@ function Loginpage() {
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="email" id="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required className="form-input"/>
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="password" id="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required className="form-input"/>
           </div>
-
-          {/* Role Selection Dropdown */}
           <div className="form-group">
             <label htmlFor="role">Login as</label>
-            <select 
-              id="role" 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)} 
-              className="form-input"
-            >
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value)} className="form-input">
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
             </select>
           </div>
-
           <button type="submit" className="btn-login">Login</button>
         </form>
 
