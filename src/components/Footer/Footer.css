@@ -1,0 +1,59 @@
+/* src/components/Footer/Footer.css */
+
+.site-footer {
+    background-color: #22252a; /* Dark background color */
+    color: #aab2c0; /* Light gray text color */
+    padding: 50px 0;
+    font-size: 15px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around; /* Evenly space the columns */
+    flex-wrap: wrap; /* Allows columns to wrap on smaller screens */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-column {
+    min-width: 200px; /* Ensures columns don't get too squished */
+    margin-bottom: 30px;
+}
+
+.footer-column h4 {
+    color: #ffffff; /* White color for headings */
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+}
+
+.footer-column ul a {
+    color: #aab2c0; /* Same as the default text color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-column ul a:hover {
+    color: #ffffff; /* Brighter white on hover */
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #444; /* Separator line */
+    font-size: 14px;
+    color: #888;
+}
