@@ -1,40 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import StudentDashboard from './StudentDashboard';
+import TeacherDashboard from './TeacherDashboard';
 
 const Dashboard = () => {
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userRole = localStorage.getItem("role"); // read role from localStorage
+    const userRole = localStorage.getItem("role")?.trim(); // get role from storage
     const userEmail = localStorage.getItem("email");
 
-    if (!userEmail || !userRole) {
-      navigate("/login");
+    if (!userRole || !userEmail) {
+      navigate("/login"); // redirect to login if not logged in
       return;
     }
 
-    setRole(userRole);
-  }, []);
+    setRole(userRole); // set role to state
+  }, [navigate]);
+
+  if (!role) return <div>Loading...</div>; // show loading while fetching role
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Welcome to EduCheck Dashboard</h1>
-
-      {role === "teacher" && (
-        <div>
-          <h2>Teacher Dashboard</h2>
-          <p>Manage student submissions and generate plagiarism reports.</p>
-        </div>
-      )}
-
-      {role === "student" && (
-        <div>
-          <h2>Student Dashboard</h2>
-          <p>Submit your assignments and check originality reports.</p>
-        </div>
-      )}
-    </div>
+    <>
+      {role === "teacher" && <TeacherDashboard />}
+      {role === "student" && <StudentDashboard />}
+    </>
   );
 };
 

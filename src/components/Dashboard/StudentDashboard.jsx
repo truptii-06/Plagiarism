@@ -1,133 +1,183 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./StudentDashboard.css";
+import logo from "../../assets/logo1.png";
 
 const StudentDashboard = () => {
-  const navigate = useNavigate();
-  const [studentName, setStudentName] = useState("Student Name");
-  const [submissions, setSubmissions] = useState([
-    { id: 1, title: "Math Assignment", status: "Reviewed", plagiarism: "5%" },
-    { id: 2, title: "Science Project", status: "Pending", plagiarism: "-" },
-  ]);
+  const [files, setFiles] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [activeSection, setActiveSection] = useState("upload");
 
-  const [newTitle, setNewTitle] = useState("");
-  const [file, setFile] = useState(null);
+  // Handle file upload
+  const handleFileUpload = (event) => {
+    const uploadedFile = event.target.files[0];
+    if (uploadedFile) {
+      const newEntry = {
+        name: uploadedFile.name,
+        date: new Date().toLocaleDateString(),
+        status: "Processing",
+        score: null,
+      };
 
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-    const email = localStorage.getItem("email");
+      setFiles([newEntry, ...files]);
+      setNotifications([
+        { message: `${uploadedFile.name} uploaded successfully!`, type: "success" },
+        ...notifications,
+      ]);
 
-    if (!email || role !== "student") {
-      navigate("/login");
-    } else {
-      setStudentName(email.split("@")[0]);
+      // Simulate plagiarism score after few seconds
+      setTimeout(() => {
+        setFiles((prev) =>
+          prev.map((file) =>
+            file.name === uploadedFile.name
+              ? { ...file, status: "Completed", score: "12%" }
+              : file
+          )
+        );
+        setNotifications([
+          { message: `Report ready for ${uploadedFile.name}`, type: "info" },
+          ...notifications,
+        ]);
+      }, 3000);
     }
-  }, []);
-
-  const handleUpload = (e) => {
-    e.preventDefault();
-    if (!newTitle || !file) return;
-
-    const newSubmission = {
-      id: submissions.length + 1,
-      title: newTitle,
-      status: "Pending",
-      plagiarism: "-",
-    };
-
-    setSubmissions([newSubmission, ...submissions]);
-    setNewTitle("");
-    setFile(null);
-    alert("Assignment uploaded successfully!");
   };
 
   return (
-    <div className="student-dashboard">
-      {/* Header */}
-      <header className="dashboard-header">
-        <h1>Welcome, {studentName}</h1>
-        <button
-          className="logout-btn"
-          onClick={() => {
-            localStorage.clear();
-            navigate("/login");
-          }}
-        >
-          Logout
-        </button>
-      </header>
+    <div className="dashboard-container">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <img src={logo} alt="Logo" />
+        </div>
+        <ul className="sidebar-menu">
+          <li
+            className={activeSection === "upload" ? "active" : ""}
+            onClick={() => setActiveSection("upload")}
+          >
+            Upload
+          </li>
+          <li
+            className={activeSection === "history" ? "active" : ""}
+            onClick={() => setActiveSection("history")}
+          >
+            History
+          </li>
+          <li
+            className={activeSection === "profile" ? "active" : ""}
+            onClick={() => setActiveSection("profile")}
+          >
+            Profile
+          </li>
+          <li
+            className={activeSection === "help" ? "active" : ""}
+            onClick={() => setActiveSection("help")}
+          >
+            Help
+          </li>
+        </ul>
+      </aside>
 
-      {/* Stats Cards */}
-      <div className="stats-cards">
-        <div className="card">
-          <h3>Total Submissions</h3>
-          <p>{submissions.length}</p>
-        </div>
-        <div className="card">
-          <h3>Pending Reviews</h3>
-          <p>{submissions.filter((s) => s.status === "Pending").length}</p>
-        </div>
-        <div className="card">
-          <h3>Average Plagiarism</h3>
-          <p>
-            {submissions
-              .filter((s) => s.plagiarism !== "-")
-              .reduce((acc, s) => acc + parseInt(s.plagiarism), 0) /
-              submissions.filter((s) => s.plagiarism !== "-").length || 0}
-            %
-          </p>
-        </div>
-      </div>
+      {/* Main Content */}
+      <main className="dashboard-main">
+        {/* Welcome Section */}
+        <section className="welcome-section">
+          <h1>Welcome back, Student 👋</h1>
+          <p>Ready to check your assignments today?</p>
+        </section>
 
-      {/* Assignment Upload Section */}
-      <div className="upload-section">
-        <h2>Upload New Assignment</h2>
-        <form className="upload-form" onSubmit={handleUpload}>
-          <input
-            type="text"
-            placeholder="Assignment Title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            required
-          />
-          <input
-            type="file"
-            onChange={(e) => setFile(e.target.files[0])}
-            required
-          />
-          {file && (
-            <p className="file-preview">
-              Selected File: <strong>{file.name}</strong>
+        {/* Upload Section */}
+        {activeSection === "upload" && (
+          <section className="upload-section">
+            <h2>Upload Assignment / Report</h2>
+            <div className="upload-box">
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                className="hidden-input"
+                id="fileUpload"
+              />
+              <label htmlFor="fileUpload" className="upload-btn">
+                Choose File
+              </label>
+              <p className="upload-note">
+                Supported: PDF, DOCX, TXT,.zip, Code files
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* Notifications */}
+        {notifications.length > 0 && (
+          <section className="notifications-section">
+            <h2>Notifications</h2>
+            <ul>
+              {notifications.map((note, index) => (
+                <li
+                  key={index}
+                  className={`notification ${
+                    note.type === "success" ? "success" : "info"
+                  }`}
+                >
+                  {note.message}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Submission History */}
+        {activeSection === "history" && (
+          <section className="history-section">
+            <h2>Submission History</h2>
+            {files.length === 0 ? (
+              <p className="no-history">No submissions yet.</p>
+            ) : (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Plagiarism Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.map((file, index) => (
+                      <tr key={index}>
+                        <td>{file.name}</td>
+                        <td>{file.date}</td>
+                        <td>{file.status}</td>
+                        <td>{file.score ? file.score : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Profile Section */}
+        {activeSection === "profile" && (
+          <section className="profile-section">
+            <h2>Your Profile</h2>
+            <p>Student Name: John Doe</p>
+            <p>Roll No: 123456</p>
+            <p>Email: student@example.com</p>
+          </section>
+        )}
+
+        {/* Help Section */}
+        {activeSection === "help" && (
+          <section className="help-section">
+            <h2>Need Help?</h2>
+            <p>
+              For queries, contact your faculty or email support@PlagiX.com.
             </p>
-          )}
-          <button type="submit">Upload</button>
-        </form>
-      </div>
-
-      {/* Past Submissions */}
-      <div className="submissions-table">
-        <h2>Past Submissions</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Plagiarism %</th>
-            </tr>
-          </thead>
-          <tbody>
-            {submissions.map((sub) => (
-              <tr key={sub.id}>
-                <td>{sub.id}</td>
-                <td>{sub.title}</td>
-                <td>{sub.status}</td>
-                <td>{sub.plagiarism}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 };

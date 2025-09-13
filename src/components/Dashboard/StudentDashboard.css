@@ -1,127 +1,171 @@
-.student-dashboard {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: 100vh;
-}
-
-/* Header */
-.dashboard-header {
+/* Overall Layout */
+.dashboard-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  min-height: 100vh;
+  background: #f9fafb;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
 }
 
-.logout-btn {
-  background: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 10px 18px;
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: #129292;  /* teal */
+  color:#004d4d;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+}
+
+.sidebar-logo img {
+  width: 150px;
+  height: 35px;
+  margin: 0 auto 20px auto;
+  display: block;
+  background-color: white;
+  border-radius: 25px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  padding: 12px 16px;
+  margin: 8px 0;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
 
-.logout-btn:hover {
-  background: #e60000;
+.sidebar-menu li:hover {
+  background: #115e59; /* darker teal */
+  color: white;
 }
 
-/* Stats Cards */
-.stats-cards {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.card {
-  flex: 1;
+.sidebar-menu li.active {
   background: white;
-  border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-  text-align: center;
+  color: #0d9488;
+  font-weight: bold;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+/* Main Section */
+.dashboard-main {
+  flex: 1;
+  padding: 30px;
+  background: white;
 }
 
-.card h3 {
-  margin-bottom: 10px;
-  color: #007bff;
+/* Welcome Section */
+.welcome-section h1 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #0f172a; /* dark gray-blue */
+}
+
+.welcome-section p {
+  color: #6b7280; /* gray */
+  margin-bottom: 20px;
 }
 
 /* Upload Section */
 .upload-section {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
 }
 
-.upload-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.upload-box {
+  border: 2px dashed #0d9488;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  background: #f0fdfa;
 }
 
-.upload-form input[type="text"],
-.upload-form input[type="file"] {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  outline: none;
-  transition: 0.3s;
+.hidden-input {
+  display: none;
 }
 
-.upload-form input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.upload-form button {
-  padding: 12px;
-  background: #007bff;
+.upload-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: #0d9488;
   color: white;
-  border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
-  transition: 0.3s;
+  font-weight: bold;
+  transition: background 0.3s;
 }
 
-.upload-form button:hover {
-  background: #0056b3;
+.upload-btn:hover {
+  background: #0f766e;
 }
 
-/* Past Submissions Table */
-.submissions-table {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+.upload-note {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #6b7280;
 }
 
-.submissions-table table {
+/* Notifications */
+.notifications-section {
+  margin-bottom: 30px;
+}
+
+.notification {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.notification.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.notification.info {
+  background: #e0f2fe;
+  color: #1e40af;
+}
+
+/* History Table */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
+  background: #f8fafc;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.submissions-table th,
-.submissions-table td {
+th {
+  background: #0d9488;
+  color: white;
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
 }
 
-.submissions-table th {
-  color: #007bff;
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.submissions-table tr:hover {
-  background: #f1f9ff;
-  transition: background 0.3s;
+tr:hover {
+  background: #f1f5f9;
+}
+
+.no-history {
+  color: #6b7280;
+}
+
+/* Profile & Help */
+.profile-section, .help-section {
+  background: #f0fdfa;
+  padding: 20px;
+  border-radius: 10px;
 }

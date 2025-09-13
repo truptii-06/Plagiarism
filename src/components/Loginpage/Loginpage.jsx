@@ -11,24 +11,22 @@ function Loginpage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+ const handleLogin = (e) => {
+  e.preventDefault();
 
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
+  if (!email || !password) {
+    setError("Please enter email and password");
+    return;
+  }
 
-    // In a real app, you would verify credentials with a backend API.
-    // For this simulation, we'll assume login is always successful.
+  // Save role and email
+  localStorage.setItem("role", role);
+  localStorage.setItem("email", email);
 
-    // Store user info in localStorage to persist the session
-    localStorage.setItem('email', email);
-    localStorage.setItem('role', role);
+  // Navigate to dashboard
+  navigate("/dashboard");
+};
 
-    // Redirect to the main dashboard page
-    navigate('/dashboard');
-  };
 
   return (
     <div className="login-page-container">

@@ -17,7 +17,7 @@
 }
 
 .hero {
-  @apply flex flex-col md:flex-row items-center px-8 md:px-16 py-0;
+  @apply flex flex-col md:flex-row items-center px-8 md:px-16 py-12;
 }
 
 .hero-left {
@@ -36,27 +36,9 @@
   @apply text-lg md:text-xl text-gray-600 mb-6;
 }
 
-
-.btn-discover {
-    display: inline-block; /* Important for links to behave like buttons */
-    background-color: #007a8a; /* Your brand's primary teal color */
-    color: #ffffff; /* White text */
-    padding: 12px 28px;
-    border-radius: 25px; /* Creates the pill shape */
-    text-decoration: none; /* Removes the default link underline */
-    font-weight: 600;
-    font-size: 1em;
-    margin-top: 20px; /* Adds some space above the button */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    cursor: pointer;
-    border: none;
+.btn-start {
+  @apply bg-teal-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300;
 }
-
-.btn-discover:hover {
-    background-color: #005f6b; /* A darker teal on hover */
-    transform: translateY(-2px); /* A slight lift effect on hover */
-}
-
 
 .hero-right {
   @apply flex-1 mt-8 md:mt-0 flex justify-center;
@@ -119,4 +101,3 @@
 .footer-columns ul li a {
   @apply text-gray-400 hover:text-teal-500 transition-colors duration-300;
 }
-

@@ -1,10 +1,7 @@
-// src/App.jsx
-
 import React from 'react';
-// CORRECTED LINE: Added 'useLocation' to the import
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
-// Import Components
+// Components
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import Homepage from './components/Homepage/Homepage';
@@ -19,11 +16,9 @@ import SolutionsPage from './components/SolutionsPage/SolutionsPage';
 import SupportPage from './components/Dashboard/SupportPage/SupportPage';
 import ContactPage from './components/ContactPage/ContactPage';
 
-// A helper component to conditionally render Navbar and Footer
-// This component now works because 'useLocation' is imported correctly above
+// Layout wrapper to hide Navbar/Footer on login/register/dashboard
 const Layout = ({ children }) => {
   const location = useLocation();
-  // Don't show Navbar/Footer on dashboard pages
   const hideLayout = location.pathname.startsWith('/dashboard') || location.pathname === '/login' || 
                      location.pathname === '/register';
 
@@ -35,7 +30,6 @@ const Layout = ({ children }) => {
     </>
   );
 };
-
 
 function App() {
   return (
@@ -52,11 +46,11 @@ function App() {
           <Route path="/solutions" element={<SolutionsPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          
-          {/* This single route handles both dashboards */}
+
+          {/* Only this single route handles both student/teacher dashboards */}
           <Route path="/dashboard" element={<Dashboard />} />
-          
-          {/* Optional: Add a catch-all route for 404 pages */}
+
+          {/* Catch-all 404 page */}
           <Route path="*" element={<div><h1>404 - Page Not Found</h1></div>} />
         </Routes>
       </Layout>
@@ -65,4 +59,3 @@ function App() {
 }
 
 export default App;
-
