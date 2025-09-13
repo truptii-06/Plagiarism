@@ -18,13 +18,15 @@
 }
 
 .sidebar-logo img {
-  width: 150px;
-  height: 35px;
+  max-width: 150px;   /* logo won’t exceed 150px */
+  height: auto;       /* keeps aspect ratio */
   margin: 0 auto 20px auto;
   display: block;
   background-color: white;
   border-radius: 25px;
+  flex-shrink: 0;    
 }
+
 
 .sidebar-menu {
   list-style: none;

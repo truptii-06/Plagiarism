@@ -1,5 +1,3 @@
-// src/components/Registerpage/Register.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
@@ -63,6 +61,26 @@ function Register() {
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input type="password" id="confirmPassword" placeholder="Confirm your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="form-input"/>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="OTP">OTP</label>
+            <input type="text" id="OTP" placeholder="Enter OTP" required className="form-input"/>
+          </div>
+
+          {role=="student" && (
+            <div className="form-group">
+              <label htmlFor="studentId">Student ID</label>
+              <input type="text" id="studentId" placeholder="Enter your student ID" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} required={role === "student"} className="form-input"/>
+            </div>
+          )}
+
+          {role === "teacher" && (
+            <div className="form-group">
+              <label htmlFor="facultyId">Faculty ID</label>
+              <input type="text" id="facultyId" placeholder="Enter your faculty ID" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} required={role === "teacher"} className="form-input"/>
+            </div>
+          )}
+
           <div className="form-group radio-group">
             <label>Register as:</label>
             <div className="radio-options">
@@ -72,12 +90,7 @@ function Register() {
               <label htmlFor="teacher">Teacher</label>
             </div>
           </div>
-          {role === "teacher" && (
-            <div className="form-group">
-              <label htmlFor="facultyId">Faculty ID</label>
-              <input type="text" id="facultyId" placeholder="Enter your faculty ID" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} required={role === "teacher"} className="form-input"/>
-            </div>
-          )}
+          
           <button type="submit" className="btn-register">Register</button>
         </form>
 
