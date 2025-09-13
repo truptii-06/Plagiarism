@@ -9,12 +9,12 @@ function Footer() {
     <footer className="site-footer">
       <div className="footer-content">
         <div className="footer-column">
-          <h4>Partners</h4>
+          <h4>Products</h4>
           <ul>
-            <li><Link to="/partners/institutions">Institutions</Link></li>
-            <li><Link to="/partners/technology">Technology</Link></li>
-            <li><Link to="/partners/resellers">Resellers</Link></li>
-            <li><Link to="/partners/become-a-partner">Become a Partner</Link></li>
+            <li><Link to="/products/originality">Originality</Link></li>
+            <li><Link to="/products/similarity">Similarity</Link></li>
+            <li><Link to="/products/feedback-studio">Feedback Studio</Link></li>
+            <li><Link to="/products/revision-assistant">Revision Assistant</Link></li>
           </ul>
         </div>
 

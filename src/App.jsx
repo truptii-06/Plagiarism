@@ -12,13 +12,20 @@ import Loginpage from './components/Loginpage/Loginpage';
 import Registerpage from './components/Registerpage/Register';
 import ProductDetailPage from './components/ProductDetailPage/ProductDetailPage';
 import Dashboard from './components/Dashboard/Dashboard';
+import WhyPlagixPage from './components/WhyPlagixPage/WhyPlagixPage'; 
+import PartnersPage from './components/PartnersPage/PartnersPage';
+import ResourcesPage from './components/ResourcesPage/ResourcesPage';
+import SolutionsPage from './components/SolutionsPage/SolutionsPage';
+import SupportPage from './components/Dashboard/SupportPage/SupportPage';
+import ContactPage from './components/ContactPage/ContactPage';
 
 // A helper component to conditionally render Navbar and Footer
 // This component now works because 'useLocation' is imported correctly above
 const Layout = ({ children }) => {
   const location = useLocation();
   // Don't show Navbar/Footer on dashboard pages
-  const hideLayout = location.pathname.startsWith('/dashboard');
+  const hideLayout = location.pathname.startsWith('/dashboard') || location.pathname === '/login' || 
+                     location.pathname === '/register';
 
   return (
     <>
@@ -39,6 +46,12 @@ function App() {
           <Route path="/login" element={<Loginpage />} />
           <Route path="/register" element={<Registerpage />} />
           <Route path="/product/clarity" element={<ProductDetailPage />} />
+          <Route path="/why-plagix" element={<WhyPlagixPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/solutions" element={<SolutionsPage />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           
           {/* This single route handles both dashboards */}
           <Route path="/dashboard" element={<Dashboard />} />

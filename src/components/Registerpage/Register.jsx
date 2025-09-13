@@ -1,10 +1,12 @@
-// src/components/Registerpage/Registerpage.jsx
+// src/components/Registerpage/Register.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Register.css';
+// This now correctly points to your Register.css file
+import './Register.css'; 
 
-function Registerpage() {
+// RENAMED the function to Register
+function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +16,14 @@ function Registerpage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (confirmPassword && password !== confirmPassword) {
+      setError("Passwords do not match.");
+    } else {
+      setError("");
+    }
+  }, [password, confirmPassword]);
+
   const handleRegister = (e) => {
     e.preventDefault();
 
@@ -22,15 +32,12 @@ function Registerpage() {
       return;
     }
     
-    // In a real app, you would send this data to a backend.
-    // For simulation, we assume registration is successful.
+    setError("");
     console.log("Registering user:", { fullName, email, role });
 
-    // Store user info in localStorage
     localStorage.setItem('email', email);
     localStorage.setItem('role', role);
 
-    // Redirect to the dashboard
     navigate('/dashboard');
   };
 
@@ -41,7 +48,6 @@ function Registerpage() {
         {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleRegister} className="register-form">
-          {/* Form groups for name, email, password etc. remain the same... */}
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input type="text" id="fullName" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="form-input"/>
@@ -58,7 +64,6 @@ function Registerpage() {
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input type="password" id="confirmPassword" placeholder="Confirm your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="form-input"/>
           </div>
-
           <div className="form-group radio-group">
             <label>Register as:</label>
             <div className="radio-options">
@@ -68,14 +73,12 @@ function Registerpage() {
               <label htmlFor="teacher">Teacher</label>
             </div>
           </div>
-
           {role === "teacher" && (
             <div className="form-group">
               <label htmlFor="facultyId">Faculty ID</label>
               <input type="text" id="facultyId" placeholder="Enter your faculty ID" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} required={role === "teacher"} className="form-input"/>
             </div>
           )}
-
           <button type="submit" className="btn-register">Register</button>
         </form>
 
@@ -87,4 +90,5 @@ function Registerpage() {
   );
 }
 
-export default Registerpage;
+// RENAMED the export to Register
+export default Register;

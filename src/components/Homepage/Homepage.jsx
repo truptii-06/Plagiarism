@@ -16,10 +16,7 @@ const Homepage = () => {
     <div className="homepage">
       {/* Navbar */}
       <header className="navbar">
-        <div className="logo">
-          <img src={logo} alt="Logo" />
-        </div>
-      
+        
 
         {/* Hamburger Icon for Mobile */}
         <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
@@ -124,47 +121,7 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-columns">
-          <div>
-            <h3>Products</h3>
-            <ul>
-              <li><a href="#">Originality</a></li>
-              <li><a href="#">Similarity</a></li>
-              <li><a href="#">Feedback Studio</a></li>
-              <li><a href="#">Revision Assistant</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3>Solutions</h3>
-            <ul>
-              <li><a href="#">Higher Education</a></li>
-              <li><a href="#">K-12</a></li>
-              <li><a href="#">Research & Publishing</a></li>
-              <li><a href="#">Partnerships</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3>About</h3>
-            <ul>
-              <li><a href="#">Company</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#">Press</a></li>
-              <li><a href="#">Contact Us</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3>Resources</h3>
-            <ul>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Case Studies</a></li>
-              <li><a href="#">Webinars</a></li>
-              <li><a href="#">Support</a></li>
-            </ul>
-          </div>
-        </div>
-      </footer>
+     
     </div>
   );
 };
