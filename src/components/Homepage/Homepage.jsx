@@ -19,14 +19,7 @@ const Homepage = () => {
         <div className="logo">
           <img src={logo} alt="Logo" />
         </div>
-        <nav className="menu">
-          <Link to="/login">
-            <button className="btn-primary">Login</button>
-          </Link>
-          <Link to="/register">
-            <button className="btn-primary">Sign Up</button>
-          </Link>
-        </nav>
+      
 
         {/* Hamburger Icon for Mobile */}
         <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>

@@ -2,51 +2,36 @@
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import "./Register.css"; // Make sure this CSS file is linked
+import './Register.css';
 
 function Registerpage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("student"); // Default role
-  const [facultyId, setFacultyId] = useState(""); // For teachers only
+  const [role, setRole] = useState("student");
+  const [facultyId, setFacultyId] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const handleRegister = (e) => {
+    e.preventDefault();
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+    
+    // In a real app, you would send this data to a backend.
+    // For simulation, we assume registration is successful.
+    console.log("Registering user:", { fullName, email, role });
 
-    // You would typically send this data to a backend API
-    // For now, let's just log it and simulate success
-    console.log({ fullName, email, password, role, facultyId });
+    // Store user info in localStorage
+    localStorage.setItem('email', email);
+    localStorage.setItem('role', role);
 
-    // Simulate API call success
-    try {
-      // Replace with your actual API call
-      // const response = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ fullName, email, password, role, facultyId: role === 'teacher' ? facultyId : undefined })
-      // });
-
-      // const data = await response.json();
-
-      // if (response.ok) {
-        navigate('/login'); // Navigate to login on successful registration
-      // } else {
-      //   setError(data.message || 'Registration failed.');
-      // }
-
-    } catch (apiError) {
-      setError('An error occurred during registration.');
-      console.error('Registration API error:', apiError);
-    }
+    // Redirect to the dashboard
+    navigate('/dashboard');
   };
 
   return (
@@ -56,79 +41,30 @@ function Registerpage() {
         {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleRegister} className="register-form">
+          {/* Form groups for name, email, password etc. remain the same... */}
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
-            <input
-              type="text"
-              id="fullName"
-              placeholder="Enter your full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="text" id="fullName" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="form-input"/>
           </div>
-
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="email" id="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required className="form-input"/>
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="password" id="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} required className="form-input"/>
           </div>
-
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="form-input"
-            />
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="form-input"/>
           </div>
 
           <div className="form-group radio-group">
             <label>Register as:</label>
             <div className="radio-options">
-              <input
-                type="radio"
-                id="student"
-                name="role"
-                value="student"
-                checked={role === "student"}
-                onChange={() => { setRole("student"); setFacultyId(""); }}
-              />
+              <input type="radio" id="student" name="role" value="student" checked={role === "student"} onChange={() => setRole("student")} />
               <label htmlFor="student">Student</label>
-
-              <input
-                type="radio"
-                id="teacher"
-                name="role"
-                value="teacher"
-                checked={role === "teacher"}
-                onChange={() => setRole("teacher")}
-              />
+              <input type="radio" id="teacher" name="role" value="teacher" checked={role === "teacher"} onChange={() => setRole("teacher")} />
               <label htmlFor="teacher">Teacher</label>
             </div>
           </div>
@@ -136,15 +72,7 @@ function Registerpage() {
           {role === "teacher" && (
             <div className="form-group">
               <label htmlFor="facultyId">Faculty ID</label>
-              <input
-                type="text"
-                id="facultyId"
-                placeholder="Enter your faculty ID"
-                value={facultyId}
-                onChange={(e) => setFacultyId(e.target.value)}
-                required={role === "teacher"}
-                className="form-input"
-              />
+              <input type="text" id="facultyId" placeholder="Enter your faculty ID" value={facultyId} onChange={(e) => setFacultyId(e.target.value)} required={role === "teacher"} className="form-input"/>
             </div>
           )}
 

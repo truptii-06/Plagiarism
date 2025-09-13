@@ -2,37 +2,32 @@
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Loginpage.css'; // Make sure to link the CSS file
+import './Loginpage.css';
 
 function Loginpage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] =  useState('student'); // Default role is student
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError('Please fill in all fields.');
       return;
     }
-    
-    // Simulate a successful login for now
-    console.log('Logging in with:', { email, password });
-    
-    // In a real app, you would make an API call here.
-    // try {
-    //   const response = await fetch('/api/login', { ... });
-    //   if (response.ok) {
-         navigate('/'); // Redirect to homepage on successful login
-    //   } else {
-    //     const data = await response.json();
-    //     setError(data.message || 'Invalid email or password.');
-    //   }
-    // } catch (apiError) {
-    //   setError('An error occurred. Please try again.');
-    // }
+
+    // In a real app, you would verify credentials with a backend API.
+    // For this simulation, we'll assume login is always successful.
+
+    // Store user info in localStorage to persist the session
+    localStorage.setItem('email', email);
+    localStorage.setItem('role', role);
+
+    // Redirect to the main dashboard page
+    navigate('/dashboard');
   };
 
   return (
@@ -70,6 +65,20 @@ function Loginpage() {
             />
           </div>
 
+          {/* Role Selection Dropdown */}
+          <div className="form-group">
+            <label htmlFor="role">Login as</label>
+            <select 
+              id="role" 
+              value={role} 
+              onChange={(e) => setRole(e.target.value)} 
+              className="form-input"
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+
           <button type="submit" className="btn-login">Login</button>
         </form>
 
@@ -82,3 +91,4 @@ function Loginpage() {
 }
 
 export default Loginpage;
+
