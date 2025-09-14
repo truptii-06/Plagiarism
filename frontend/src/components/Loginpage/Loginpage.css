@@ -16,6 +16,23 @@
   margin-bottom: 40px; /* Increased space between logo and card */
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.show-password-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  color: #007bff; /* matches blue theme */
+}
+
+
 .login-card {
     background-color: #f7f9fa; /* A very light grey for the card */
     border: 1px solid #e0e0e0; /* Subtle border */

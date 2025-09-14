@@ -16,6 +16,7 @@ import SolutionsPage from './components/SolutionsPage/SolutionsPage';
 import SupportPage from './components/Dashboard/SupportPage/SupportPage';
 import ContactPage from './components/ContactPage/ContactPage';
 
+
 // Layout wrapper to hide Navbar/Footer on login/register/dashboard
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -46,6 +47,8 @@ function App() {
           <Route path="/solutions" element={<SolutionsPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/contact" element={<ContactPage />} />
+        
+          
 
           {/* Only this single route handles both student/teacher dashboards */}
           <Route path="/dashboard" element={<Dashboard />} />
