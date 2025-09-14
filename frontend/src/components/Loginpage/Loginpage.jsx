@@ -7,7 +7,8 @@ import './Loginpage.css';
 function Loginpage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] =  useState('student'); // Default role is student
+  const [role, setRole] =  useState('student'); 
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false); // New state for toggle
   const navigate = useNavigate();
 
@@ -56,7 +57,11 @@ function Loginpage() {
 
   return (
     <div className="login-page-container">
+      <div className="logo-container">
+          <img src={'./src/assets/logo1.png'} alt="App Logo" className="login-logo" />
+        </div>
       <div className="login-card">
+        
         <h2 className="login-title">Welcome Back</h2>
         <p className="login-subtitle">Please enter your details to sign in.</p>
 
@@ -128,7 +133,11 @@ function Loginpage() {
         </form>
 
         <p className="register-link-text">
-          Don't have an account? <Link to="/register" className="register-link">Register here</Link>
+          New User? <Link to="/Userprofile" className="register-link">Click here!</Link>
+        </p>
+
+        <p className="forgot-password-text">
+          Forgot your password? <Link to="/forgot-password" className="forgot-password-link">Reset it here!</Link>
         </p>
       </div>
     </div>
