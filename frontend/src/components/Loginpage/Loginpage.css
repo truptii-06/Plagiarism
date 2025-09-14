@@ -1,5 +1,12 @@
 /* src/components/Loginpage/Loginpage.css */
+.logo-container {
+    margin-bottom: 20px;
+    text-align: center;
 
+}
+.logo-container img{
+    height: 60px; /* Adjust the height as needed */
+}
 .login-page-container {
     display: flex;
     flex-direction: column;
@@ -120,5 +127,17 @@
 .register-link:hover {
     color: #005f6b;
     text-decoration: underline;
+}
+
+.forgot-password-text {
+    margin-top: 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+.forgot-password-link {
+    color: #007a8a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 

@@ -22,6 +22,13 @@ function Register() {
 
   const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
   const onRoleChange = e => setFormData({ ...formData, role: e.target.value });
+  const onOTPChange = e => setFormData({ ...formData, OTP: e.target.value });
+  const { OTP } = formData;
+  const { studentId } = formData;
+  const onStudentIdChange = e => setFormData({ ...formData, studentId: e.target.value });
+  
+
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -78,6 +85,19 @@ function Register() {
             />
           </div>
           <div className="form-group">
+            <label htmlFor="student-id">Student Id</label>
+            <input 
+              type="text" 
+              id="student-id"
+              name="studentId"
+              placeholder="Enter your student ID" 
+              value={studentId} 
+              onChange={onChange} 
+              required 
+              className="form-input"
+            />
+          </div>
+          <div className="form-group">
             <label htmlFor="email">Email</label>
             <input 
               type="email" 
@@ -85,6 +105,19 @@ function Register() {
               name="email"
               placeholder="Enter your email" 
               value={email} 
+              onChange={onChange} 
+              required 
+              className="form-input"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="OTP">OTP</label>
+            <input 
+              type="text" 
+              id="OTP" 
+              name="OTP"
+              placeholder="Enter the OTP" 
+              value={OTP} 
               onChange={onChange} 
               required 
               className="form-input"
@@ -116,30 +149,8 @@ function Register() {
               className="form-input"
             />
           </div>
-          <div className="form-group radio-group">
-            <label>Register as:</label>
-            <div className="radio-options">
-              <input type="radio" id="student" name="role" value="student" checked={role === "student"} onChange={onRoleChange} />
-              <label htmlFor="student">Student</label>
-              <input type="radio" id="teacher" name="role" value="teacher" checked={role === "teacher"} onChange={onRoleChange} />
-              <label htmlFor="teacher">Teacher</label>
-            </div>
-          </div>
-          {role === "teacher" && (
-            <div className="form-group">
-              <label htmlFor="facultyId">Faculty ID</label>
-              <input 
-                type="text" 
-                id="facultyId" 
-                name="facultyId"
-                placeholder="Enter your faculty ID" 
-                value={facultyId} 
-                onChange={onChange} 
-                required={role === "teacher"} 
-                className="form-input"
-              />
-            </div>
-          )}
+          
+          
           <button type="submit" className="btn-register">Register</button>
         </form>
 
