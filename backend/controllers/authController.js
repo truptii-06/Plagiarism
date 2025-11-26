@@ -114,7 +114,7 @@ const login = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error while logging in:", err);
+    console.error("Error while logging in:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
