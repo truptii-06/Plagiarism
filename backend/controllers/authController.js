@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Student = require("../models/Student");
 const Teacher = require("../models/Teacher");
 
@@ -32,7 +33,6 @@ const registerStudent = async (req, res) => {
 
   } catch (err) {
     console.error("❌ Error while registering student:", err);
-    // send actual error
     res.status(500).json({ error: err.message || "Server Error" });
   }
 };
@@ -71,26 +71,38 @@ const registerTeacher = async (req, res) => {
   }
 };
 
-// ✅ Login Controller
+// Login Controller (FIXED)
 const login = async (req, res) => {
   try {
     const { username, password, role } = req.body;
 
-    // find user with matching username + role
-    const user = await User.findOne({ username, role });
+    if (!username || !password || !role) {
+      return res.status(400).json({ error: "Username, password, and role are required" });
+    }
+
+    let Model;
+
+    if (role === "student") {
+      Model = Student;
+    } else if (role === "teacher") {
+      Model = Teacher;
+    } else {
+      return res.status(400).json({ error: "Invalid role" });
+    }
+
+    const user = await Model.findOne({ username });
+
     if (!user) {
       return res.status(400).json({ error: "Invalid username or role" });
     }
 
-    // compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid password" });
     }
 
-    // generate token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -98,12 +110,13 @@ const login = async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user: { username: user.username, role: user.role }
+      user: { username: user.username, role }
     });
+
   } catch (err) {
+    console.error("❌ Error while logging in:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-
-module.exports = { registerStudent, registerTeacher,login };
+module.exports = { registerStudent, registerTeacher, login };
