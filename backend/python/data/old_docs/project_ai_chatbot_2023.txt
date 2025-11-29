@@ -1,0 +1,5 @@
+Title: AI Chatbot for College Enquiry
+
+This project aims to develop an intelligent chatbot system that can answer common queries related to college admission, courses, and facilities. The chatbot is trained using natural language processing techniques and can respond to user input in a conversational way.
+
+The system uses Python and a machine learning model to classify and answer questions. The user interface is designed using Streamlit for an interactive experience. The chatbot can also store conversation logs for analysis.
