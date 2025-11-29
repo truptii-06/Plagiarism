@@ -102,9 +102,9 @@ const Signup = () => {
       if (response.ok) {
         alert('Registration successful!');
         if (role === 'teacher') {
-          navigate('/teacher/dashboard');
+          navigate('/');
         } else {
-          navigate('/student/dashboard');
+          navigate('/');
         }
       } else {
         alert(data.error || data.message || 'Registration failed.');
