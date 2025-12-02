@@ -6,6 +6,8 @@
   min-height: 100vh;
   font-family: 'Poppins', sans-serif;
   background: #f5f7f8;
+  position: relative;         /* ⭐ important */
+  overflow: hidden;           /* ⭐ prevents shifting */
 }
 
 /* =========================================
@@ -16,6 +18,7 @@
   background: #ffffff;
   padding: 20px 15px;
   border-right: 1px solid #e8e8e8;
+  flex-shrink: 0;             /* ⭐ prevents sidebar shrinking */
 }
 
 .sidebar-header h3 {
@@ -65,12 +68,12 @@
 
 .logout-btn {
   margin-top: 20px;
-  background: #ffe1e1;
+  background: #ffe1e1 !important;
   color: #c62828 !important;
 }
 
 /* =========================================
-   TOP NAVBAR (Sky Blue Theme)
+   TOP NAVBAR 
 ========================================= */
 .navbar {
   height: 60px;
@@ -81,15 +84,7 @@
   justify-content: space-between;
   padding: 0 25px;
   border-bottom-left-radius: 8px;
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.role {
-  font-size: 14px;
+  flex-shrink: 0;
 }
 
 .user-icon {
@@ -100,11 +95,12 @@
 }
 
 /* =========================================
-   MAIN CONTENT AREA
+   MAIN CONTENT
 ========================================= */
 .main-content {
   flex: 1;
   padding-bottom: 40px;
+  overflow-x: hidden;        /* ⭐ prevents layout overflow */
 }
 
 .dashboard-content-area {
@@ -233,13 +229,21 @@
   color: #333;
 }
 
-/* Drawer Styles */
+/* =========================================
+   DRAWER FIX (MAIN ISSUE)
+========================================= */
 .drawer-backdrop {
-  position: fixed;
-  inset: 0;
+  position: fixed;            /* ⭐ overlay on top */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
   background: rgba(0,0,0,0.35);
   display: flex;
-  justify-content: right;
+  justify-content: flex-end;  /* ⭐ stays right */
+  
+  z-index: 9999;              /* ⭐ ensures above all */
 }
 
 .drawer-panel {
@@ -248,6 +252,8 @@
   background: white;
   padding: 20px;
   overflow-y: auto;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1); /* ⭐ soft shadow */
+  border-left: 1px solid #ddd;
 }
 
 .drawer-header {
@@ -260,6 +266,7 @@
   border: none;
   background: transparent;
   font-size: 22px;
+  cursor: pointer;
 }
 
 /* END */

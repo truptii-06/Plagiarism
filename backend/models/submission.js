@@ -7,7 +7,6 @@ const submissionSchema = new mongoose.Schema({
   fileUrl: { type: String, required: true },
   date: { type: Date, default: Date.now },
 
-  // Results from Python
   similarity: { type: Number, default: null },
   grammarIssues: { type: Number, default: null },
   mostSimilarDoc: { type: String, default: null },

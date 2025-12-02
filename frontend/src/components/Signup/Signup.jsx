@@ -12,6 +12,10 @@ const Signup = () => {
   const [passwordError, setPasswordError] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+
+  // New state for Student ID
+  const [studentId, setStudentId] = useState('');
+
   const [teacherName, setTeacherName] = useState('');
   const [organization, setOrganization] = useState('');
   const [email, setEmail] = useState('');
@@ -61,34 +65,29 @@ const Signup = () => {
     }
 
     const url =
-      role === 'student'
-        ? 'http://localhost:5000/api/register/student'
-        : 'http://localhost:5000/api/register/teacher';
+  role === 'student'
+    ? 'http://localhost:5000/api/auth/register/student'
+    : 'http://localhost:5000/api/auth/register/teacher';
 
+    // Construct body based on role
     const body =
       role === 'student'
         ? {
-            firstName: document.querySelector(
-              "input[placeholder='First Name *']"
-            ).value,
-            lastName: document.querySelector("input[placeholder='Last Name *']")
-              .value,
+            firstName,
+            lastName,
             username,
             password,
-            email: document.querySelector("input[type='email']").value,
-            phone: document.querySelector("input[placeholder='Phone *']").value,
+            email,
+            phone,
+            studentId, // Include Student ID in the payload
           }
         : {
-            teacherName: document.querySelector(
-              "input[placeholder='Teacher Name *']"
-            ).value,
-            organization: document.querySelector(
-              "input[placeholder='Organization *']"
-            ).value,
+            teacherName,
+            organization,
             username,
             password,
-            email: document.querySelector("input[type='email']").value,
-            phone: document.querySelector("input[placeholder='Phone *']").value,
+            email,
+            phone,
           };
 
     try {
@@ -101,16 +100,13 @@ const Signup = () => {
       const data = await response.json();
       if (response.ok) {
         alert('Registration successful!');
-        if (role === 'teacher') {
-          navigate('/');
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       } else {
         alert(data.error || data.message || 'Registration failed.');
       }
     } catch (err) {
       console.error('Error:', err);
+      alert('Something went wrong. Please try again.');
     }
   };
 
@@ -151,7 +147,7 @@ const Signup = () => {
         {/* Form */}
         <h2 className="form-title">
           {role === 'student'
-            ? 'Create Account as an Student'
+            ? 'Create Account as a Student'
             : 'Create Account as a Teacher'}
         </h2>
 
@@ -171,6 +167,17 @@ const Signup = () => {
                   placeholder="Last Name *"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Added Student ID Input */}
+              <div className="form-row">
+                <input
+                  type="text"
+                  placeholder="Student ID *"
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
                   required
                 />
               </div>
