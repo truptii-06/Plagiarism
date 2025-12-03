@@ -297,6 +297,37 @@ const Teacher = () => {
               <textarea id="feedback-box" defaultValue={selected.teacherFeedback} />
 
               <div className="drawer-actions">
+              <button className="btn primary" 
+                    onClick={async () => {
+                      const feedback = document.getElementById("feedback-box").value;
+
+                      const body = {
+                        id: selected._id,
+                        status: selected.status,
+                        feedback,
+                        similarity: selected.similarity,
+                        grammarIssues: selected.grammarIssues,
+                        mostSimilarDoc: selected.mostSimilarDoc
+                      };
+
+                      const res = await fetch("http://localhost:5000/api/submissions/review/save", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body)
+                      });
+
+                      const data = await res.json();
+                      if (data.success) {
+                        alert("Review saved successfully!");
+                        updateSubmissionUI(selected._id, data.submission);
+                      } else {
+                        alert("Error saving review");
+                      }
+                    }}
+                  >
+                    Save Review
+                  </button>
+
                 <button className="btn success" onClick={() => {
                   const val = document.getElementById("feedback-box").value;
                   updateSubmissionUI(selected._id, { teacherFeedback: val, status: "Reviewed" });
@@ -309,7 +340,7 @@ const Teacher = () => {
                   updateSubmissionUI(selected._id, { teacherFeedback: val, status: "Needs Correction" });
                 }}>
                   <AlertTriangle size={14} /> Needs Correction
-                </button>
+                </button> 
 
                 <button className="btn danger" onClick={() => {
                   const val = document.getElementById("feedback-box").value;

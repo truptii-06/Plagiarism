@@ -153,10 +153,10 @@ const Student = () => {
   };
 
   // DOWNLOAD FILE
-  const handleDownload = (url) => {
-    if (!url) return alert('Report not ready.');
-    window.open(url, '_blank');
-  };
+  const handleDownload = (fileName) => {
+  window.open(`http://localhost:5000/api/submissions/download/${fileName}`, "_blank");
+};
+
 
   // LOGOUT
   const handleLogout = () => {
@@ -355,13 +355,14 @@ const Student = () => {
                         </td>
                         <td>{s.similarity ? `${s.similarity}%` : '-'}</td>
                         <td>
-                          <button
-                            type="button"
-                            className="download-link"
-                            onClick={() => handleDownload(s.fileUrl)}
-                          >
-                            <Download size={14} /> View
-                          </button>
+                       <button
+                          type="button"
+                          className="download-link"
+                          onClick={() => handleDownload(s.fileName)}
+                        >
+                          <Download size={14} /> View
+                        </button>
+
                         </td>
                         <td>{s.teacherFeedback || '-'}</td>
                         <td>

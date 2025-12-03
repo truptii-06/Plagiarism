@@ -5,39 +5,75 @@ const path = require("path");
 exports.runPlagiarism = async (req, res) => {
   try {
     const { submissionId } = req.body;
-    if (!submissionId) return res.status(400).json({ error: "submissionId required" });
+
+    if (!submissionId)
+      return res.status(400).json({ error: "submissionId required" });
 
     const sub = await Submission.findById(submissionId);
-    if (!sub) return res.status(404).json({ error: "Submission not found" });
+    if (!sub)
+      return res.status(404).json({ error: "Submission not found" });
 
+    // ✅ FIX: use correct field name from DB
+    const filePath = path.resolve(sub.fileUrl);
+
+    // Validate file exists
+    const fs = require("fs");
+    if (!fs.existsSync(filePath)) {
+      return res.status(400).json({
+        error: "Uploaded file not found on server",
+        path: filePath
+      });
+    }
+
+    // Python script path
     const pyScript = path.join(__dirname, "../python/Plagiarism_check.py");
-    const filePath = path.resolve(sub.filePath);
 
     const py = spawn("python", [pyScript, filePath]);
 
-    let output = "", errOutput = "";
-    py.stdout.on("data", (data) => output += data.toString());
-    py.stderr.on("data", (d) => errOutput += d.toString());
+    let output = "";
+    let errorOutput = "";
+
+    py.stdout.on("data", (data) => {
+      output += data.toString();
+    });
+
+    py.stderr.on("data", (data) => {
+      errorOutput += data.toString();
+    });
 
     py.on("close", async (code) => {
-      if (errOutput) console.error("PY ERR:", errOutput);
+      if (errorOutput) {
+        console.error("🔥 PYTHON ERROR:", errorOutput);
+      }
+
       try {
-        const parsed = JSON.parse(output);
-        // Save results
-        sub.similarity = parsed.similarity;
-        sub.grammarIssues = parsed.grammar_issues ?? parsed.grammarIssues ?? null;
-        sub.mostSimilarDoc = parsed.most_similar_doc ?? parsed.mostSimilarDoc ?? null;
+        const result = JSON.parse(output);
+
+        // Save results to DB
+        sub.similarity = result.similarity;
+        sub.mostSimilarDoc = result.most_similar_doc || null;
         sub.status = "Reviewed";
+
         await sub.save();
-        res.json({ success: true, result: parsed });
-      } catch (e) {
-        console.error("Parse error", e, "raw:", output);
-        res.status(500).json({ error: "Failed to parse python output", raw: output, pyErr: errOutput });
+
+        return res.json({
+          success: true,
+          result,
+        });
+      } catch (err) {
+        console.error("❌ JSON PARSE ERROR:", err);
+        console.error("RAW OUTPUT:", output);
+
+        return res.status(500).json({
+          error: "Invalid JSON returned by Python",
+          rawOutput: output,
+          pythonError: errorOutput,
+        });
       }
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("SERVER ERROR:", err);
+    res.status(500).json({ error: "Server crashed" });
   }
 };
