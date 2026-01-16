@@ -383,11 +383,23 @@ const StudentDashboard = () => {
 
         {/* Right column: submit form */}
         <div className="col-right">
+          {/* AI Code Inspector */}
+          <div className="card ai-inspector-card">
+            <div className="card-head">
+              <div className="ai-title">
+                <h3><span role="img" aria-label="robot">🤖</span> AI Code Inspector</h3>
+              </div>
+              <p className="muted">Check if your code looks AI-generated before submitting.</p>
+            </div>
+
+            <AICodeInspector />
+          </div>
+
           <div className="card submit-card">
             <div className="card-head">
-              <h3>Submit New Project</h3>
+              <h3>Submit Assignment</h3>
               <p className="muted">
-                Upload your files for review and automatic plagiarism check.
+                Upload your work for final grading.
               </p>
             </div>
 
@@ -478,39 +490,11 @@ const StudentDashboard = () => {
                       <Clock size={14} /> Submitting...
                     </>
                   ) : (
-                    'Submit Project'
+                    'Submit'
                   )}
-                </button>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={() => {
-                    setTitle('');
-                    setDescription('');
-                    setFile(null);
-                    setPreviewUrl(null);
-                  }}
-                >
-                  Clear
                 </button>
               </div>
             </form>
-          </div>
-
-          <div className="card quick-card">
-            <h4>Quick summary</h4>
-            <div className="quick-row">
-              <div>Total</div>
-              <div className="bold">{total}</div>
-            </div>
-            <div className="quick-row">
-              <div>Pending</div>
-              <div className="accent">{pending}</div>
-            </div>
-            <div className="quick-row">
-              <div>Reviewed</div>
-              <div className="green">{reviewed}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -600,6 +584,77 @@ const StatusBadge = ({ status, score }) => {
   if (status === 'flagged')
     return <div className="badge flagged">⚠ Flagged</div>;
   return <div className="badge">Unknown</div>;
+};
+
+const AICodeInspector = () => {
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleFile = (e) => {
+    const f = e.target.files?.[0];
+    if (f) setFile(f);
+    setResult(null);
+    setError('');
+  };
+
+  const runCheck = async () => {
+    if (!file) return;
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/plagiarism/ai-check', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.success && data.result) {
+        setResult(data.result);
+      } else {
+        setError(data.error || 'Analysis failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Server error during analysis');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="ai-inspector-body">
+      <div className="ai-upload-row">
+        <input type="file" onChange={handleFile} accept=".py,.java,.js,.cpp" />
+        <button className="btn-primary" onClick={runCheck} disabled={!file || loading}>
+          {loading ? 'Analyzing...' : 'Check Code'}
+        </button>
+      </div>
+
+      {result && (
+        <div className={`ai-result ${result.prediction === 'AI' ? 'is-ai' : 'is-human'}`}>
+          <div className="ai-res-header">
+            {result.prediction === 'AI' ? '⚠️ AI-Generated' : '✅ Human-Written'}
+          </div>
+          <div className="ai-confidence">
+            Confidence: <strong>{result.confidence.toFixed(1)}%</strong>
+          </div>
+          <div className="ai-bar-wrap">
+            <div className="ai-bar" style={{ width: `${result.confidence}%` }}></div>
+          </div>
+          <div className="ai-note">Based on stylometric analysis (naming, comments, structure).</div>
+        </div>
+      )}
+
+      {error && <div className="error-msg">{error}</div>}
+    </div>
+  );
 };
 
 export default StudentDashboard;

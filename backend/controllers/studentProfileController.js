@@ -3,11 +3,11 @@ const StudentProfile = require("../models/studentProfileModel");
 // SAVE or UPDATE student profile
 exports.saveProfile = async (req, res) => {
   try {
-    const { userId, fullName, studentId, groupId, members } = req.body;
+    const { userId, fullName, studentId, groupId, members, profileType, guideName } = req.body;
 
     const profile = await StudentProfile.findOneAndUpdate(
       { userId },
-      { fullName, studentId, groupId, members },
+      { fullName, studentId, groupId, members, profileType, guideName },
       { new: true, upsert: true }
     );
 

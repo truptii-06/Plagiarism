@@ -5,6 +5,11 @@ const submissionSchema = new mongoose.Schema({
   projectTitle: { type: String, required: true },
   fileName: { type: String, required: true },
   fileUrl: { type: String, required: true },
+
+  // New Fields for Group/Individual logic
+  submissionType: { type: String, enum: ["Individual", "Group"], default: "Individual" },
+  customStudentId: { type: String, default: null }, // e.g. ST2024001
+  customGroupId: { type: String, default: null },   // e.g. GRP-05
   date: { type: Date, default: Date.now },
 
   similarity: { type: Number, default: null },
@@ -13,7 +18,7 @@ const submissionSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ["Pending", "Reviewed", "Rejected", "Needs Correction"],
+    enum: ["Pending", "Accepted", "Rejected"],
     default: "Pending"
   },
 

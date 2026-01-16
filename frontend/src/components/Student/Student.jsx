@@ -7,8 +7,13 @@ import {
   LogOut,
   UserCircle,
   Download,
+  Code,
+  ScanText,
+  Camera
 } from 'lucide-react';
 import './Student.css';
+import CodePlagiarism from './CodePlagiarism';
+import TextPlagiarism from './TextPlagiarism';
 
 const Student = () => {
   const navigate = useNavigate();
@@ -16,12 +21,24 @@ const Student = () => {
   // PAGE STATE
   const [activePage, setActivePage] = useState('dashboard');
 
-  // PROFILE INFO
+  // PROJECT PROFILE INFO (Project specific)
   const [profile, setProfile] = useState({
+    profileType: 'Individual', // 'Individual' | 'Group'
     fullName: '',
     studentId: '',
+    guideName: '',
     groupId: '',
     groupMembers: [''],
+  });
+
+  // GENERAL PROFILE INFO (Personal details)
+  const [generalProfile, setGeneralProfile] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    profilePic: '',
+    studentId: '' // Auth studentId
   });
 
   // SUBMISSIONS
@@ -32,17 +49,14 @@ const Student = () => {
   const [uploadFile, setUploadFile] = useState(null);
   const [projectTitle, setProjectTitle] = useState('');
   const [projectDesc, setProjectDesc] = useState('');
+  // New States removed (submissionType, projectIdInput moved to profile)
 
   // LOAD STUDENT SUBMISSIONS
   const loadSubmissions = async () => {
     try {
-      const studentId = 
-          localStorage.getItem("studentId") || localStorage.getItem("userId");
-
+      const studentId = localStorage.getItem("userId");
       if (!studentId) return;
-
       const res = await fetch(`http://localhost:5000/api/submissions/student/${studentId}`);
-
       const data = await res.json();
       setSubmissions(data);
     } catch (err) {
@@ -50,8 +64,56 @@ const Student = () => {
     }
   };
 
+  // LOAD STUDENT PROFILE
+  const loadProfile = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      const res = await fetch(`http://localhost:5000/api/student/profile/${userId}`);
+      const data = await res.json();
+      if (data && data.userId) {
+        setProfile({
+          profileType: data.profileType || 'Individual',
+          fullName: data.fullName || '',
+          studentId: data.studentId || '',
+          guideName: data.guideName || '',
+          groupId: data.groupId || '',
+          groupMembers: data.members && data.members.length ? data.members : [''],
+        });
+      }
+    } catch (err) {
+      console.error('Error loading profile:', err);
+    }
+  };
+
+  // LOAD GENERAL PROFILE (Personal details)
+  const loadGeneralProfile = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      const res = await fetch(`http://localhost:5000/api/profile/student/${userId}`);
+      const data = await res.json();
+      if (data && data._id) {
+        setGeneralProfile({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          profilePic: data.profilePic || '',
+          studentId: data.studentId || ''
+        });
+      }
+    } catch (err) {
+      console.error('Error loading general profile:', err);
+    }
+  };
+
   useEffect(() => {
     loadSubmissions();
+    loadProfile();
+    loadGeneralProfile();
   }, []);
 
   // PROFILE FIELD HANDLER
@@ -59,42 +121,101 @@ const Student = () => {
     setProfile((p) => ({ ...p, [field]: value }));
   };
 
- const handleSaveProfile = async (e) => {
-  e.preventDefault();
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
 
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    alert("Login error: userId missing.");
-    return;
-  }
-
-  try {
-    const res = await fetch("http://localhost:5000/api/student/profile/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        fullName: profile.fullName,
-        studentId: profile.studentId,
-        groupId: profile.groupId,
-        members: profile.groupMembers,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert("Profile saved successfully!");
-    } else {
-      alert(data.error || "Save failed.");
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Login error: userId missing.");
+      return;
     }
 
-  } catch (err) {
-    console.error("Save error:", err);
-    alert("Server error");
-  }
-};
+    try {
+      const res = await fetch("http://localhost:5000/api/student/profile/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          fullName: profile.fullName,
+          studentId: profile.studentId,
+          guideName: profile.guideName,
+          groupId: profile.groupId,
+          members: profile.groupMembers,
+          profileType: profile.profileType,
+        }),
+      });
 
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Profile saved successfully!");
+      } else {
+        alert(data.error || "Save failed.");
+      }
+
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Server error");
+    }
+  };
+
+  // GENERAL PROFILE HANDLERS
+  const updateGeneralField = (field, value) => {
+    setGeneralProfile((p) => ({ ...p, [field]: value }));
+  };
+
+  const handleUpdateGeneralProfile = async (e) => {
+    e.preventDefault();
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await fetch("http://localhost:5000/api/profile/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          role: 'student',
+          ...generalProfile
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Personal profile updated!");
+      } else {
+        alert(data.error || "Update failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating profile.");
+    }
+  };
+
+  const handleProfilePicUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const userId = localStorage.getItem("userId");
+    const fd = new FormData();
+    fd.append("profilePic", file);
+    fd.append("userId", userId);
+    fd.append("role", "student");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/profile/upload-pic", {
+        method: "POST",
+        body: fd
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneralProfile(prev => ({ ...prev, profilePic: data.profilePic }));
+        alert("Profile picture updated!");
+      } else {
+        alert(data.error || "Upload failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading picture.");
+    }
+  };
 
   // FILE CHANGE
   const onFileChange = (e) => {
@@ -111,16 +232,32 @@ const Student = () => {
     }
 
     const studentId = localStorage.getItem("userId");
-    await fetch(`http://localhost:5000/api/submissions/student/${studentId}`)
-
-
     if (!studentId) return alert('Login error. Student ID missing.');
+
+    // Validate Profile Data before submission
+    let customId = "";
+    if (profile.profileType === 'Individual') {
+      if (!profile.studentId) {
+        alert('Please save your Student ID in the Profile section first.');
+        return;
+      }
+      customId = profile.studentId;
+    } else {
+      if (!profile.groupId) {
+        alert('Please save your Group ID in the Profile section first.');
+        return;
+      }
+      customId = profile.groupId;
+    }
 
     const fd = new FormData();
     fd.append('file', uploadFile);
-    fd.append("studentId", localStorage.getItem("userId"));
+    fd.append("studentId", studentId);
     fd.append('projectTitle', projectTitle);
     fd.append('description', projectDesc);
+    fd.append('submissionType', profile.profileType);
+    fd.append('customId', customId);
+    if (profile.guideName) fd.append('guideName', profile.guideName);
 
     try {
       const res = await fetch('http://localhost:5000/api/submissions/upload', {
@@ -135,6 +272,7 @@ const Student = () => {
         setProjectDesc('');
         setUploadFile(null);
         if (fileRef.current) fileRef.current.value = '';
+
         setActivePage('submissions');
 
         alert('Project uploaded!');
@@ -154,8 +292,8 @@ const Student = () => {
 
   // DOWNLOAD FILE
   const handleDownload = (fileName) => {
-  window.open(`http://localhost:5000/api/submissions/download/${fileName}`, "_blank");
-};
+    window.open(`http://localhost:5000/api/submissions/download/${fileName}`, "_blank");
+  };
 
 
   // LOGOUT
@@ -193,6 +331,28 @@ const Student = () => {
             <span>My Submissions</span>
           </button>
 
+          <button
+            type="button"
+            className={
+              activePage === 'code-plagiarism' ? 'nav-item active' : 'nav-item'
+            }
+            onClick={() => setActivePage('code-plagiarism')}
+          >
+            <Code size={18} />
+            <span>Code Plagiarism</span>
+          </button>
+
+          <button
+            type="button"
+            className={
+              activePage === 'text-plagiarism' ? 'nav-item active' : 'nav-item'
+            }
+            onClick={() => setActivePage('text-plagiarism')}
+          >
+            <ScanText size={18} />
+            <span>Text Plagiarism</span>
+          </button>
+
           <button type="button" className="nav-item" onClick={handleLogout}>
             <LogOut size={18} />
             <span>Logout</span>
@@ -205,9 +365,17 @@ const Student = () => {
         <div className="navbar">
           <div className="nav-centre">Student Dashboard</div>
 
-          <div className="nav-right">
+          <div className="nav-right" onClick={() => setActivePage('profile')} style={{ cursor: 'pointer' }}>
             <span className="welcome">Welcome back!</span>
-            <UserCircle color="#fff" size={26} />
+            {generalProfile.profilePic ? (
+              <img
+                src={`http://localhost:5000/${generalProfile.profilePic}`}
+                alt="Profile"
+                className="nav-profile-pic"
+              />
+            ) : (
+              <UserCircle color="#fff" size={26} />
+            )}
           </div>
         </div>
 
@@ -218,66 +386,104 @@ const Student = () => {
               <div className="profile-card">
                 <h3>Student Information</h3>
 
-                <form onSubmit={handleSaveProfile}className="profile-form">
-                  <label>Full Name</label>
-                  <input
-                    type="text"
-                    value={profile.fullName}
-                    onChange={(e) =>
-                      updateProfileField('fullName', e.target.value)
-                    }
-                    placeholder="e.g. Alex Johnson"
-                  />
+                <form onSubmit={handleSaveProfile} className="profile-form">
+                  {/* PROJECT TYPE SELECTION */}
+                  <label>Project Type</label>
+                  <div className="radio-group" style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontWeight: 'normal', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="profileType"
+                        value="Individual"
+                        checked={profile.profileType === 'Individual'}
+                        onChange={(e) => updateProfileField('profileType', e.target.value)}
+                        style={{ width: 'auto', marginRight: '8px', marginBottom: 0 }}
+                      /> Individual
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', fontWeight: 'normal', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="profileType"
+                        value="Group"
+                        checked={profile.profileType === 'Group'}
+                        onChange={(e) => updateProfileField('profileType', e.target.value)}
+                        style={{ width: 'auto', marginRight: '8px', marginBottom: 0 }}
+                      /> Group
+                    </label>
+                  </div>
 
-                  <label>Student ID</label>
-                  <input
-                    type="text"
-                    value={profile.studentId}
-                    onChange={(e) =>
-                      updateProfileField('studentId', e.target.value)
-                    }
-                    placeholder="e.g. ST2024001"
-                  />
+                  {/* INDIVIDUAL FIELDS */}
+                  {profile.profileType === 'Individual' && (
+                    <>
+                      <label>Full Name</label>
+                      <input
+                        type="text"
+                        value={profile.fullName}
+                        onChange={(e) => updateProfileField('fullName', e.target.value)}
+                        placeholder="e.g. Alex Johnson"
+                      />
 
-                  <label>Group ID</label>
-                  <input
-                    type="text"
-                    value={profile.groupId}
-                    onChange={(e) =>
-                      updateProfileField('groupId', e.target.value)
-                    }
-                    placeholder="Group ID (optional)"
-                  />
+                      <label>Student ID</label>
+                      <input
+                        type="text"
+                        value={profile.studentId}
+                        onChange={(e) => updateProfileField('studentId', e.target.value)}
+                        placeholder="e.g. ST2024001"
+                      />
 
-                  <label>Group Members</label>
-                  {profile.groupMembers.map((m, i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      value={m}
-                      onChange={(e) => {
-                        const copy = [...profile.groupMembers];
-                        copy[i] = e.target.value;
-                        updateProfileField('groupMembers', copy);
-                      }}
-                      placeholder="Member name"
-                    />
-                  ))}
+                      <label>Guide Name</label>
+                      <input
+                        type="text"
+                        value={profile.guideName}
+                        onChange={(e) => updateProfileField('guideName', e.target.value)}
+                        placeholder="e.g. Dr. Jane Smith"
+                      />
+                    </>
+                  )}
+
+                  {/* GROUP FIELDS */}
+                  {profile.profileType === 'Group' && (
+                    <>
+                      <label>Group ID</label>
+                      <input
+                        type="text"
+                        value={profile.groupId}
+                        onChange={(e) => updateProfileField('groupId', e.target.value)}
+                        placeholder="Group ID (e.g. GRP-05)"
+                      />
+
+                      <label>Group Members</label>
+                      {profile.groupMembers.map((m, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          value={m}
+                          onChange={(e) => {
+                            const copy = [...profile.groupMembers];
+                            copy[i] = e.target.value;
+                            updateProfileField('groupMembers', copy);
+                          }}
+                          placeholder="Member name"
+                        />
+                      ))}
+
+                      <button
+                        type="button"
+                        className="small-btn"
+                        onClick={() =>
+                          updateProfileField('groupMembers', [
+                            ...profile.groupMembers,
+                            '',
+                          ])
+                        }
+                        style={{ marginTop: '-5px', marginBottom: '15px' }}
+                      >
+                        + Add Member
+                      </button>
+                    </>
+                  )}
 
                   <div className="buttons-row">
-                    <button
-                      type="button"
-                      className="small-btn"
-                      onClick={() =>
-                        updateProfileField('groupMembers', [
-                          ...profile.groupMembers,
-                          '',
-                        ])
-                      }
-                    >
-                      + Add Member
-                    </button>
-
                     <button type="submit" className="primary-btn">
                       Save Profile
                     </button>
@@ -285,11 +491,15 @@ const Student = () => {
                 </form>
               </div>
 
+              {/* AI Code Inspector Removed - Moved to separate page */}
+
               {/* Submit Project */}
               <div className="upload-card">
                 <h3>Submit New Project</h3>
 
                 <form onSubmit={submitProject}>
+                  {/* NOTE: Submission Type and ID are taken from Profile above */}
+
                   <label>Project Title</label>
                   <input
                     type="text"
@@ -355,18 +565,18 @@ const Student = () => {
                         </td>
                         <td>{s.similarity ? `${s.similarity}%` : '-'}</td>
                         <td>
-                       <button
-                          type="button"
-                          className="download-link"
-                          onClick={() => handleDownload(s.fileName)}
-                        >
-                          <Download size={14} /> View
-                        </button>
+                          <button
+                            type="button"
+                            className="download-link"
+                            onClick={() => handleDownload(s.fileName)}
+                          >
+                            <Download size={14} /> View
+                          </button>
 
                         </td>
                         <td>{s.teacherFeedback || '-'}</td>
                         <td>
-                          {['Rejected', 'Needs Correction'].includes(
+                          {['Rejected'].includes(
                             s.status
                           ) ? (
                             <button
@@ -388,6 +598,111 @@ const Student = () => {
             </div>
           )}
         </div>
+
+        {/* New Pages within content area or just below if using same padding */}
+        {activePage === 'code-plagiarism' && (
+          <div className="dashboard-content-area">
+            <CodePlagiarism showSimilarity={false} />
+          </div>
+        )}
+
+        {activePage === 'text-plagiarism' && (
+          <div className="dashboard-content-area">
+            <TextPlagiarism />
+          </div>
+        )}
+
+        {activePage === 'profile' && (
+          <div className="dashboard-content-area">
+            <div className="profile-viewer-container">
+              <div className="profile-pic-section">
+                <div className="pic-wrapper">
+                  {generalProfile.profilePic ? (
+                    <img
+                      src={`http://localhost:5000/${generalProfile.profilePic}`}
+                      alt="Profile"
+                      className="large-profile-pic"
+                    />
+                  ) : (
+                    <UserCircle size={120} color="#ccc" />
+                  )}
+                  <label className="upload-icon-btn">
+                    <Camera size={20} />
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleProfilePicUpload}
+                    />
+                  </label>
+                </div>
+                <h3>{generalProfile.firstName} {generalProfile.lastName}</h3>
+                <p className="role-text">Student</p>
+              </div>
+
+              <div className="profile-details-grid">
+                <div className="details-card">
+                  <h4>Personal Details</h4>
+                  <form onSubmit={handleUpdateGeneralProfile}>
+                    <div className="form-group">
+                      <label>First Name</label>
+                      <input
+                        type="text"
+                        value={generalProfile.firstName}
+                        onChange={(e) => updateGeneralField('firstName', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Last Name</label>
+                      <input
+                        type="text"
+                        value={generalProfile.lastName}
+                        onChange={(e) => updateGeneralField('lastName', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Email Address</label>
+                      <input
+                        type="email"
+                        value={generalProfile.email}
+                        readOnly
+                        style={{ background: '#eee' }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone Number</label>
+                      <input
+                        type="text"
+                        value={generalProfile.phone}
+                        onChange={(e) => updateGeneralField('phone', e.target.value)}
+                      />
+                    </div>
+                    <button type="submit" className="primary-btn">Update Details</button>
+                  </form>
+                </div>
+
+                <div className="details-card">
+                  <h4>Account Settings</h4>
+                  <div className="settings-item">
+                    <span>Student ID</span>
+                    <strong>{generalProfile.studentId}</strong>
+                  </div>
+                  <div className="settings-item">
+                    <span>Username</span>
+                    <strong>{localStorage.getItem('username')}</strong>
+                  </div>
+                  <button
+                    className="logout-btn-alt"
+                    onClick={handleLogout}
+                  >
+                    Logout Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

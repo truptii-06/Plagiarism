@@ -9,3 +9,91 @@
 }
 
 
+
+/* AI Inspector Styles */
+.ai-inspector-card {
+  border: 1px solid #e1e4e8;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.ai-title h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2c3e50;
+}
+
+.ai-inspector-body {
+  margin-top: 1rem;
+}
+
+.ai-upload-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ai-upload-row input {
+  flex: 1;
+}
+
+.ai-result {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 5px solid #ccc;
+  animation: fadeIn 0.3s ease;
+}
+
+.ai-result.is-ai {
+  border-left-color: #ff4757;
+  background: #fff0f1;
+}
+
+.ai-result.is-human {
+  border-left-color: #2ed573;
+  background: #f0fff4;
+}
+
+.ai-res-header {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.ai-confidence {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.ai-bar-wrap {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.ai-bar {
+  height: 100%;
+  background: #3742fa; /* Default, overridden by JS logic logic if needed or just use consistent color */ 
+}
+.is-ai .ai-bar { background: #ff4757; }
+.is-human .ai-bar { background: #2ed573; }
+
+.error-msg {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

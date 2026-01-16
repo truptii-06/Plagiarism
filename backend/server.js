@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
 const plagiarismRoutes = require("./routes/plagiarismRoutes");
 const studentProfileRoutes = require("./routes/studentprofileRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 dotenv.config();
 connectDB();
@@ -20,11 +21,15 @@ app.use(express.urlencoded({ extended: true }));     // Form data parsing
 app.use(cors());
 app.use(fileUpload());
 
+// Serve uploads folder statically
+app.use("/uploads", express.static("uploads"));
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/plagiarism", plagiarismRoutes);
 app.use("/api/student", studentProfileRoutes);
+app.use("/api/profile", profileRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));

@@ -1,0 +1,257 @@
+/* PlagiarismTools.css */
+
+/* Tool Container */
+.tool-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Header Section */
+.tool-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.08);
+    border: 1px solid #e1f0ff;
+    text-align: center;
+}
+
+.tool-header h2 {
+    margin: 0;
+    color: #007bff;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.tool-header p {
+    color: #6c757d;
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Upload Area */
+.check-card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.upload-area {
+    width: 100%;
+    max-width: 500px;
+    border: 2px dashed #ccdcf1;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 25px;
+    transition: all 0.3s;
+    background: #fafcff;
+    cursor: pointer;
+    position: relative;
+}
+
+.upload-area:hover,
+.upload-area.drag-active {
+    border-color: #007bff;
+    background: #f0f7ff;
+}
+
+.upload-icon {
+    color: #007bff;
+    margin-bottom: 15px;
+    width: 48px;
+    height: 48px;
+}
+
+.file-name {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Hidden input hack */
+.hidden-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Analyze Button */
+.analyze-btn {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    color: white;
+    padding: 14px 40px;
+    border-radius: 50px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.analyze-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.analyze-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+/* Results Section */
+.result-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    margin-top: 10px;
+    border-left: 6px solid #ccc;
+    animation: slideUp 0.5s ease-out;
+}
+
+.result-section.ai-detected {
+    border-left-color: #ff4757;
+    background: linear-gradient(to right, #fff0f1, #fff);
+}
+
+.result-section.human-detected {
+    border-left-color: #2ed573;
+    background: linear-gradient(to right, #f0fff4, #fff);
+}
+
+.result-section.high-similarity {
+    border-left-color: #ff9f43;
+    /* Orange for text plagiarism high similarity */
+    background: linear-gradient(to right, #fffaf0, #fff);
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.result-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 8px;
+}
+
+.ai-detected .result-icon {
+    background: #ffe0e3;
+    color: #ff4757;
+}
+
+.human-detected .result-icon {
+    background: #dcfce7;
+    color: #2ed573;
+}
+
+.result-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Progress Bar */
+.confidence-meter {
+    margin-bottom: 20px;
+}
+
+.meter-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.progress-track {
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #007bff;
+}
+
+.ai-detected .progress-fill {
+    background: linear-gradient(90deg, #ff6b81, #ff4757);
+}
+
+.human-detected .progress-fill {
+    background: linear-gradient(90deg, #7bed9f, #2ed573);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+.analyzing-pulse {
+    animation: pulse 1.5s infinite;
+}

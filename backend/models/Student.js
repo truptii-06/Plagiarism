@@ -9,6 +9,7 @@ const studentSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   // Added Student ID field
   studentId: { type: String, required: true, unique: true },
+  profilePic: { type: String, default: "" },
 });
 
 module.exports = mongoose.model('Student', studentSchema);
