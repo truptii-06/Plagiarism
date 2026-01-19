@@ -16,10 +16,12 @@ import {
   ArrowLeft,
   Code,
   Camera,
-  UserCircle
+  UserCircle,
+  Database
 } from "lucide-react";
 import "../Student/PlagiarismTools.css";
 import CodePlagiarism from "../Student/CodePlagiarism";
+import DatasetManagement from "./DatasetManagement";
 
 const Teacher = () => {
   const navigate = useNavigate();
@@ -170,7 +172,7 @@ const Teacher = () => {
     const pending = submissions.filter((s) => s.status === "Pending").length;
     const accepted = submissions.filter((s) => s.status === "Accepted").length;
 
-    const recent = submissions.slice(0, 5);
+    const recent = submissions.filter((s) => s.status === "Pending");
 
     return (
       <div>
@@ -194,7 +196,7 @@ const Teacher = () => {
         </div>
 
         <div className="panel">
-          <h3>Recent Submissions</h3>
+          <h3>Pending Submissions</h3>
           <table className="submissions-table">
             <thead>
               <tr>
@@ -560,6 +562,10 @@ const Teacher = () => {
             <ScanText size={18} />
             <span>Manual Check</span>
           </NavLink>
+          <NavLink to="/teacher/datasets" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+            <Database size={18} />
+            <span>Manage Datasets</span>
+          </NavLink>
           <button className="nav-item logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
             <span>Logout</span>
@@ -587,6 +593,7 @@ const Teacher = () => {
             <Route path="dashboard" element={<DashboardView />} />
             <Route path="submissions" element={<SubmissionsView />} />
             <Route path="manual-check" element={<div className="dashboard-content-area"><CodePlagiarism /></div>} />
+            <Route path="datasets" element={<DatasetManagement />} />
             <Route path="review/:id" element={<ReviewPageView />} />
             <Route path="profile" element={<ProfileView />} />
             <Route index element={<DashboardView />} />

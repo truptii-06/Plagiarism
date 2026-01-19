@@ -43,7 +43,7 @@ def preprocess(text):
 # --------------------------------------
 # 3. Main plagiarism function
 # --------------------------------------
-def check_plagiarism(new_doc_path, old_docs_folder):
+def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
     new_text_raw = extract_text(new_doc_path)
     new_text = preprocess(new_text_raw)
 
@@ -53,24 +53,33 @@ def check_plagiarism(new_doc_path, old_docs_folder):
     old_texts = []
     filenames = []
 
-    if not os.path.exists(old_docs_folder):
-        return {"status": "error", "message": f"Source folder not found: {old_docs_folder}"}
+    # 1. Load files from local folder
+    if os.path.exists(old_docs_folder):
+        for file in os.listdir(old_docs_folder):
+            if file.endswith((".pdf", ".docx", ".txt")):
+                path = os.path.join(old_docs_folder, file)
+                if os.path.abspath(path) == os.path.abspath(new_doc_path):
+                    continue
+                text_raw = extract_text(path)
+                text = preprocess(text_raw)
+                if text:
+                    old_texts.append(text)
+                    filenames.append(file)
 
-    for file in os.listdir(old_docs_folder):
-        if file.endswith((".pdf", ".docx", ".txt")):
-            path = os.path.join(old_docs_folder, file)
-            # Skip the file itself if it's in the same folder
-            if os.path.abspath(path) == os.path.abspath(new_doc_path):
-                continue
-                
-            text_raw = extract_text(path)
-            text = preprocess(text_raw)
-            if text:
-                old_texts.append(text)
-                filenames.append(file)
+    # 2. Load entries from extra dataset JSON if provided
+    if extra_dataset_path and os.path.exists(extra_dataset_path):
+        try:
+            with open(extra_dataset_path, "r", encoding="utf-8") as f:
+                extra_data = json.load(f)
+                for item in extra_data:
+                    text = preprocess(item.get("content", ""))
+                    if text:
+                        old_texts.append(text)
+                        filenames.append(item.get("sourceInfo", "Reference Dataset Item"))
+        except Exception as e:
+            sys.stderr.write(f"Error reading extra dataset: {str(e)}\n")
 
     if not old_texts:
-        # Not an error, just no similarity
         return {
             "status": "success",
             "similarity": 0,
@@ -83,8 +92,6 @@ def check_plagiarism(new_doc_path, old_docs_folder):
         vectorizer = TfidfVectorizer(stop_words='english')
         matrix = vectorizer.fit_transform(all_docs)
         
-        # Calculate similarity
-        # The last row vs all previous rows
         similarity_scores = cosine_similarity(matrix[-1], matrix[:-1])[0]
         
         max_sim = float(max(similarity_scores))
@@ -110,9 +117,11 @@ if __name__ == "__main__":
 
         new_doc = sys.argv[1]
         old_docs_folder = os.path.join(os.path.dirname(__file__), "data", "old_docs")
+        
+        # Optional third argument: path to JSON file with extra dataset content
+        extra_dataset = sys.argv[2] if len(sys.argv) > 2 else None
 
-        output = check_plagiarism(new_doc, old_docs_folder)
-        # Ensure ONLY the JSON is printed to stdout
+        output = check_plagiarism(new_doc, old_docs_folder, extra_dataset)
         sys.stdout.write(json.dumps(output) + "\n")
         sys.stdout.flush()
     except Exception as e:

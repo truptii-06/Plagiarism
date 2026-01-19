@@ -97,9 +97,9 @@ const Homepage = () => {
             <div className="nav">
               <h1 className="logo">PlagiX</h1>
               <div className="nav-links">
-                <Link to="/about" className="about">About</Link>
-                <Link to="/services" className="services">Services</Link>
-                <Link to="/contact" className="contact">Contact</Link>
+                <a href="#about" className="about">About</a>
+                <a href="#services" className="services">Services</a>
+                <a href="#contact" className="contact">Contact</a>
                 <Link to="/signup" className="sign-up-btn">Sign Up</Link>
               </div>
             </div>
@@ -174,7 +174,7 @@ const Homepage = () => {
       </div>
 
       {/* ================= SERVICES SECTION ================= */}
-      <section className="our-services">
+      <section className="our-services" id="services">
         <h2 className="service-title">Our Services</h2>
         <p className="service-description">
           Discover the range of services we offer to enhance your educational experience.
@@ -208,7 +208,7 @@ const Homepage = () => {
       </section>
 
       {/* ================= WHY CHOOSE US ================= */}
-      <section className="why-choose-us">
+      <section className="why-choose-us" id="about">
         <h2 className="section-title">Why Choose Us</h2>
 
         <div className="card">
@@ -290,8 +290,8 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* ================= CONTACT SECTION ================= */}
-      <section className="lets-connect">
+      {/* ================= LET'S CONNECT SECTION ================= */}
+      <section className="lets-connect" id="contact">
         <h2 className="section-title">Let's Connect</h2>
         <p className="section-subtitle">
           Have questions or want to know more? Send us a message!
@@ -335,9 +335,9 @@ const Homepage = () => {
             <h4>Quick Links</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/about">About</Link></li>
-              <li><Link to="/services">Services</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#services">Services</a></li>
+              <li><a href="#contact">Contact</a></li>
             </ul>
           </div>
 

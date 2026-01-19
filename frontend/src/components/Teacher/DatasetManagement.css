@@ -1,0 +1,199 @@
+.dataset-mgmt-container {
+    padding: 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.dataset-header {
+    margin-bottom: 30px;
+}
+
+.dataset-header h1 {
+    font-size: 28px;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.dataset-header p {
+    color: #64748b;
+    max-width: 700px;
+}
+
+.dataset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 25px;
+}
+
+.panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.panel h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #334155;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+/* Upload Section */
+.file-drop-zone {
+    position: relative;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.file-drop-zone:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.file-drop-zone input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #64748b;
+}
+
+.message-banner {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.message-banner.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.message-banner.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* List Section */
+.dataset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.dataset-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.dataset-item:hover {
+    transform: translateX(5px);
+    background: #f8fafc;
+}
+
+.ds-icon {
+    width: 45px;
+    height: 45px;
+    background: #dbeafe;
+    color: #2563eb;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ds-info {
+    flex: 1;
+}
+
+.ds-info h4 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.ds-info p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loading-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #94a3b8;
+    gap: 15px;
+}

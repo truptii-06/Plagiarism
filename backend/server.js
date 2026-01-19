@@ -9,6 +9,7 @@ const submissionRoutes = require("./routes/submissionRoutes");
 const plagiarismRoutes = require("./routes/plagiarismRoutes");
 const studentProfileRoutes = require("./routes/studentprofileRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const datasetRoutes = require("./routes/datasetRoutes");
 
 dotenv.config();
 connectDB();
@@ -30,6 +31,7 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/plagiarism", plagiarismRoutes);
 app.use("/api/student", studentProfileRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/datasets", datasetRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
