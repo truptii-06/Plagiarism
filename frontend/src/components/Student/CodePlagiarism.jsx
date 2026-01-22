@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Upload, FileCode, CheckCircle, AlertTriangle, Loader2, BarChart3, Fingerprint } from 'lucide-react';
 import './PlagiarismTools.css';
 
-const CodePlagiarism = ({ showSimilarity = true }) => {
-    const [activeTab, setActiveTab] = useState(showSimilarity ? 'similarity' : 'ai'); // 'similarity' or 'ai'
+const CodePlagiarism = () => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
@@ -29,9 +28,7 @@ const CodePlagiarism = ({ showSimilarity = true }) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const endpoint = activeTab === 'ai'
-            ? 'http://localhost:5000/api/plagiarism/ai-check'
-            : 'http://localhost:5000/api/plagiarism/code-similarity';
+        const endpoint = 'http://localhost:5000/api/plagiarism/code-similarity';
 
         try {
             const res = await fetch(endpoint, {
@@ -63,51 +60,8 @@ const CodePlagiarism = ({ showSimilarity = true }) => {
         <div className="tool-container">
             <div className="tool-header">
                 <h2>Code Plagiarism Analysis</h2>
-                <p>Verify code authenticity through structural similarity check and AI pattern detection.</p>
+                <p>Verify code authenticity through structural similarity check.</p>
             </div>
-
-            {showSimilarity && (
-                <div className="tabs-navigation" style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                    <button
-                        className={`tab-btn ${activeTab === 'similarity' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('similarity'); setResult(null); setError(''); }}
-                        style={{
-                            padding: '10px 20px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: activeTab === 'similarity' ? '#007bff' : '#f0f4f8',
-                            color: activeTab === 'similarity' ? '#fff' : '#666',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: '600'
-                        }}
-                    >
-                        <BarChart3 size={18} /> Similarity Check
-                    </button>
-                    <button
-                        className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('ai'); setResult(null); setError(''); }}
-                        style={{
-                            padding: '10px 20px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: activeTab === 'ai' ? '#007bff' : '#f0f4f8',
-                            color: activeTab === 'ai' ? '#fff' : '#666',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: '600'
-                        }}
-                    >
-                        <Fingerprint size={18} /> AI Detection
-                    </button>
-                </div>
-            )}
-
-
 
             <div className="check-card">
                 <div className={`upload-area ${file ? 'active' : ''}`} style={{ position: 'relative' }}>
@@ -168,46 +122,14 @@ const CodePlagiarism = ({ showSimilarity = true }) => {
                             <Loader2 className="animate-spin" size={20} /> Analyzing...
                         </>
                     ) : (
-                        activeTab === 'ai' ? 'Detect AI Patterns' : 'Compare Similarity'
+                        'Compare Similarity'
                     )}
                 </button>
 
                 {error && <div className="error-msg" style={{ color: '#ff4757', marginTop: '15px', textAlign: 'center' }}>{error}</div>}
             </div>
 
-            {result && activeTab === 'ai' && (
-                <div className={`result-section ${result.prediction === 'AI' ? 'ai-detected' : 'human-detected'}`} style={{ marginTop: '20px' }}>
-                    <div className="result-header">
-                        <div className="result-icon">
-                            {result.prediction === 'AI' ? <AlertTriangle size={24} /> : <CheckCircle size={24} />}
-                        </div>
-                        <div className="result-title">
-                            {result.prediction === 'AI' ? 'AI-Generated Patterns Detected' : 'Likely Human-Written Code'}
-                        </div>
-                    </div>
-
-                    <div className="confidence-meter">
-                        <div className="meter-label">
-                            <span>Confidence Score</span>
-                            <span>{result.confidence.toFixed(1)}%</span>
-                        </div>
-                        <div className="progress-track" style={{ background: '#eee', height: '10px', borderRadius: '5px' }}>
-                            <div className="progress-fill" style={{
-                                width: `${result.confidence}%`,
-                                height: '100%',
-                                borderRadius: '5px',
-                                background: result.prediction === 'AI' ? '#f43f5e' : '#10b981'
-                            }}></div>
-                        </div>
-                    </div>
-
-                    <p className="description-text" style={{ marginTop: '15px', color: '#666', fontSize: '14px' }}>
-                        Our model checked for comment density, naming conventions, and structural patterns typical of {result.prediction === 'AI' ? 'LLM-generated' : 'human-written'} code.
-                    </p>
-                </div>
-            )}
-
-            {result && activeTab === 'similarity' && (
+            {result && (
                 <div className={`result-section ${result.similarity > 30 ? 'ai-detected' : 'human-detected'}`} style={{ marginTop: '20px' }}>
                     <div className="result-header">
                         <div className="result-icon">

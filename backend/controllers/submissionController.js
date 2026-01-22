@@ -9,7 +9,7 @@ exports.uploadSubmission = async (req, res) => {
     }
 
     const file = req.files.file;
-    const { studentId, projectTitle, description, submissionType, customId } = req.body;
+    const { studentId, projectTitle, description, submissionType, customId, category } = req.body;
 
     if (!studentId || !projectTitle || !submissionType) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -30,8 +30,10 @@ exports.uploadSubmission = async (req, res) => {
       studentId: student._id,
       studentName: student.firstName ? `${student.firstName} ${student.lastName || ""}`.trim() : student.username,
       projectTitle,
+      projectTitle,
       description: description || "",
       submissionType,
+      category: category || "Report",
       customStudentId: submissionType === 'Individual' ? customId : null,
       customGroupId: submissionType === 'Group' ? customId : null,
       fileName: file.name,
@@ -82,7 +84,11 @@ exports.getAllSubmissions = async (req, res) => {
           mostSimilarDoc: s.mostSimilarDoc,
           fileName: s.fileName,
           fileUrl: s.fileUrl,
-          date: s.date
+          date: s.date,
+          category: s.category,
+          ceiScore: s.ceiScore,
+          ceiLabel: s.ceiLabel,
+          ceiMetrics: s.ceiMetrics
         };
       })
     );

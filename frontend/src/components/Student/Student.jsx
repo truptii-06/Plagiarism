@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import './Student.css';
 import CodePlagiarism from './CodePlagiarism';
-import TextPlagiarism from './TextPlagiarism';
+
 
 const Student = () => {
   const navigate = useNavigate();
@@ -43,6 +43,11 @@ const Student = () => {
 
   // SUBMISSIONS
   const [submissions, setSubmissions] = useState([]);
+  const [codeSubmissionsList, setCodeSubmissionsList] = useState([]);
+
+  // FILTERED LISTS
+  const reportSubmissions = submissions.filter(s => !s.category || s.category === 'Report');
+  const codeSubmissions = codeSubmissionsList; // Now fetching directly from separate DB collection
 
   // FILE UPLOAD
   const fileRef = useRef(null);
@@ -56,9 +61,17 @@ const Student = () => {
     try {
       const studentId = localStorage.getItem("userId");
       if (!studentId) return;
-      const res = await fetch(`http://localhost:5000/api/submissions/student/${studentId}`);
-      const data = await res.json();
-      setSubmissions(data);
+
+      // 1. Fetch Report Submissions (legacy/original endpoint)
+      const resReports = await fetch(`http://localhost:5000/api/submissions/student/${studentId}`);
+      const dataReports = await resReports.json();
+      setSubmissions(dataReports);
+
+      // 2. Fetch Code Submissions (new separate endpoint)
+      const resCode = await fetch(`http://localhost:5000/api/code-submissions/student/${studentId}`);
+      const dataCode = await resCode.json();
+      setCodeSubmissionsList(dataCode);
+
     } catch (err) {
       console.error('Error loading submissions:', err);
     }
@@ -252,24 +265,41 @@ const Student = () => {
     fd.append('description', projectDesc);
     fd.append('submissionType', profile.profileType);
     fd.append('customId', customId);
+    // Determine Endpoint based on Active Page
+    let endpoint = 'http://localhost:5000/api/submissions/upload';
+    if (activePage === 'code-submissions') {
+      endpoint = 'http://localhost:5000/api/code-submissions/upload';
+    }
 
     try {
-      const res = await fetch('http://localhost:5000/api/submissions/upload', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         body: fd,
+        // no Content-Type header when sending FormData
       });
 
       const data = await res.json();
       if (data.success) {
-        setSubmissions((prev) => [data.submission, ...prev]);
+        if (activePage === 'code-submissions') {
+          setCodeSubmissionsList((prev) => [data.submission, ...prev]);
+        } else {
+          setSubmissions((prev) => [data.submission, ...prev]);
+        }
         setProjectTitle('');
         setProjectDesc('');
         setUploadFile(null);
         if (fileRef.current) fileRef.current.value = '';
 
-        setActivePage('submissions');
+        setUploadFile(null);
+        if (fileRef.current) fileRef.current.value = '';
 
-        alert('Project uploaded!');
+        if (activePage === 'code-submissions') {
+          // Stay on code submissions or maybe show success message
+          alert('Code Project uploaded!');
+        } else {
+          setActivePage('submissions'); // Go to report submissions
+          alert('Project Report uploaded!');
+        }
       } else {
         alert(data.error || 'Upload failed.');
       }
@@ -281,7 +311,10 @@ const Student = () => {
 
   // RE-SUBMIT
   const handleResubmit = (id) => {
-    alert('Re-upload feature will be added later.');
+    // For now, just redirect to upload page to create a NEW submission
+    // The old one remains as history (Rejected)
+    setActivePage('dashboard');
+    alert("Please upload the corrected version as a new submission.");
   };
 
   // DOWNLOAD FILE
@@ -326,7 +359,18 @@ const Student = () => {
             onClick={() => setActivePage('submissions')}
           >
             <FileText size={18} />
-            <span>My Submissions</span>
+            <span>Project Reports</span>
+          </button>
+
+          <button
+            type="button"
+            className={
+              activePage === 'code-submissions' ? 'nav-item active' : 'nav-item'
+            }
+            onClick={() => setActivePage('code-submissions')}
+          >
+            <Code size={18} />
+            <span>Code Submissions</span>
           </button>
 
           <button
@@ -337,19 +381,10 @@ const Student = () => {
             onClick={() => setActivePage('code-plagiarism')}
           >
             <Code size={18} />
-            <span>Code Plagiarism</span>
+            <span>Check Similarity</span>
           </button>
 
-          <button
-            type="button"
-            className={
-              activePage === 'text-plagiarism' ? 'nav-item active' : 'nav-item'
-            }
-            onClick={() => setActivePage('text-plagiarism')}
-          >
-            <ScanText size={18} />
-            <span>Text Plagiarism</span>
-          </button>
+
 
           <button type="button" className="nav-item" onClick={handleLogout}>
             <LogOut size={18} />
@@ -383,7 +418,7 @@ const Student = () => {
             <div className="student-dashboard-container">
               {/* Submit Project Section */}
               <div className="upload-card">
-                <h3>Submit New Project</h3>
+                <h3>Submit Project Report</h3>
                 <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
                   Select your submission type and upload your project report.
                 </p>
@@ -483,13 +518,13 @@ const Student = () => {
             </div>
           )}
 
-          {/* Submissions List View */}
+          {/* Submissions List View (REPORTS ONLY) */}
           {activePage === 'submissions' && (
             <div className="student-dashboard-container">
-              <h3>My Submissions</h3>
+              <h3>My Project Reports</h3>
 
-              {submissions.length === 0 ? (
-                <div className="no-data">No submissions yet</div>
+              {reportSubmissions.length === 0 ? (
+                <div className="no-data">No report submissions yet</div>
               ) : (
                 <table className="submissions-table">
                   <thead>
@@ -498,6 +533,7 @@ const Student = () => {
                       <th>Date</th>
                       <th>Status</th>
                       <th>Plagiarism (%)</th>
+                      {/* CEI Column Removed from Report View */}
                       <th>Report</th>
                       <th>Feedback</th>
                       <th>Action</th>
@@ -505,7 +541,7 @@ const Student = () => {
                   </thead>
 
                   <tbody>
-                    {submissions.map((s) => (
+                    {reportSubmissions.map((s) => (
                       <tr key={s._id}>
                         <td>{s.projectTitle}</td>
                         <td>{new Date(s.date).toLocaleDateString()}</td>
@@ -569,9 +605,111 @@ const Student = () => {
           </div>
         )}
 
-        {activePage === 'text-plagiarism' && (
-          <div className="dashboard-content-area">
-            <TextPlagiarism />
+
+
+        {activePage === 'code-submissions' && (
+          <div className="student-dashboard-container">
+            {/* 1. Upload Section for Code */}
+            <div className="upload-card" style={{ marginBottom: '40px' }}>
+              <h3>Submit Code Project</h3>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
+                Upload your source code files (.py, .java, .js, .cpp) for AI and Similarity Analysis.
+              </p>
+              <form onSubmit={submitProject}>
+                <div className="form-group">
+                  <label>Submission Type</label>
+                  <div className="radio-group" style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 'normal' }}>
+                      <input type="radio" name="profileType" value="Individual" checked={profile.profileType === 'Individual'} onChange={(e) => updateProfileField('profileType', e.target.value)} style={{ width: 'auto', marginRight: '8px' }} /> Individual
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 'normal' }}>
+                      <input type="radio" name="profileType" value="Group" checked={profile.profileType === 'Group'} onChange={(e) => updateProfileField('profileType', e.target.value)} style={{ width: 'auto', marginRight: '8px' }} /> Group
+                    </label>
+                  </div>
+                </div>
+
+                {profile.profileType === 'Individual' ? (
+                  <div className="form-group">
+                    <label>Student ID</label>
+                    <input type="text" value={generalProfile.studentId} readOnly style={{ background: '#f5f5f5', cursor: 'not-allowed' }} />
+                  </div>
+                ) : (
+                  <div className="form-group">
+                    <label>Group ID</label>
+                    <input type="text" value={profile.groupId} onChange={(e) => updateProfileField('groupId', e.target.value)} placeholder="Enter Group ID" required />
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label>Project Title</label>
+                  <input type="text" value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} required />
+                </div>
+
+                <div className="form-group">
+                  <label>Brief Description</label>
+                  <textarea value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} rows="2" />
+                </div>
+
+                <div className="form-group">
+                  <label>Code File (.py, .java, .js, .cpp)</label>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".py,.java,.js,.cpp,.c"
+                    onChange={onFileChange}
+                    required
+                  />
+                </div>
+
+                <button className="primary-btn wide" type="submit" disabled={!projectTitle || !uploadFile} style={{ marginTop: '10px' }}>
+                  Submit Code
+                </button>
+              </form>
+            </div>
+
+            {/* 2. List Section for Code */}
+            <h3>My Code Submissions</h3>
+            {codeSubmissions.length === 0 ? (
+              <div className="no-data">No code submissions yet</div>
+            ) : (
+              <table className="submissions-table">
+                <thead>
+                  <tr>
+                    <th>Project Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>AI Analysis (CEI)</th>
+                    <th>Feedback</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {codeSubmissions.map((s) => (
+                    <tr key={s._id}>
+                      <td>{s.projectTitle}</td>
+                      <td>{new Date(s.date).toLocaleDateString()}</td>
+                      <td><span className={`status-badge ${s.status.toLowerCase()}`}>{s.status}</span></td>
+                      <td>
+                        {s.ceiLabel ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', fontSize: '12px' }}>
+                            <span style={{ fontWeight: 600, color: s.ceiScore > 1.2 ? '#e11d48' : '#059669' }}>
+                              {s.ceiLabel}
+                            </span>
+                            {s.ceiScore && <span style={{ color: '#666' }}>Score: {s.ceiScore}</span>}
+                          </div>
+                        ) : (s.status === 'Accepted' || s.status === 'Reviewed' ? 'Not Analyze' : '-')}
+                      </td>
+                      <td>{s.teacherFeedback || '-'}</td>
+                      <td>
+                        <button type="button" className="download-link" onClick={() => handleDownload(s.fileName)}>
+                          <Download size={14} /> File
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 

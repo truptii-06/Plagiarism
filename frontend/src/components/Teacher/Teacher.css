@@ -392,8 +392,219 @@
   align-items: center;
 }
 
-.plag-check-row p {
+/* =========================================
+   PREMIUM CODE REVIEW UI
+========================================= */
+
+/* Review Page Container */
+.review-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  margin-bottom: 25px;
+}
+
+/* Hero Section */
+.code-review-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.hero-title h2 {
+  font-size: 28px;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.code-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* AI Analysis Button */
+.ai-analysis-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-analysis-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+}
+
+.ai-analysis-btn:disabled {
+  background: #cbd5e1;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Result Card - Premium */
+.result-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+  margin-top: 30px;
+  opacity: 0;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.result-header-modern {
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-header-modern.ai {
+  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+}
+
+.result-header-modern.human {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.status-icon-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  background: white;
+}
+
+.result-header-modern.ai .status-icon-large { color: #e11d48; }
+.result-header-modern.human .status-icon-large { color: #059669; }
+
+.result-main-info h3 {
   margin: 0;
-  font-size: 14px;
-  color: #4a5568;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 5px;
+}
+
+.result-main-info p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+}
+
+/* Metrics Grid */
+.metrics-grid-modern {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 30px;
+}
+
+.metric-card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.2s;
+  border: 1px solid #f1f5f9;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  background: white;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  border-color: #e2e8f0;
+}
+
+.metric-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.metric-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 5px;
+}
+
+/* Gauge Bar */
+.gauge-container {
+  padding: 0 30px 30px 30px;
+}
+.gauge-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.gauge-track {
+    height: 16px;
+    background: #e2e8f0;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.gauge-fill {
+    height: 100%;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+    width: 0%;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }

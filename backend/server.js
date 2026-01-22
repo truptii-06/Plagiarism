@@ -32,6 +32,7 @@ app.use("/api/plagiarism", plagiarismRoutes);
 app.use("/api/student", studentProfileRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/datasets", datasetRoutes);
+app.use("/api/code-submissions", require("./routes/codeSubmissionRoutes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
