@@ -20,8 +20,10 @@
     "express-fileupload": "^1.5.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "mammoth": "^1.11.0",
     "mongoose": "^8.18.3",
     "multer": "^2.0.2",
+    "pdf-parse": "^2.4.5",
     "pdfkit": "^0.17.2",
     "twilio": "^5.10.1",
     "xlsx": "^0.18.5"

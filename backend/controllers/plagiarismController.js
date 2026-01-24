@@ -3,47 +3,37 @@ const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-exports.runPlagiarism = async (req, res) => {
-  try {
-    const { submissionId } = req.body;
+exports.processPlagiarismCheck = async (submissionId) => {
+  const sub = await Submission.findById(submissionId);
+  if (!sub) throw new Error("Submission not found");
 
-    if (!submissionId)
-      return res.status(400).json({ error: "submissionId required" });
+  // ✅ FIX: use correct field name from DB
+  const filePath = path.resolve(sub.fileUrl);
 
-    const sub = await Submission.findById(submissionId);
-    if (!sub)
-      return res.status(404).json({ error: "Submission not found" });
+  // Validate file exists
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Uploaded file not found on server: ${filePath}`);
+  }
 
-    // ✅ FIX: use correct field name from DB
-    const filePath = path.resolve(sub.fileUrl);
+  // ✅ Fetch Reference Items for comparison
+  const ReferenceItem = require("../models/ReferenceItem");
+  const extraItems = await ReferenceItem.find({}, "content sourceInfo metadata");
 
-    // Validate file exists
-    const fs = require("fs");
-    if (!fs.existsSync(filePath)) {
-      return res.status(400).json({
-        error: "Uploaded file not found on server",
-        path: filePath
-      });
-    }
+  let extraDatasetPath = "";
+  if (extraItems.length > 0) {
+    const tempDir = path.join(__dirname, "../python/temp");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+    extraDatasetPath = path.join(tempDir, `dataset_${Date.now()}_${submissionId}.json`);
+    fs.writeFileSync(extraDatasetPath, JSON.stringify(extraItems));
+  }
 
-    // ✅ Fetch Reference Items for comparison
-    const ReferenceItem = require("../models/ReferenceItem");
-    const extraItems = await ReferenceItem.find({}, "content sourceInfo");
+  // Python script path
+  const pyScript = path.join(__dirname, "../python/Plagiarism_check.py");
 
-    let extraDatasetPath = "";
-    if (extraItems.length > 0) {
-      const tempDir = path.join(__dirname, "../python/temp");
-      if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-      extraDatasetPath = path.join(tempDir, `dataset_${Date.now()}.json`);
-      fs.writeFileSync(extraDatasetPath, JSON.stringify(extraItems));
-    }
+  const pyArgs = [pyScript, filePath];
+  if (extraDatasetPath) pyArgs.push(extraDatasetPath);
 
-    // Python script path
-    const pyScript = path.join(__dirname, "../python/Plagiarism_check.py");
-
-    const pyArgs = [pyScript, filePath];
-    if (extraDatasetPath) pyArgs.push(extraDatasetPath);
-
+  return new Promise((resolve, reject) => {
     const py = spawn("python", pyArgs);
 
     let output = "";
@@ -76,36 +66,57 @@ exports.runPlagiarism = async (req, res) => {
         const result = JSON.parse(jsonMatch[0]);
 
         if (result.status === "error") {
-          return res.status(400).json({ error: result.message });
+          return reject(new Error(result.message));
         }
 
         // Save results to DB
         sub.similarity = result.similarity;
         sub.mostSimilarDoc = result.most_similar_doc || null;
-        // NOTE: We don't auto-set status to 'Accepted'/'Rejected' here, 
-        // the teacher will do that manually on the review page.
+        sub.matchedSnippet = result.matched_snippet || null;
+
+        // Map match_index to metadata (handling offset from local files)
+        const localCount = result.local_count || 0;
+        const adjustedIndex = result.match_index - localCount;
+
+        if (adjustedIndex >= 0 && extraItems[adjustedIndex]) {
+          sub.matchedMetadata = extraItems[adjustedIndex].metadata;
+          result.matchedMetadata = extraItems[adjustedIndex].metadata;
+        }
+
+        sub.status = "Pending"; // Ensure status stays pending for review
 
         await sub.save();
 
-        return res.json({
-          success: true,
-          result,
-        });
+        resolve(result);
       } catch (err) {
         console.error("❌ JSON PARSE ERROR:", err);
         console.error("RAW OUTPUT:", output);
-
-        return res.status(500).json({
-          error: "Invalid JSON returned by Python",
-          rawOutput: output,
-          pythonError: errorOutput,
-        });
+        reject(new Error("Invalid JSON returned by Python or Processing Error"));
       }
+    });
+  });
+};
+
+exports.runPlagiarism = async (req, res) => {
+  try {
+    const { submissionId } = req.body;
+
+    if (!submissionId)
+      return res.status(400).json({ error: "submissionId required" });
+
+    const result = await exports.processPlagiarismCheck(submissionId);
+
+    return res.json({
+      success: true,
+      result,
     });
 
   } catch (err) {
     console.error("SERVER ERROR:", err);
-    res.status(500).json({ error: "Server crashed" });
+    if (err.message.includes("not found")) {
+      return res.status(404).json({ error: err.message });
+    }
+    res.status(500).json({ error: err.message || "Server crashed" });
   }
 };
 

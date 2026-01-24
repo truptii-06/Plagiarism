@@ -284,6 +284,7 @@ const Teacher = () => {
                   <th>Project</th>
                   <th>Status</th>
                   <th>Similarity</th>
+                  <th>Matched Source</th>
                   <th></th>
                 </tr>
               </thead>
@@ -298,6 +299,9 @@ const Teacher = () => {
                       </span>
                     </td>
                     <td>{s.similarity !== null ? `${s.similarity}%` : "—"}</td>
+                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.mostSimilarDoc}>
+                      {s.mostSimilarDoc || "—"}
+                    </td>
                     <td>
                       <button className="btn ghost small" onClick={() => navigate(`/teacher/review/${s._id}`)}>
                         View Details
@@ -358,11 +362,9 @@ const Teacher = () => {
                       ) : (s.status === 'Accepted' || s.status === 'Reviewed' ? 'Not Analyzed' : '-')}
                     </td>
                     <td>
-                      <td>
-                        <button className="btn primary small" onClick={() => navigate(`/teacher/review-code/${s._id}`)}>
-                          Review Code
-                        </button>
-                      </td>
+                      <button className="btn primary small" onClick={() => navigate(`/teacher/review-code/${s._id}`)}>
+                        Review Code
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -380,6 +382,7 @@ const Teacher = () => {
   const ReviewPageView = () => {
     const { id } = useParams();
     const submission = submissions.find(s => s._id === id);
+    const [viewResults, setViewResults] = useState(false);
     const [localResult, setLocalResult] = useState(null);
     const [ceiResult, setCeiResult] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -392,9 +395,11 @@ const Teacher = () => {
         if (submission.similarity !== null) {
           setLocalResult({
             similarity: submission.similarity,
-            grammar_issues: submission.grammarIssues,
-            most_similar_doc: submission.mostSimilarDoc
+            most_similar_doc: submission.mostSimilarDoc,
+            matched_snippet: submission.matchedSnippet,
+            matchedMetadata: submission.matchedMetadata
           });
+          // Do NOT setViewResults(true) here automatically to keep it hidden as requested
         }
         if (submission.ceiScore !== undefined && submission.ceiScore !== null) {
           setCeiResult({
@@ -413,17 +418,13 @@ const Teacher = () => {
       const body = {
         id: submission._id,
         status: newStatus,
-        feedback, // matches backend field 'teacherFeedback' or handle in backend
+        feedback,
         teacherFeedback: feedback,
         similarity: localResult?.similarity,
-        grammarIssues: localResult?.grammar_issues,
         mostSimilarDoc: localResult?.most_similar_doc
       };
 
       try {
-        // Use existing endpoint for reports
-        // The endpoint is actually /api/submissions/review/save or updateStatus logic
-        // Based on original code: "http://localhost:5000/api/submissions/review/save"
         const res = await fetch("http://localhost:5000/api/submissions/review/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -441,10 +442,19 @@ const Teacher = () => {
     };
 
     const triggerCheck = async () => {
+      if (localResult && !viewResults) {
+        setViewResults(true);
+        return;
+      }
+
       setLoading(true);
       const res = await runPlagiarismCheck(submission._id);
       if (res) {
-        setLocalResult(res);
+        setLocalResult({
+          ...res,
+          matchedMetadata: res.matchedMetadata // Ensure we capture it from API response
+        });
+        setViewResults(true);
       }
       setLoading(false);
     };
@@ -492,11 +502,11 @@ const Teacher = () => {
             <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Check similarity against millions of records.</p>
           </div>
           <button className="btn primary" onClick={triggerCheck} disabled={loading}>
-            <Sparkles size={14} /> {loading ? "Analyzing..." : "Run Plagiarism Check"}
+            <Sparkles size={14} /> {loading ? "Analyzing..." : (viewResults && localResult ? "Re-run Plagiarism Check" : "Run Plagiarism Check")}
           </button>
         </div>
 
-        {localResult && (
+        {(viewResults && localResult) && (
           <div className={`result-section ${localResult.similarity > 20 ? 'ai-detected' : 'human-detected'}`} style={{ marginBottom: '30px', animation: 'fadeIn 0.5s' }}>
             <div className="result-header">
               <div className="result-icon">
@@ -524,38 +534,88 @@ const Teacher = () => {
             </div>
 
             <div className="result-details" style={{ marginTop: '15px' }}>
-              <p><strong>Most Similar Document:</strong> {localResult.most_similar_doc || "None"}</p>
-              {localResult.grammar_issues !== undefined && (
-                <p><strong>Grammar Issues Found:</strong> {localResult.grammar_issues}</p>
+              {localResult.matchedMetadata && (localResult.matchedMetadata.projectTitle || localResult.matchedMetadata.groupMembers) ? (
+                <div style={{ marginBottom: '15px' }}>
+                  <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#333', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>Matched Source Details</h4>
+                  <table className="submissions-table" style={{ width: '100%', fontSize: '13px' }}>
+                    <tbody>
+                      {localResult.matchedMetadata.projectTitle && (
+                        <tr style={{ background: '#f8fafc' }}>
+                          <td style={{ fontWeight: 600, color: '#334155', padding: '8px', width: '30%' }}>Project Title</td>
+                          <td style={{ padding: '8px', color: '#0f172a', fontWeight: 600 }}>{localResult.matchedMetadata.projectTitle}</td>
+                        </tr>
+                      )}
+                      {localResult.matchedMetadata.problemStatement && (
+                        <tr>
+                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Problem Statement</td>
+                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.problemStatement}</td>
+                        </tr>
+                      )}
+                      {localResult.matchedMetadata.projectGuide && (
+                        <tr>
+                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Guide Name</td>
+                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.projectGuide}</td>
+                        </tr>
+                      )}
+                      {localResult.matchedMetadata.groupMembers && (
+                        <tr>
+                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Group Members</td>
+                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.groupMembers}</td>
+                        </tr>
+                      )}
+                      {localResult.matchedMetadata.academicYear && (
+                        <tr>
+                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Academic Year</td>
+                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.academicYear}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div style={{ marginBottom: '15px' }}>
+                  <p><strong>Most Similar Document:</strong> {localResult.most_similar_doc || "None"}</p>
+                  <p style={{ fontSize: '12px', color: '#ef4444', background: '#fef2f2', padding: '8px', borderRadius: '4px', border: '1px solid #fee2e2' }}>
+                    <strong>Metadata Missing:</strong> Detailed info (Title, Students, etc.) isn't available for this match.
+                    Please delete and re-upload the dataset in "Manage Datasets" to capture this information.
+                  </p>
+                </div>
               )}
+
+              {localResult.matched_snippet && (
+                <div style={{ marginTop: '10px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <p style={{ margin: '0 0 5px 0', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>Matched Content Snippet:</p>
+                  <p style={{ margin: 0, fontSize: '13px', fontStyle: 'italic', color: '#334155' }}>"{localResult.matched_snippet}"</p>
+                </div>
+              )}
+            </div>
+
+            <div className="feedback-section">
+              <label>Add Feedback</label>
+              <textarea
+                className="feedback-textarea"
+                placeholder="Provide comments for the student..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+              />
+            </div>
+
+            <div className="review-actions">
+              <button className="btn success" onClick={() => handleAction("Accepted")}>
+                <CheckCircle size={20} /> Accept Project
+              </button>
+              <button className="btn danger" onClick={() => handleAction("Rejected")}>
+                <XCircle size={20} /> Reject Project
+              </button>
+            </div>
+
+            <div style={{ marginTop: '30px', textAlign: 'center' }}>
+              <button className="btn ghost" style={{ margin: '0 auto' }} onClick={() => alert(`Downloading ${submission.fileName}...`)}>
+                <Download size={14} /> Download Submission File
+              </button>
             </div>
           </div>
         )}
-
-        <div className="feedback-section">
-          <label>Add Feedback</label>
-          <textarea
-            className="feedback-textarea"
-            placeholder="Provide comments for the student..."
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-          />
-        </div>
-
-        <div className="review-actions">
-          <button className="btn success" onClick={() => handleAction("Accepted")}>
-            <CheckCircle size={20} /> Accept Project
-          </button>
-          <button className="btn danger" onClick={() => handleAction("Rejected")}>
-            <XCircle size={20} /> Reject Project
-          </button>
-        </div>
-
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button className="btn ghost" style={{ margin: '0 auto' }} onClick={() => alert(`Downloading ${submission.fileName}...`)}>
-            <Download size={14} /> Download Submission File
-          </button>
-        </div>
       </div>
     );
   };

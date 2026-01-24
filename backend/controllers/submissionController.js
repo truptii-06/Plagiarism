@@ -26,19 +26,29 @@ exports.uploadSubmission = async (req, res) => {
     const student = await Student.findById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
+    const submissionCategory = category || "Report";
+
     const sub = await Submission.create({
       studentId: student._id,
       studentName: student.firstName ? `${student.firstName} ${student.lastName || ""}`.trim() : student.username,
       projectTitle,
-      projectTitle,
       description: description || "",
       submissionType,
-      category: category || "Report",
+      category: submissionCategory,
       customStudentId: submissionType === 'Individual' ? customId : null,
       customGroupId: submissionType === 'Group' ? customId : null,
       fileName: file.name,
       fileUrl: filePath
     });
+
+    // AUTO-TRIGGER PLAGIARISM CHECK FOR REPORTS
+    if (submissionCategory === "Report") {
+      const plagiarismController = require("./plagiarismController");
+      // Run in background
+      plagiarismController.processPlagiarismCheck(sub._id)
+        .then(result => console.log(`[Auto-Plagiarism] Check complete for ${sub._id}: ${result.similarity}%`))
+        .catch(err => console.error(`[Auto-Plagiarism] Failed for ${sub._id}:`, err));
+    }
 
     res.json({ success: true, submission: sub });
   } catch (err) {

@@ -16,6 +16,8 @@ const submissionSchema = new mongoose.Schema({
   similarity: { type: Number, default: null },
   grammarIssues: { type: Number, default: null },
   mostSimilarDoc: { type: String, default: null },
+  matchedSnippet: { type: String, default: null },
+  matchedMetadata: { type: Object, default: null },
 
   // CEI Analysis Fields
   ceiScore: { type: Number, default: null },

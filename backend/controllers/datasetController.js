@@ -3,6 +3,38 @@ const ReferenceItem = require("../models/ReferenceItem");
 const path = require("path");
 const fs = require("fs");
 const xlsx = require("xlsx");
+const axios = require("axios");
+const pdf = require("pdf-parse");
+const mammoth = require("mammoth");
+
+// Helper to extract text from URL
+async function extractTextFromUrl(url) {
+    try {
+        if (!url || !url.startsWith("http")) return "";
+
+        console.log(`Fetching content from: ${url}`);
+        const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
+        const buffer = Buffer.from(response.data);
+        const contentType = response.headers['content-type'];
+
+        if (contentType && contentType.includes("application/pdf") || url.toLowerCase().endsWith(".pdf")) {
+            const data = await pdf(buffer);
+            return data.text;
+        } else if (
+            (contentType && contentType.includes("wordprocessingml")) ||
+            url.toLowerCase().endsWith(".docx")
+        ) {
+            const result = await mammoth.extractRawText({ buffer });
+            return result.value;
+        } else {
+            // Assume plain text or unknown, try to decode
+            return buffer.toString('utf-8');
+        }
+    } catch (err) {
+        console.error(`Failed to fetch/parse URL ${url}:`, err.message);
+        return ""; // Fail silently so we don't break the whole upload
+    }
+}
 
 exports.uploadDataset = async (req, res) => {
     try {
@@ -31,11 +63,32 @@ exports.uploadDataset = async (req, res) => {
         const workbook = xlsx.readFile(filePath);
         const sheetName = workbook.SheetNames[0];
         const range = workbook.Sheets[sheetName];
-        const data = xlsx.utils.sheet_to_json(range);
 
-        if (!data.length) {
+        // 1. Get raw data as array of arrays to detect header
+        const rawRows = xlsx.utils.sheet_to_json(range, { header: 1 });
+
+        if (!rawRows.length) {
             fs.unlinkSync(filePath);
             return res.status(400).json({ error: "The uploaded file is empty" });
+        }
+
+        // 2. Smart Header Detection
+        let headerRowIndex = 0;
+        let headers = [];
+
+        // Look for typical academic headers in first 10 rows
+        for (let i = 0; i < Math.min(rawRows.length, 10); i++) {
+            const rowStr = rawRows[i].map(c => String(c).toLowerCase().trim()).join(" ");
+            if (rowStr.includes("project title") || rowStr.includes("name of the students")) {
+                headerRowIndex = i;
+                headers = rawRows[i].map(c => String(c).trim()); // Keep original case for mapping but trimmed
+                break;
+            }
+        }
+
+        // If no header found, assume row 0, but this is risky. Default to row 0 if detection fails.
+        if (headers.length === 0 && rawRows.length > 0) {
+            headers = rawRows[0].map(c => String(c).trim());
         }
 
         // Create Dataset record
@@ -44,23 +97,87 @@ exports.uploadDataset = async (req, res) => {
             fileName: file.name,
             fileUrl,
             teacherId,
-            rowCount: data.length
+            rowCount: rawRows.length - headerRowIndex - 1
         });
 
-        // Extract text content from rows. 
-        // We assume the text is in the first column or we join all columns if multiple.
-        const items = data.map((row, index) => {
-            const content = Object.values(row).join(" ").trim();
-            return {
-                datasetId: dataset._id,
-                content,
-                sourceInfo: `Row ${index + 2} of ${file.name}`,
-                teacherId
+        // Extract text content from rows.
+        const items = [];
+
+        // Process rows starting AFTER the header
+        for (let i = headerRowIndex + 1; i < rawRows.length; i++) {
+            const rowData = rawRows[i];
+            if (!rowData || rowData.length === 0) continue;
+
+            // Map row data to headers
+            const rowObj = {};
+            headers.forEach((h, idx) => {
+                if (h) rowObj[h] = rowData[idx] || "";
+            });
+
+            // Extract relevant fields (Normalize)
+            const cleanMetadata = {
+                projectTitle: "",
+                groupMembers: "",
+                projectGuide: "",
+                academicYear: "",
+                problemStatement: "",
+                sourceLink: ""
             };
-        });
+
+            // Helper to find value loosely
+            const findVal = (patterns) => {
+                const key = Object.keys(rowObj).find(k => patterns.some(p => k.toLowerCase().includes(p.toLowerCase())));
+                return key ? rowObj[key] : "";
+            };
+
+            cleanMetadata.projectTitle = findVal(["Project Title", "Title"]);
+            cleanMetadata.groupMembers = findVal(["Name of the Students", "Student Name", "Group Members", "Members"]);
+            cleanMetadata.projectGuide = findVal(["Guide name", "Guide"]);
+            cleanMetadata.academicYear = findVal(["Year", "Publish Date", "Academic Year"]);
+            // Problem statement might be "Abstract" or "Domain" if problem statement not present
+            cleanMetadata.problemStatement = findVal(["Problem Statement", "Abstract", "Domain"]);
+
+            // Find link
+            const rowValues = Object.values(rowObj);
+            const link = rowValues.find(v => typeof v === 'string' && v.match(/^https?:\/\//));
+            if (link) cleanMetadata.sourceLink = link;
+
+            // Build Academic Content for TF-IDF (Ignore generic metadata)
+            const academicText = [
+                cleanMetadata.projectTitle,
+                cleanMetadata.problemStatement,
+                cleanMetadata.groupMembers,
+                cleanMetadata.projectGuide
+            ].filter(Boolean).join(" ");
+
+            let additionalContent = "";
+
+            // Check for URLs to extract full text
+            if (cleanMetadata.sourceLink) {
+                const extracted = await extractTextFromUrl(cleanMetadata.sourceLink.trim());
+                if (extracted) {
+                    additionalContent += "\n\n--- EXTRACTED FROM LINK ---\n" + extracted;
+                }
+            }
+
+            // Only add if we have at least some content
+            if (academicText.length > 2 || additionalContent.length > 5) {
+                items.push({
+                    datasetId: dataset._id,
+                    content: (academicText + " " + additionalContent).trim(),
+                    sourceInfo: `Row ${i + 1}`,
+                    metadata: cleanMetadata, // Store only the clean structure
+                    teacherId
+                });
+            }
+        }
 
         // Bulk insert items for better performance
-        await ReferenceItem.insertMany(items.filter(item => item.content.length > 5));
+        // Filter empty content (though with URL extraction it might not be empty anymore)
+        const validItems = items.filter(item => item.content.length > 5);
+        if (validItems.length > 0) {
+            await ReferenceItem.insertMany(validItems);
+        }
 
         res.json({ success: true, dataset });
     } catch (err) {

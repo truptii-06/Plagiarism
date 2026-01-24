@@ -53,6 +53,8 @@ def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
     old_texts = []
     filenames = []
 
+    local_count = 0
+
     # 1. Load files from local folder
     if os.path.exists(old_docs_folder):
         for file in os.listdir(old_docs_folder):
@@ -65,6 +67,7 @@ def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
                 if text:
                     old_texts.append(text)
                     filenames.append(file)
+                    local_count += 1
 
     # 2. Load entries from extra dataset JSON if provided
     if extra_dataset_path and os.path.exists(extra_dataset_path):
@@ -101,6 +104,9 @@ def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
             "status": "success",
             "similarity": round(max_sim * 100, 2),
             "most_similar_doc": "".join(c for c in filenames[max_index] if c.isprintable()),
+            "matched_snippet": old_texts[max_index][:200] + "..." if len(old_texts[max_index]) > 200 else old_texts[max_index],
+            "match_index": int(max_index),
+            "local_count": local_count,
             "grammar_issues": 0 
         }
     except Exception as e:
