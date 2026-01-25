@@ -68,7 +68,11 @@ const Teacher = () => {
     fetch("http://localhost:5000/api/submissions/all")
       .then((r) => r.json())
       .then((data) => {
-        setSubmissions(data);
+  const safeData = Array.isArray(data)
+    ? data.filter(s => s && typeof s === "object")
+    : [];
+
+  setSubmissions(safeData);
       })
       .catch((err) => console.error("Fetch error:", err));
 
@@ -200,10 +204,24 @@ const Teacher = () => {
   // ---------------------------------
   const DashboardView = () => {
     const total = submissions.length;
-    const pending = submissions.filter((s) => s.status === "Pending").length;
-    const accepted = submissions.filter((s) => s.status === "Accepted").length;
+    const pending = submissions.filter(
+  (s) => s?.status?.toLowerCase() === "pending"
+).length;
 
-    const recent = submissions.filter((s) => s.status === "Pending" && (!s.category || s.category === 'Report'));
+const accepted = submissions.filter(
+  (s) => s?.status?.toLowerCase() === "accepted"
+).length;
+
+
+    const recent = submissions.filter(
+  (s) =>
+    s &&
+    typeof s === "object" &&
+    (!s.category || s.category === "Report") &&
+    s.status?.toLowerCase() === "pending"
+);
+
+
 
     return (
       <div>
@@ -268,54 +286,94 @@ const Teacher = () => {
   // Report Submissions View
   // ---------------------------------
   const SubmissionsView = () => {
-    const reportSubs = submissions.filter(s => (!s.category || s.category === 'Report') && (s.status === "Accepted" || s.status === "Rejected"));
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-    return (
-      <div>
-        <h1>Report Submission History</h1>
-        <div className="panel">
-          {reportSubs.length === 0 ? (
-            <p style={{ padding: '20px', color: '#666' }}>No processed report submissions yet.</p>
-          ) : (
-            <table className="submissions-table wide">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Project</th>
-                  <th>Status</th>
-                  <th>Similarity</th>
-                  <th>Matched Source</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {reportSubs.map((s) => (
-                  <tr key={s._id}>
-                    <td>{s.studentName || "Unknown"}</td>
-                    <td>{s.projectTitle}</td>
-                    <td>
-                      <span className={`status-badge ${s.status.toLowerCase()}`}>
-                        {s.status}
-                      </span>
-                    </td>
-                    <td>{s.similarity !== null ? `${s.similarity}%` : "—"}</td>
-                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.mostSimilarDoc}>
-                      {s.mostSimilarDoc || "—"}
-                    </td>
-                    <td>
-                      <button className="btn ghost small" onClick={() => navigate(`/teacher/review/${s._id}`)}>
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
+  const filteredReports = submissions
+    .filter(
+      (s) =>
+        s &&
+        (!s.category || s.category === "Report")
+    )
+    .filter((s) => {
+      if (statusFilter === "all") return true;
+      return s.status?.toLowerCase() === statusFilter;
+    })
+    .filter((s) =>
+      s.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  };
+
+  return (
+    <div className="report-page">
+      <h1>Report Submissions</h1>
+
+      {/* FILTER BAR */}
+      <div className="report-filters">
+        <input
+          type="text"
+          placeholder="Search by project or student..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="status-dropdown"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      {/* TABLE */}
+      <div className="panel">
+        {filteredReports.length === 0 ? (
+          <p className="empty-text">No matching submissions found.</p>
+        ) : (
+          <table className="submissions-table wide">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Similarity</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredReports.map((s) => (
+                <tr key={s._id}>
+                  <td>{s.studentName || "Unknown"}</td>
+                  <td>{s.projectTitle}</td>
+                  <td>
+                    <span className={`status-badge ${s.status.toLowerCase()}`}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td>{s.similarity != null ? `${s.similarity}%` : "—"}</td>
+                  <td>
+                    <button
+                      className="btn ghost small"
+                      onClick={() => navigate(`/teacher/review/${s._id}`)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
 
   // ---------------------------------
   // Code Submissions View
@@ -413,33 +471,55 @@ const Teacher = () => {
 
     if (!submission) return <div style={{ padding: '20px' }}>Loading Submission Details...</div>;
 
-    const handleAction = async (newStatus) => {
-      // NOTE: This now only handles REPORT submissions from 'submissions' collection
-      const body = {
-        id: submission._id,
-        status: newStatus,
-        feedback,
-        teacherFeedback: feedback,
-        similarity: localResult?.similarity,
-        mostSimilarDoc: localResult?.most_similar_doc
-      };
+const handleAction = async (newStatus) => {
+  if (!submission || !submission._id) {
+    alert("Submission not loaded");
+    return;
+  }
 
-      try {
-        const res = await fetch("http://localhost:5000/api/submissions/review/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`Submission ${newStatus} Successfully!`);
-          updateSubmissionUI(submission._id, data.submission);
-          navigate("/teacher/submissions");
-        }
-      } catch (err) {
-        alert("Error saving review");
+  const payload = {
+    id: submission._id,
+    status: newStatus,
+    teacherFeedback: feedback,
+    similarity: localResult?.similarity,
+    mostSimilarDoc: localResult?.most_similar_doc
+  };
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/submissions/review/save",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       }
-    };
+    );
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.error || "Failed to update submission");
+      return;
+    }
+
+    // ✅ UPDATE STATUS — DO NOT REMOVE
+    setSubmissions(prev =>
+      prev.map(s =>
+        s && s._id === submission._id
+          ? { ...s, status: newStatus, teacherFeedback: feedback }
+          : s
+      )
+    );
+
+    alert(`Submission ${newStatus} successfully`);
+    navigate("/teacher/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    alert("Server error while saving review");
+  }
+};
+
 
     const triggerCheck = async () => {
       if (localResult && !viewResults) {
@@ -720,7 +800,7 @@ const Teacher = () => {
   const ReviewCodePageView = () => {
     const { id } = useParams();
     // Look up in codeSubmissions
-    const submission = codeSubmissions.find(s => s._id === id);
+   const submission = submissions.find(s => s && s._id === id);
 
     // Local state for results and feedback
     const [ceiResult, setCeiResult] = useState(null);

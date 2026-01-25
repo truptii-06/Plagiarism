@@ -505,4 +505,164 @@
   color: #fff;
 }
 
+
+/* =========================================
+   DASHBOARD VISUALIZATION (UI ONLY)
+   Safe additive styles – does not affect logic
+========================================= */
+
+/* Dashboard main wrapper */
+.ui-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ===== STAT CARDS ===== */
+.ui-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
+}
+
+.ui-stat {
+  padding: 22px 24px;
+  border-radius: 16px;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ui-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+}
+
+.ui-stat span {
+  font-size: 13px;
+  opacity: 0.9;
+  letter-spacing: 0.3px;
+}
+
+.ui-stat strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+/* Color themes */
+.ui-stat.blue {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+
+.ui-stat.green {
+  background: linear-gradient(135deg, #059669, #34d399);
+}
+
+.ui-stat.orange {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+}
+
+.ui-stat.purple {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+/* ===== DASHBOARD PANELS ===== */
+.ui-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 26px;
+}
+
+.ui-panel {
+  background: #ffffff;
+  padding: 26px 28px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+}
+
+.ui-panel h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+/* Feedback items */
+.ui-feedback {
+  padding: 12px 0;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.ui-feedback:last-child {
+  border-bottom: none;
+}
+
+.ui-feedback strong {
+  font-size: 14px;
+  color: #111;
+}
+
+.ui-feedback p {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Tasks */
+.ui-tasks {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.ui-tasks li {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Muted helper text */
+.ui-muted {
+  font-size: 14px;
+  color: #777;
+}
+
+/* Optional spacing wrapper (used when moving forms) */
+.ui-section {
+  margin-bottom: 34px;
+}
+
+/* =========================================
+   DASHBOARD GRAPHS
+========================================= */
+
+.ui-panel canvas {
+  max-height: 280px;
+}
+/* ===== UNREAD FEEDBACK UI ===== */
+
+.feedback-badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+}
+
+.ui-feedback.unread {
+  background: #f0f7ff;
+  border-left: 4px solid #3b82f6;
+  padding-left: 12px;
+}
+
+
+@media (max-width: 900px) {
+  .ui-panel canvas {
+    max-height: 240px;
+  }
+}
+
 /* END */

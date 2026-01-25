@@ -603,6 +603,58 @@
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===============================
+   REPORT SUBMISSIONS PAGE
+================================ */
+
+.report-page {
+  animation: fadeIn 0.3s ease;
+}
+
+.report-filters {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0 25px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 260px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  font-size: 14px;
+  background: #fff;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.status-dropdown {
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.empty-text {
+  padding: 25px;
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Status badges already exist, but enhancing spacing */
+.submissions-table td {
+  vertical-align: middle;
+}
+
+
 /* Animations */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(30px); }

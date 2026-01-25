@@ -14,7 +14,7 @@ exports.uploadSubmission = async (req, res) => {
     if (!studentId || !projectTitle || !submissionType) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-
+ 
     const uploadDir = "./uploads";
     const path = require("path");
     const fs = require("fs");
@@ -112,11 +112,42 @@ exports.getAllSubmissions = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updates = req.body; // { status, teacherFeedback, similarity, grammarIssues }
-    const sub = await Submission.findByIdAndUpdate(id, updates, { new: true });
-    res.json({ success: true, submission: sub });
+    const { id, status, teacherFeedback, similarity, mostSimilarDoc } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: "Submission ID is required"
+      });
+    }
+
+    const updated = await Submission.findByIdAndUpdate(
+      id,
+      {
+        status,
+        teacherFeedback,
+        similarity,
+        mostSimilarDoc,
+        reviewedAt: new Date()
+      },
+      { new: true } // 🔥 REQUIRED
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        error: "Submission not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      submission: updated
+    });
+
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Update Status Error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 };
+
