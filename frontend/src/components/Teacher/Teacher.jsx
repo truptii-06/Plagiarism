@@ -68,11 +68,11 @@ const Teacher = () => {
     fetch("http://localhost:5000/api/submissions/all")
       .then((r) => r.json())
       .then((data) => {
-  const safeData = Array.isArray(data)
-    ? data.filter(s => s && typeof s === "object")
-    : [];
+        const safeData = Array.isArray(data)
+          ? data.filter(s => s && typeof s === "object")
+          : [];
 
-  setSubmissions(safeData);
+        setSubmissions(safeData);
       })
       .catch((err) => console.error("Fetch error:", err));
 
@@ -205,21 +205,21 @@ const Teacher = () => {
   const DashboardView = () => {
     const total = submissions.length;
     const pending = submissions.filter(
-  (s) => s?.status?.toLowerCase() === "pending"
-).length;
+      (s) => s?.status?.toLowerCase() === "pending"
+    ).length;
 
-const accepted = submissions.filter(
-  (s) => s?.status?.toLowerCase() === "accepted"
-).length;
+    const accepted = submissions.filter(
+      (s) => s?.status?.toLowerCase() === "accepted"
+    ).length;
 
 
     const recent = submissions.filter(
-  (s) =>
-    s &&
-    typeof s === "object" &&
-    (!s.category || s.category === "Report") &&
-    s.status?.toLowerCase() === "pending"
-);
+      (s) =>
+        s &&
+        typeof s === "object" &&
+        (!s.category || s.category === "Report") &&
+        s.status?.toLowerCase() === "pending"
+    );
 
 
 
@@ -286,94 +286,94 @@ const accepted = submissions.filter(
   // Report Submissions View
   // ---------------------------------
   const SubmissionsView = () => {
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredReports = submissions
-    .filter(
-      (s) =>
-        s &&
-        (!s.category || s.category === "Report")
-    )
-    .filter((s) => {
-      if (statusFilter === "all") return true;
-      return s.status?.toLowerCase() === statusFilter;
-    })
-    .filter((s) =>
-      s.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredReports = submissions
+      .filter(
+        (s) =>
+          s &&
+          (!s.category || s.category === "Report")
+      )
+      .filter((s) => {
+        if (statusFilter === "all") return true;
+        return s.status?.toLowerCase() === statusFilter;
+      })
+      .filter((s) =>
+        s.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-  return (
-    <div className="report-page">
-      <h1>Report Submissions</h1>
+    return (
+      <div className="report-page">
+        <h1>Report Submissions</h1>
 
-      {/* FILTER BAR */}
-      <div className="report-filters">
-        <input
-          type="text"
-          placeholder="Search by project or student..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+        {/* FILTER BAR */}
+        <div className="report-filters">
+          <input
+            type="text"
+            placeholder="Search by project or student..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="status-dropdown"
-        >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="status-dropdown"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
 
-      {/* TABLE */}
-      <div className="panel">
-        {filteredReports.length === 0 ? (
-          <p className="empty-text">No matching submissions found.</p>
-        ) : (
-          <table className="submissions-table wide">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Project</th>
-                <th>Status</th>
-                <th>Similarity</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredReports.map((s) => (
-                <tr key={s._id}>
-                  <td>{s.studentName || "Unknown"}</td>
-                  <td>{s.projectTitle}</td>
-                  <td>
-                    <span className={`status-badge ${s.status.toLowerCase()}`}>
-                      {s.status}
-                    </span>
-                  </td>
-                  <td>{s.similarity != null ? `${s.similarity}%` : "—"}</td>
-                  <td>
-                    <button
-                      className="btn ghost small"
-                      onClick={() => navigate(`/teacher/review/${s._id}`)}
-                    >
-                      View
-                    </button>
-                  </td>
+        {/* TABLE */}
+        <div className="panel">
+          {filteredReports.length === 0 ? (
+            <p className="empty-text">No matching submissions found.</p>
+          ) : (
+            <table className="submissions-table wide">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Project</th>
+                  <th>Status</th>
+                  <th>Similarity</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+
+              <tbody>
+                {filteredReports.map((s) => (
+                  <tr key={s._id}>
+                    <td>{s.studentName || "Unknown"}</td>
+                    <td>{s.projectTitle}</td>
+                    <td>
+                      <span className={`status-badge ${s.status.toLowerCase()}`}>
+                        {s.status}
+                      </span>
+                    </td>
+                    <td>{s.similarity != null ? `${s.similarity}%` : "—"}</td>
+                    <td>
+                      <button
+                        className="btn ghost small"
+                        onClick={() => navigate(`/teacher/review/${s._id}`)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   // ---------------------------------
   // Code Submissions View
@@ -451,13 +451,16 @@ const accepted = submissions.filter(
       if (submission) {
         setFeedback(submission.teacherFeedback || "");
         if (submission.similarity !== null) {
-          setLocalResult({
-            similarity: submission.similarity,
-            most_similar_doc: submission.mostSimilarDoc,
-            matched_snippet: submission.matchedSnippet,
-            matchedMetadata: submission.matchedMetadata
-          });
-          // Do NOT setViewResults(true) here automatically to keep it hidden as requested
+          // FORCE CLEAN: If the most similar doc is the old default one, ignore it so user re-runs it
+          // This fixes the issue where user sees "default result" first
+          if (submission.mostSimilarDoc !== "PlagixSurvey 1.docx") {
+            setLocalResult({
+              similarity: submission.similarity,
+              most_similar_doc: submission.mostSimilarDoc,
+              matched_snippet: submission.matchedSnippet,
+              matchedMetadata: submission.matchedMetadata
+            });
+          }
         }
         if (submission.ceiScore !== undefined && submission.ceiScore !== null) {
           setCeiResult({
@@ -471,54 +474,54 @@ const accepted = submissions.filter(
 
     if (!submission) return <div style={{ padding: '20px' }}>Loading Submission Details...</div>;
 
-const handleAction = async (newStatus) => {
-  if (!submission || !submission._id) {
-    alert("Submission not loaded");
-    return;
-  }
-
-  const payload = {
-    id: submission._id,
-    status: newStatus,
-    teacherFeedback: feedback,
-    similarity: localResult?.similarity,
-    mostSimilarDoc: localResult?.most_similar_doc
-  };
-
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/submissions/review/save",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+    const handleAction = async (newStatus) => {
+      if (!submission || !submission._id) {
+        alert("Submission not loaded");
+        return;
       }
-    );
 
-    const data = await res.json();
+      const payload = {
+        id: submission._id,
+        status: newStatus,
+        teacherFeedback: feedback,
+        similarity: localResult?.similarity,
+        mostSimilarDoc: localResult?.most_similar_doc
+      };
 
-    if (!data.success) {
-      alert(data.error || "Failed to update submission");
-      return;
-    }
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/submissions/review/save",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }
+        );
 
-    // ✅ UPDATE STATUS — DO NOT REMOVE
-    setSubmissions(prev =>
-      prev.map(s =>
-        s && s._id === submission._id
-          ? { ...s, status: newStatus, teacherFeedback: feedback }
-          : s
-      )
-    );
+        const data = await res.json();
 
-    alert(`Submission ${newStatus} successfully`);
-    navigate("/teacher/dashboard");
+        if (!data.success) {
+          alert(data.error || "Failed to update submission");
+          return;
+        }
 
-  } catch (err) {
-    console.error(err);
-    alert("Server error while saving review");
-  }
-};
+        // ✅ UPDATE STATUS — DO NOT REMOVE
+        setSubmissions(prev =>
+          prev.map(s =>
+            s && s._id === submission._id
+              ? { ...s, status: newStatus, teacherFeedback: feedback }
+              : s
+          )
+        );
+
+        alert(`Submission ${newStatus} successfully`);
+        navigate("/teacher/dashboard");
+
+      } catch (err) {
+        console.error(err);
+        alert("Server error while saving review");
+      }
+    };
 
 
     const triggerCheck = async () => {
@@ -647,6 +650,16 @@ const handleAction = async (newStatus) => {
                         <tr>
                           <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Academic Year</td>
                           <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.academicYear}</td>
+                        </tr>
+                      )}
+                      {localResult.matchedMetadata.sourceLink && (
+                        <tr>
+                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Source Link</td>
+                          <td style={{ padding: '8px', color: '#2563eb' }}>
+                            <a href={localResult.matchedMetadata.sourceLink.replace(/\s/g, "")} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                              View Source Document
+                            </a>
+                          </td>
                         </tr>
                       )}
                     </tbody>
@@ -800,7 +813,7 @@ const handleAction = async (newStatus) => {
   const ReviewCodePageView = () => {
     const { id } = useParams();
     // Look up in codeSubmissions
-   const submission = submissions.find(s => s && s._id === id);
+    const submission = submissions.find(s => s && s._id === id);
 
     // Local state for results and feedback
     const [ceiResult, setCeiResult] = useState(null);

@@ -1,5 +1,0 @@
-Title: Smart Irrigation System Using IoT
-
-This project is focused on automating irrigation in agricultural fields using Internet of Things (IoT) devices. Sensors are used to detect soil moisture levels, and water is supplied automatically based on sensor data.
-
-The system uses NodeMCU microcontroller, moisture sensors, and a cloud-based dashboard for real-time monitoring. The goal is to reduce water wastage and optimize crop yield efficiently.

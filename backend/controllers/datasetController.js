@@ -65,7 +65,8 @@ exports.uploadDataset = async (req, res) => {
         const range = workbook.Sheets[sheetName];
 
         // 1. Get raw data as array of arrays to detect header
-        const rawRows = xlsx.utils.sheet_to_json(range, { header: 1 });
+        // 1. Get raw data as array of arrays to detect header. raw: false ensures we get formatted strings (dates as text)
+        const rawRows = xlsx.utils.sheet_to_json(range, { header: 1, raw: false });
 
         if (!rawRows.length) {
             fs.unlinkSync(filePath);
@@ -137,10 +138,21 @@ exports.uploadDataset = async (req, res) => {
             // Problem statement might be "Abstract" or "Domain" if problem statement not present
             cleanMetadata.problemStatement = findVal(["Problem Statement", "Abstract", "Domain"]);
 
+            // FIX: If academic year is looks like an Excel serial number (digits only) or is missing, 
+            // try to extract it from the Dataset Name (e.g., "BE 2025-26 Reports")
+            const isInvalidYear = !cleanMetadata.academicYear || /^\d{5}$/.test(String(cleanMetadata.academicYear));
+            if (isInvalidYear) {
+                // Try grabbing "20XX-YY" or "20XX" from the dataset name
+                const yearMatch = name.match(/20\d{2}[-–]\d{2}/) || name.match(/20\d{2}/);
+                if (yearMatch) {
+                    cleanMetadata.academicYear = yearMatch[0];
+                }
+            }
+
             // Find link
             const rowValues = Object.values(rowObj);
-            const link = rowValues.find(v => typeof v === 'string' && v.match(/^https?:\/\//));
-            if (link) cleanMetadata.sourceLink = link;
+            const link = rowValues.find(v => typeof v === 'string' && v.trim().match(/^https?:\/\//));
+            if (link) cleanMetadata.sourceLink = link.replace(/\s/g, "");
 
             // Build Academic Content for TF-IDF (Ignore generic metadata)
             const academicText = [
@@ -157,6 +169,15 @@ exports.uploadDataset = async (req, res) => {
                 const extracted = await extractTextFromUrl(cleanMetadata.sourceLink.trim());
                 if (extracted) {
                     additionalContent += "\n\n--- EXTRACTED FROM LINK ---\n" + extracted;
+                }
+            }
+
+            // FALLBACK: If specific columns were not found, use ALL columns to ensure we index something
+            if (academicText.length < 5) {
+                const allValues = Object.values(rowObj).map(v => String(v).trim()).filter(v => v.length > 0 && !v.startsWith("http"));
+                if (allValues.length > 0) {
+                    // Filter out values that look like IDs or dates to reduce noise, but kept simple for now
+                    academicText += " " + allValues.join(" ");
                 }
             }
 
