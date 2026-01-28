@@ -145,7 +145,7 @@ const Teacher = () => {
   };
 
   // Logout
-  const handleLogout = () => navigate("/signup");
+  const handleLogout = () => navigate("/homepage");
 
   // Update a submission within UI
   const updateSubmissionUI = (id, updates) => {
@@ -525,22 +525,21 @@ const Teacher = () => {
 
 
     const triggerCheck = async () => {
-      if (localResult && !viewResults) {
-        setViewResults(true);
-        return;
-      }
+  setLoading(true);
 
-      setLoading(true);
-      const res = await runPlagiarismCheck(submission._id);
-      if (res) {
-        setLocalResult({
-          ...res,
-          matchedMetadata: res.matchedMetadata // Ensure we capture it from API response
-        });
-        setViewResults(true);
-      }
-      setLoading(false);
-    };
+  const res = await runPlagiarismCheck(submission._id);
+
+  if (res) {
+    setLocalResult({
+      ...res,
+      matchedMetadata: res.matchedMetadata
+    });
+    setViewResults(true); // ✅ show result immediately
+  }
+
+  setLoading(false);
+};
+
 
     const triggerCEICheck = async () => {
       setCeiLoading(true);
@@ -646,12 +645,12 @@ const Teacher = () => {
                           <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.groupMembers}</td>
                         </tr>
                       )}
-                      {localResult.matchedMetadata.academicYear && (
+                      {/* {localResult.matchedMetadata.academicYear && (
                         <tr>
                           <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Academic Year</td>
                           <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.academicYear}</td>
                         </tr>
-                      )}
+                      )} */}
                       {localResult.matchedMetadata.sourceLink && (
                         <tr>
                           <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Source Link</td>

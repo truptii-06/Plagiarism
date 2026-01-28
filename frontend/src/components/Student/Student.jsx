@@ -26,7 +26,6 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 // FEEDBACK VIEW TRACKING (UI ONLY)
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -81,28 +80,26 @@ const Student = () => {
   // New States removed (submissionType, projectIdInput moved to profile)
 
   // LOAD STUDENT SUBMISSIONS
- const loadSubmissions = async () => {
-  try {
-    const studentMongoId = generalProfile._id;
-    if (!studentMongoId) return;
+  const loadSubmissions = async () => {
+    try {
+      const studentMongoId = generalProfile._id;
+      if (!studentMongoId) return;
 
-    const resReports = await fetch(
-      `http://localhost:5000/api/submissions/student/${studentMongoId}`
-    );
-    const dataReports = await resReports.json();
-    setSubmissions(dataReports);
+      const resReports = await fetch(
+        `http://localhost:5000/api/submissions/student/${studentMongoId}`,
+      );
+      const dataReports = await resReports.json();
+      setSubmissions(dataReports);
 
-    const resCode = await fetch(
-      `http://localhost:5000/api/code-submissions/student/${studentMongoId}`
-    );
-    const dataCode = await resCode.json();
-    setCodeSubmissionsList(dataCode);
-
-  } catch (err) {
-    console.error("Error loading submissions:", err);
-  }
-};
-
+      const resCode = await fetch(
+        `http://localhost:5000/api/code-submissions/student/${studentMongoId}`,
+      );
+      const dataCode = await resCode.json();
+      setCodeSubmissionsList(dataCode);
+    } catch (err) {
+      console.error("Error loading submissions:", err);
+    }
+  };
 
   // LOAD STUDENT PROFILE
   const loadProfile = async () => {
@@ -142,46 +139,40 @@ const Student = () => {
       const data = await res.json();
       if (data && data._id) {
         setGeneralProfile({
-  _id: data._id,              // ✅ ADD THIS
-  firstName: data.firstName || "",
-  lastName: data.lastName || "",
-  email: data.email || "",
-  phone: data.phone || "",
-  profilePic: data.profilePic || "",
-  studentId: data.studentId || "",
-});
-
+          _id: data._id, // ✅ ADD THIS
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          profilePic: data.profilePic || "",
+          studentId: data.studentId || "",
+        });
       }
     } catch (err) {
       console.error("Error loading general profile:", err);
     }
   };
 
- useEffect(() => {
-  loadProfile();
-  loadGeneralProfile();
-}, []);
-
-useEffect(() => {
-  if (generalProfile._id) {
-    loadSubmissions();
-  }
-}, [generalProfile._id]);
+  useEffect(() => {
+    loadProfile();
+    loadGeneralProfile();
+  }, []);
 
   useEffect(() => {
-  const viewed = JSON.parse(localStorage.getItem("viewedFeedback") || "[]");
+    if (generalProfile._id) {
+      loadSubmissions();
+    }
+  }, [generalProfile._id]);
 
-  const unread = reportSubmissions
-    .filter(
-      s =>
-        s.teacherFeedback &&
-        !viewed.includes(s._id)
-    )
-    .map(s => s._id);
+  useEffect(() => {
+    const viewed = JSON.parse(localStorage.getItem("viewedFeedback") || "[]");
 
-  setUnreadFeedbackIds(unread);
-}, [reportSubmissions]);
+    const unread = reportSubmissions
+      .filter((s) => s.teacherFeedback && !viewed.includes(s._id))
+      .map((s) => s._id);
 
+    setUnreadFeedbackIds(unread);
+  }, [reportSubmissions]);
 
   // PROFILE FIELD HANDLER
   const updateProfileField = (field, value) => {
@@ -390,27 +381,38 @@ useEffect(() => {
 
   // LOGOUT
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/signup");
-  };
+  localStorage.removeItem("userId");
+  localStorage.removeItem("username");
+  localStorage.removeItem("token");
+  window.location.replace("/homepage");
+};
 
   // ===== DASHBOARD GRAPH DATA (UI ONLY) =====
 
   // Submission status distribution
   const statusCounts = {
-    Pending: 0,
-    Reviewed: 0,
-    Accepted: 0,
-    Rejected: 0,
-  };
+  Pending: 0,
+  Reviewed: 0,
+  Accepted: 0,
+  Rejected: 0,
+};
 
-  [...reportSubmissions, ...codeSubmissions].forEach((s) => {
+[...reportSubmissions, ...codeSubmissions].forEach((s) => {
   const status = (s.status || "").toLowerCase();
 
-  if (status === "pending") statusCounts.Pending++;
-  else if (status === "reviewed") statusCounts.Reviewed++;
-  else if (status === "accepted") statusCounts.Accepted++;
-  else if (status === "rejected") statusCounts.Rejected++;
+  if (status === "pending") {
+    statusCounts.Pending++;
+  }
+
+  if (status === "accepted") {
+    statusCounts.Accepted++;
+    statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
+  }
+
+  if (status === "rejected") {
+    statusCounts.Rejected++;
+    statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
+  }
 });
 
 
@@ -438,12 +440,9 @@ useEffect(() => {
     ],
   };
   // ✅ Derived unread feedback list (single source of truth)
-const unreadFeedbackList = reportSubmissions.filter(
-  s =>
-    s.teacherFeedback &&
-    unreadFeedbackIds.includes(s._id)
-);
-
+  const unreadFeedbackList = reportSubmissions.filter(
+    (s) => s.teacherFeedback && unreadFeedbackIds.includes(s._id),
+  );
 
   return (
     <div className="student-dashboard">
@@ -464,24 +463,27 @@ const unreadFeedbackList = reportSubmissions.filter(
           </button>
 
           <button
-  type="button"
-  className={activePage === 'submissions' ? 'nav-item active' : 'nav-item'}
-  onClick={() => {
-    const viewed = JSON.parse(localStorage.getItem("viewedFeedback") || "[]");
-    const allFeedbackIds = reportSubmissions
-      .filter(s => s.teacherFeedback)
-      .map(s => s._id);
+            type="button"
+            className={
+              activePage === "submissions" ? "nav-item active" : "nav-item"
+            }
+            onClick={() => {
+              const viewed = JSON.parse(
+                localStorage.getItem("viewedFeedback") || "[]",
+              );
+              const allFeedbackIds = reportSubmissions
+                .filter((s) => s.teacherFeedback)
+                .map((s) => s._id);
 
-    localStorage.setItem(
-      "viewedFeedback",
-      JSON.stringify([...new Set([...viewed, ...allFeedbackIds])])
-    );
+              localStorage.setItem(
+                "viewedFeedback",
+                JSON.stringify([...new Set([...viewed, ...allFeedbackIds])]),
+              );
 
-    setUnreadFeedbackIds([]);
-    setActivePage('submissions');
-  }}
->
-
+              setUnreadFeedbackIds([]);
+              setActivePage("submissions");
+            }}
+          >
             <FileText size={18} />
             <span>Project Reports</span>
           </button>
@@ -554,7 +556,11 @@ const unreadFeedbackList = reportSubmissions.filter(
                   <span>Reviewed</span>
                   <strong>
                     {
-                      [...reportSubmissions, ...codeSubmissions].filter((s) => s.status?.toLowerCase() === "reviewed").length
+                      [...reportSubmissions, ...codeSubmissions].filter(
+                        (s) =>
+                          s.status?.toLowerCase() === "accepted" ||
+                          s.status?.toLowerCase() === "rejected",
+                      ).length
                     }
                   </strong>
                 </div>
@@ -563,7 +569,9 @@ const unreadFeedbackList = reportSubmissions.filter(
                   <span>Pending</span>
                   <strong>
                     {
-                      [...reportSubmissions, ...codeSubmissions].filter((s) => s.status?.toLowerCase() === "pending").length
+                      [...reportSubmissions, ...codeSubmissions].filter(
+                        (s) => s.status?.toLowerCase() === "pending",
+                      ).length
                     }
                   </strong>
                 </div>
@@ -584,35 +592,39 @@ const unreadFeedbackList = reportSubmissions.filter(
 
               <div className="ui-panels">
                 <div className="ui-panel">
-  <h3>
-    📢 New Feedback
-    {unreadFeedbackIds.length > 0 && (
-      <span className="feedback-badge">
-        {unreadFeedbackIds.length}
-      </span>
-    )}
-  </h3>
+                  <h3>
+                    📢 New Feedback
+                    {unreadFeedbackIds.length > 0 && (
+                      <span className="feedback-badge">
+                        {unreadFeedbackIds.length}
+                      </span>
+                    )}
+                  </h3>
 
-  {unreadFeedbackList.length === 0 ? (
-  <p className="ui-muted">No new feedback</p>
-) : (
-  unreadFeedbackList.slice(0, 3).map(s => (
-    <div key={s._id} className="ui-feedback unread">
-      <div style={{ fontWeight: 600, marginBottom: "4px" }}>
-        {s.projectTitle}
-      </div>
-      <div style={{ fontSize: "13px", color: "#374151" }}>
-        {s.teacherFeedback}
-      </div>
-      <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
-        Status: {s.status}
-      </div>
-    </div>
-  ))
-)}
-
-</div>
-
+                  {unreadFeedbackList.length === 0 ? (
+                    <p className="ui-muted">No new feedback</p>
+                  ) : (
+                    unreadFeedbackList.slice(0, 3).map((s) => (
+                      <div key={s._id} className="ui-feedback unread">
+                        <div style={{ fontWeight: 600, marginBottom: "4px" }}>
+                          {s.projectTitle}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "#374151" }}>
+                          {s.teacherFeedback}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "#6b7280",
+                            marginTop: "6px",
+                          }}
+                        >
+                          Status: {s.status}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
 
                 <div className="ui-panel">
                   <h3>Pending Actions</h3>
@@ -622,7 +634,8 @@ const unreadFeedbackList = reportSubmissions.filter(
                     <p className="ui-muted">Nothing pending 🎉</p>
                   ) : (
                     <ul className="ui-tasks">
-                      {reportSubmissions.filter((s) => s.status?.toLowerCase() === "rejected")
+                      {reportSubmissions
+                        .filter((s) => s.status?.toLowerCase() === "rejected")
                         .map((s) => (
                           <li key={s._id}>{s.projectTitle}</li>
                         ))}
