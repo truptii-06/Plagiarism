@@ -525,20 +525,20 @@ const Teacher = () => {
 
 
     const triggerCheck = async () => {
-  setLoading(true);
+      setLoading(true);
 
-  const res = await runPlagiarismCheck(submission._id);
+      const res = await runPlagiarismCheck(submission._id);
 
-  if (res) {
-    setLocalResult({
-      ...res,
-      matchedMetadata: res.matchedMetadata
-    });
-    setViewResults(true); // ✅ show result immediately
-  }
+      if (res) {
+        setLocalResult({
+          ...res,
+          matchedMetadata: res.matchedMetadata
+        });
+        setViewResults(true); // ✅ show result immediately
+      }
 
-  setLoading(false);
-};
+      setLoading(false);
+    };
 
 
     const triggerCEICheck = async () => {
@@ -812,7 +812,7 @@ const Teacher = () => {
   const ReviewCodePageView = () => {
     const { id } = useParams();
     // Look up in codeSubmissions
-    const submission = submissions.find(s => s && s._id === id);
+    const submission = codeSubmissions.find(s => s && s._id === id);
 
     // Local state for results and feedback
     const [ceiResult, setCeiResult] = useState(null);
