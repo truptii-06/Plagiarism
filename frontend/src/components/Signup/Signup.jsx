@@ -1,25 +1,28 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import './Signup.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import "./Signup.css";
+import logoIcon from "../../assets/logo.png"; // symbol / mark
+import logoText from "../../assets/logo-name.png";
+import signupIllustration from "../../assets/signup.png";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState('student');
-  const [username, setUsername] = useState('');
-  const [usernameError, setUsernameError] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [role, setRole] = useState("student");
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   // New state for Student ID
-  const [studentId, setStudentId] = useState('');
+  const [studentId, setStudentId] = useState("");
 
-  const [teacherName, setTeacherName] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [teacherName, setTeacherName] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Username validation
   const handleUsernameChange = (e) => {
@@ -31,10 +34,10 @@ const Signup = () => {
 
     if (!regex.test(value)) {
       setUsernameError(
-        'Username must have 1 uppercase, 1 lowercase, 1 number, 1 special character, and be at least 8 characters long.'
+        "Username must have 1 uppercase, 1 lowercase, 1 number, 1 special character, and be at least 8 characters long.",
       );
     } else {
-      setUsernameError('');
+      setUsernameError("");
     }
   };
 
@@ -42,36 +45,36 @@ const Signup = () => {
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     if (confirmPassword && e.target.value !== confirmPassword) {
-      setPasswordError('Passwords do not match!');
+      setPasswordError("Passwords do not match!");
     } else {
-      setPasswordError('');
+      setPasswordError("");
     }
   };
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
     if (password && e.target.value !== password) {
-      setPasswordError('Passwords do not match!');
+      setPasswordError("Passwords do not match!");
     } else {
-      setPasswordError('');
+      setPasswordError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (usernameError || passwordError) {
-      alert('Please fix errors before submitting.');
+      alert("Please fix errors before submitting.");
       return;
     }
 
     const url =
-  role === 'student'
-    ? 'http://localhost:5000/api/auth/register/student'
-    : 'http://localhost:5000/api/auth/register/teacher';
+      role === "student"
+        ? "http://localhost:5000/api/auth/register/student"
+        : "http://localhost:5000/api/auth/register/teacher";
 
     // Construct body based on role
     const body =
-      role === 'student'
+      role === "student"
         ? {
             firstName,
             lastName,
@@ -92,36 +95,36 @@ const Signup = () => {
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert('Registration successful!');
-        navigate('/');
+        alert("Registration successful!");
+        navigate("/");
       } else {
-        alert(data.error || data.message || 'Registration failed.');
+        alert(data.error || data.message || "Registration failed.");
       }
     } catch (err) {
-      console.error('Error:', err);
-      alert('Something went wrong. Please try again.');
+      console.error("Error:", err);
+      alert("Something went wrong. Please try again.");
     }
   };
 
   return (
     <div className="signup-container">
-      <div className="logo1">
-        <h3>PlagiX</h3>
+      <div className="logo-contain">
+        <img src={logoIcon} alt="PlagiX Logo Icon" className="logo-icon" />
+        <img src={logoText} alt="PlagiX Logo Text" className="logo-text" />
       </div>
-      {/* Left Section */}
       <div className="left-section">
-        <h2>Welcome To PlagiX</h2>
-        <p>Your one-stop solution for plagiarism detection and prevention.</p>
-        <button className="login-btn">
-          <Link to="/">Login</Link>
-        </button>
+        <img
+          src={signupIllustration}
+          alt="Signup Illustration"
+          className="signup-image"
+        />
       </div>
 
       {/* Right Section */}
@@ -130,15 +133,15 @@ const Signup = () => {
         <div className="toggle-buttons">
           <button
             type="button"
-            className={`toggle-btn ${role === 'student' ? 'active' : ''}`}
-            onClick={() => setRole('student')}
+            className={`toggle-btn ${role === "student" ? "active" : ""}`}
+            onClick={() => setRole("student")}
           >
             Student
           </button>
           <button
             type="button"
-            className={`toggle-btn ${role === 'teacher' ? 'active' : ''}`}
-            onClick={() => setRole('teacher')}
+            className={`toggle-btn ${role === "teacher" ? "active" : ""}`}
+            onClick={() => setRole("teacher")}
           >
             Teacher
           </button>
@@ -146,13 +149,13 @@ const Signup = () => {
 
         {/* Form */}
         <h2 className="form-title">
-          {role === 'student'
-            ? 'Create Account as a Student'
-            : 'Create Account as a Teacher'}
+          {role === "student"
+            ? "Create Account as a Student"
+            : "Create Account as a Teacher"}
         </h2>
 
         <form className="signup-form" onSubmit={handleSubmit}>
-          {role === 'student' ? (
+          {role === "student" ? (
             <>
               <div className="form-row">
                 <input
@@ -311,6 +314,9 @@ const Signup = () => {
           <button type="submit" className="register-btn">
             Register
           </button>
+          <p className="login-link">
+            Already have an account? <Link to="/">Login here</Link>
+          </p>
         </form>
       </div>
     </div>

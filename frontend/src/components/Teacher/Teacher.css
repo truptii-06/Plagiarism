@@ -80,7 +80,6 @@
 ========================================= */
 .navbar {
   height: 60px;
-  background: linear-gradient(to right, #007bff, #00c6ff);
   color: white;
   display: flex;
   align-items: center;

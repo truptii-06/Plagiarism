@@ -19,12 +19,27 @@
   justify-content: center;
   align-items: center;
 }
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between icon & text */
+}
+
+.logo-icon {
+  height: 40px;  /* adjust as needed */
+  width: auto;
+}
+
+.logo-text {
+  height: 30px;  /* slightly smaller than icon */
+  width: auto;
+}
 
 /* Foreground main page (sits above bg-page) */
 .main-page {
   width: 100%;
   height: 99%;
-  background-image: url("./src/assets/main-bg.jpg");
+  background-image: url("./src/assets/bg.jpg");
   background-size: cover;
   box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   padding: 30px 40px;
@@ -52,15 +67,8 @@ html {
   position: relative;
   z-index: 1;
 }
-
-.logo {
-  font-size: 28px;
-  font-weight: 700;
-  color: #fff;
-}
-
 .nav-links a {
-  color: #fff;
+  color: #2c4468;
   text-decoration: none;
   margin: 0 15px;
   font-weight: 500;
@@ -97,6 +105,7 @@ html {
 
 .title {
   font-size: 48px;
+  color:#2c4468;
   font-weight: 800;
 }
 
@@ -104,14 +113,14 @@ html {
   font-size: 18px;
   line-height: 1.5;
   margin-bottom: 30px;
-  color: rgb(233, 250, 253);
+  color: #3ec9ba;
   font-weight: 600;
 }
 .description {
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 30px;
-  color: #e0e0e0;
+  color: #2f6e99;
 }
 .get-started {
   display: inline-block;
@@ -119,6 +128,7 @@ html {
   padding: 12px 25px;
   border-radius: 30px;
   border: 2px solid #fff;
+  background-color: #007ea7;
   color: #fff;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -128,14 +138,66 @@ html {
 .get-started:hover {
   background: #fff;
   color: #007ea7;
+
+
 }
+
+
+/* LOGIN LOGO */
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.login-logo img {
+  height: 42px;
+  width: auto;
+}
+.login-form input{
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color:#2c496f;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+/* RADIO ROLE SELECTION */
+/* RADIO ROLE SELECTION – FIXED ALIGNMENT */
+.role-selection {
+  display: flex;
+  justify-content: center;   /* center the group */
+  align-items: center;
+  gap: 32px;                 /* equal spacing */
+  margin: 18px 0 12px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+}
+
+.role-selection label {
+  display: inline-flex;      /* IMPORTANT */
+  align-items: center;       /* vertical alignment fix */
+  gap: 8px;                  /* space between radio & text */
+  font-size: 15px;
+  color: #444;
+  cursor: pointer;
+  line-height: 1;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+
+.role-selection input[type="radio"] {
+  
+  margin: 0;                 /* remove default offset */
+  width: 16px;
+  height: 16px;
+  accent-color: #007ea7;
+  cursor: pointer;
+}
+
 
 /* Right login box */
 .right-content {
-  background: rgb(250, 243, 243);
   padding: 40px 35px;
-  border-radius: 30px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   width: 350px;
   margin-right:3rem;
   margin-bottom:1.5rem;

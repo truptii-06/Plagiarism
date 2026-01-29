@@ -1,6 +1,8 @@
 // src/components/Student/Student.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { MdOutlineContentPasteSearch } from "react-icons/md";
+
 import {
   LayoutDashboard,
   FileText,
@@ -24,6 +26,7 @@ import {
 } from "chart.js";
 
 import { Bar, Doughnut } from "react-chartjs-2";
+
 // FEEDBACK VIEW TRACKING (UI ONLY)
 
 ChartJS.register(
@@ -35,10 +38,15 @@ ChartJS.register(
   Legend,
 );
 
+import logoIcon from "../../assets/logo.png";
+import logoText from "../../assets/logo-name.png";
+
 const Student = () => {
   const navigate = useNavigate();
   const [unreadFeedbackIds, setUnreadFeedbackIds] = useState([]);
-
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [showCodeSubmitModal, setShowCodeSubmitModal] = useState(false);
   // PAGE STATE
   const [activePage, setActivePage] = useState("dashboard");
 
@@ -70,7 +78,17 @@ const Student = () => {
   const reportSubmissions = submissions.filter(
     (s) => !s.category || s.category === "Report",
   );
+  const filteredReports =
+    statusFilter === "all"
+      ? reportSubmissions
+      : reportSubmissions.filter(
+          (s) => s.status?.toLowerCase() === statusFilter,
+        );
   const codeSubmissions = codeSubmissionsList; // Now fetching directly from separate DB collection
+  const filteredCodeSubmissions =
+    statusFilter === "all"
+      ? codeSubmissions
+      : codeSubmissions.filter((s) => s.status?.toLowerCase() === statusFilter);
 
   // FILE UPLOAD
   const fileRef = useRef(null);
@@ -171,7 +189,13 @@ const Student = () => {
       .filter((s) => s.teacherFeedback && !viewed.includes(s._id))
       .map((s) => s._id);
 
-    setUnreadFeedbackIds(unread);
+    setUnreadFeedbackIds((prev) => {
+      // prevent infinite loop
+      if (JSON.stringify(prev) === JSON.stringify(unread)) {
+        return prev;
+      }
+      return unread;
+    });
   }, [reportSubmissions]);
 
   // PROFILE FIELD HANDLER
@@ -341,9 +365,11 @@ const Student = () => {
         if (fileRef.current) fileRef.current.value = "";
 
         if (activePage === "code-submissions") {
+          setShowCodeSubmitModal(false);
           // Stay on code submissions or maybe show success message
           alert("Code Project uploaded!");
         } else {
+          setShowSubmitModal(false);
           setActivePage("submissions"); // Go to report submissions
           alert("Project Report uploaded!");
         }
@@ -381,40 +407,39 @@ const Student = () => {
 
   // LOGOUT
   const handleLogout = () => {
-  localStorage.removeItem("userId");
-  localStorage.removeItem("username");
-  localStorage.removeItem("token");
-  window.location.replace("/homepage");
-};
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    window.location.replace("/homepage");
+  };
 
   // ===== DASHBOARD GRAPH DATA (UI ONLY) =====
 
   // Submission status distribution
   const statusCounts = {
-  Pending: 0,
-  Reviewed: 0,
-  Accepted: 0,
-  Rejected: 0,
-};
+    Pending: 0,
+    Reviewed: 0,
+    Accepted: 0,
+    Rejected: 0,
+  };
 
-[...reportSubmissions, ...codeSubmissions].forEach((s) => {
-  const status = (s.status || "").toLowerCase();
+  [...reportSubmissions, ...codeSubmissions].forEach((s) => {
+    const status = (s.status || "").toLowerCase();
 
-  if (status === "pending") {
-    statusCounts.Pending++;
-  }
+    if (status === "pending") {
+      statusCounts.Pending++;
+    }
 
-  if (status === "accepted") {
-    statusCounts.Accepted++;
-    statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
-  }
+    if (status === "accepted") {
+      statusCounts.Accepted++;
+      statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
+    }
 
-  if (status === "rejected") {
-    statusCounts.Rejected++;
-    statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
-  }
-});
-
+    if (status === "rejected") {
+      statusCounts.Rejected++;
+      statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
+    }
+  });
 
   // Bar chart: submissions by status
   const statusBarData = {
@@ -448,7 +473,18 @@ const Student = () => {
     <div className="student-dashboard">
       {/* Sidebar */}
       <aside className="sidebar">
-        <h2 className="sidebar-title">PlagiX</h2>
+        <div className="sidebar-logo">
+          <img
+            src={logoIcon}
+            alt="PlagiX Logo Icon"
+            className="sidebar-logo-icon"
+          />
+          <img
+            src={logoText}
+            alt="PlagiX Logo Text"
+            className="sidebar-logo-text"
+          />
+        </div>
 
         <div className="sidebar-nav">
           <button
@@ -506,11 +542,15 @@ const Student = () => {
             }
             onClick={() => setActivePage("code-plagiarism")}
           >
-            <Code size={18} />
+            <MdOutlineContentPasteSearch size={18} />
             <span>Check Similarity</span>
           </button>
 
-          <button type="button" className="nav-item" onClick={handleLogout}>
+          <button
+            type="button"
+            className="nav-item logout-item"
+            onClick={handleLogout}
+          >
             <LogOut size={18} />
             <span>Logout</span>
           </button>
@@ -535,7 +575,7 @@ const Student = () => {
                 className="nav-profile-pic"
               />
             ) : (
-              <UserCircle color="#fff" size={26} />
+              <UserCircle color="#2d4063" size={26} />
             )}
           </div>
         </div>
@@ -673,146 +713,207 @@ const Student = () => {
           {/* Submissions List View (REPORTS ONLY) */}
           {activePage === "submissions" && (
             <div className="student-dashboard-container">
-              <h3>My Project Reports</h3>
-              <div className="ui-section">
-                {/* Submit Project Section */}
-                <div className="upload-card">
-                  <h3>Submit Project Report</h3>
-                  <p
-                    style={{
-                      color: "#666",
-                      fontSize: "14px",
-                      marginBottom: "20px",
-                    }}
-                  >
-                    Select your submission type and upload your project report.
-                  </p>
+              <div className="table-header">
+                <h3>My Project Reports</h3>
 
-                  <form onSubmit={submitProject}>
-                    <div className="form-group">
-                      <label>Submission Type</label>
-                      <div
-                        className="radio-group"
-                        style={{
-                          display: "flex",
-                          gap: "20px",
-                          marginBottom: "15px",
-                        }}
-                      >
-                        <label
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name="profileType"
-                            value="Individual"
-                            checked={profile.profileType === "Individual"}
-                            onChange={(e) =>
-                              updateProfileField("profileType", e.target.value)
-                            }
-                            style={{ width: "auto", marginRight: "8px" }}
-                          />{" "}
-                          Individual
-                        </label>
-                        <label
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name="profileType"
-                            value="Group"
-                            checked={profile.profileType === "Group"}
-                            onChange={(e) =>
-                              updateProfileField("profileType", e.target.value)
-                            }
-                            style={{ width: "auto", marginRight: "8px" }}
-                          />{" "}
-                          Group
-                        </label>
-                      </div>
-                    </div>
-
-                    {profile.profileType === "Individual" ? (
-                      <div className="form-group">
-                        <label>Student ID (Reference)</label>
-                        <input
-                          type="text"
-                          value={generalProfile.studentId}
-                          readOnly
-                          style={{
-                            background: "#f5f5f5",
-                            cursor: "not-allowed",
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="form-group">
-                        <label>Group ID (e.g. GRP-05)</label>
-                        <input
-                          type="text"
-                          value={profile.groupId}
-                          onChange={(e) =>
-                            updateProfileField("groupId", e.target.value)
-                          }
-                          placeholder="Enter your Group ID"
-                          required
-                        />
-                      </div>
-                    )}
-
-                    <div className="form-group">
-                      <label>Project Title</label>
-                      <input
-                        type="text"
-                        value={projectTitle}
-                        onChange={(e) => setProjectTitle(e.target.value)}
-                        placeholder="e.g. Smart Traffic Management"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Brief Description</label>
-                      <textarea
-                        value={projectDesc}
-                        onChange={(e) => setProjectDesc(e.target.value)}
-                        placeholder="Provide a short summary of your work..."
-                        rows="3"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Project Document (PDF, DOCX, TXT)</label>
-                      <input
-                        ref={fileRef}
-                        type="file"
-                        accept=".pdf,.docx,.txt"
-                        onChange={onFileChange}
-                        required
-                      />
-                    </div>
-
-                    <button
-                      className="primary-btn wide"
-                      type="submit"
-                      disabled={!projectTitle || !uploadFile}
-                      style={{ marginTop: "10px" }}
-                    >
-                      Submit for Review
-                    </button>
-                  </form>
-                </div>
+                <button
+                  className="primary-btn"
+                  onClick={() => setShowSubmitModal(true)}
+                >
+                  + Submit New Report
+                </button>
               </div>
+              <div className="filter-bar">
+                <button
+                  className={
+                    statusFilter === "all" ? "filter-btn active" : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("all")}
+                >
+                  All
+                </button>
+
+                <button
+                  className={
+                    statusFilter === "pending"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("pending")}
+                >
+                  Pending
+                </button>
+
+                <button
+                  className={
+                    statusFilter === "accepted"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("accepted")}
+                >
+                  Accepted
+                </button>
+
+                <button
+                  className={
+                    statusFilter === "rejected"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("rejected")}
+                >
+                  Rejected
+                </button>
+              </div>
+
+              {showSubmitModal && (
+                <div className="modal-overlay">
+                  <div className="modal-box">
+                    <div className="modal-header">
+                      <h3>Submit Project Report</h3>
+                      <button
+                        className="modal-close"
+                        onClick={() => setShowSubmitModal(false)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="modal-body">
+                      <form onSubmit={submitProject}>
+                        <div className="form-group">
+                          <label>Submission Type</label>
+                          <div
+                            className="radio-group"
+                            style={{
+                              display: "flex",
+                              gap: "20px",
+                              marginBottom: "15px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              <input
+                                type="radio"
+                                name="profileType"
+                                value="Individual"
+                                checked={profile.profileType === "Individual"}
+                                onChange={(e) =>
+                                  updateProfileField(
+                                    "profileType",
+                                    e.target.value,
+                                  )
+                                }
+                                style={{ width: "auto", marginRight: "8px" }}
+                              />{" "}
+                              Individual
+                            </label>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              <input
+                                type="radio"
+                                name="profileType"
+                                value="Group"
+                                checked={profile.profileType === "Group"}
+                                onChange={(e) =>
+                                  updateProfileField(
+                                    "profileType",
+                                    e.target.value,
+                                  )
+                                }
+                                style={{ width: "auto", marginRight: "8px" }}
+                              />{" "}
+                              Group
+                            </label>
+                          </div>
+                        </div>
+
+                        {profile.profileType === "Individual" ? (
+                          <div className="form-group">
+                            <label>Student ID (Reference)</label>
+                            <input
+                              type="text"
+                              value={generalProfile.studentId}
+                              readOnly
+                              style={{
+                                background: "#f5f5f5",
+                                cursor: "not-allowed",
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="form-group">
+                            <label>Group ID (e.g. GRP-05)</label>
+                            <input
+                              type="text"
+                              value={profile.groupId}
+                              onChange={(e) =>
+                                updateProfileField("groupId", e.target.value)
+                              }
+                              placeholder="Enter your Group ID"
+                              required
+                            />
+                          </div>
+                        )}
+
+                        <div className="form-group">
+                          <label>Project Title</label>
+                          <input
+                            type="text"
+                            value={projectTitle}
+                            onChange={(e) => setProjectTitle(e.target.value)}
+                            placeholder="e.g. Smart Traffic Management"
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Brief Description</label>
+                          <textarea
+                            value={projectDesc}
+                            onChange={(e) => setProjectDesc(e.target.value)}
+                            placeholder="Provide a short summary of your work..."
+                            rows="3"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Project Document (PDF, DOCX, TXT)</label>
+                          <input
+                            ref={fileRef}
+                            type="file"
+                            accept=".pdf,.docx,.txt"
+                            onChange={onFileChange}
+                            required
+                          />
+                        </div>
+
+                        <button
+                          className="primary-btn wide"
+                          type="submit"
+                          disabled={!projectTitle || !uploadFile}
+                          style={{ marginTop: "10px" }}
+                        >
+                          Submit for Review
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {reportSubmissions.length === 0 ? (
                 <div className="no-data">No report submissions yet</div>
@@ -832,7 +933,7 @@ const Student = () => {
                   </thead>
 
                   <tbody>
-                    {reportSubmissions.map((s) => (
+                    {filteredReports.map((s) => (
                       <tr key={s._id}>
                         <td>{s.projectTitle}</td>
                         <td>{new Date(s.date).toLocaleDateString()}</td>
@@ -892,227 +993,254 @@ const Student = () => {
               )}
             </div>
           )}
-        </div>
+          {activePage === "code-plagiarism" && (
+            <div className="dashboard-content-area">
+              <CodePlagiarism showSimilarity={false} />
+            </div>
+          )}
 
-        {/* New Pages within content area or just below if using same padding */}
-        {activePage === "code-plagiarism" && (
-          <div className="dashboard-content-area">
-            <CodePlagiarism showSimilarity={false} />
-          </div>
-        )}
-
-        {activePage === "code-submissions" && (
-          <div className="student-dashboard-container">
-            {/* 1. Upload Section for Code */}
-            <div className="upload-card" style={{ marginBottom: "40px" }}>
-              <h3>Submit Code Project</h3>
-              <p
-                style={{
-                  color: "#666",
-                  fontSize: "14px",
-                  marginBottom: "20px",
-                }}
-              >
-                Upload your source code files (.py, .java, .js, .cpp) for AI and
-                Similarity Analysis.
-              </p>
-              <form onSubmit={submitProject}>
-                <div className="form-group">
-                  <label>Submission Type</label>
-                  <div
-                    className="radio-group"
-                    style={{
-                      display: "flex",
-                      gap: "20px",
-                      marginBottom: "15px",
-                    }}
-                  >
-                    <label
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        fontWeight: "normal",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="profileType"
-                        value="Individual"
-                        checked={profile.profileType === "Individual"}
-                        onChange={(e) =>
-                          updateProfileField("profileType", e.target.value)
-                        }
-                        style={{ width: "auto", marginRight: "8px" }}
-                      />{" "}
-                      Individual
-                    </label>
-                    <label
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        fontWeight: "normal",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="profileType"
-                        value="Group"
-                        checked={profile.profileType === "Group"}
-                        onChange={(e) =>
-                          updateProfileField("profileType", e.target.value)
-                        }
-                        style={{ width: "auto", marginRight: "8px" }}
-                      />{" "}
-                      Group
-                    </label>
-                  </div>
-                </div>
-
-                {profile.profileType === "Individual" ? (
-                  <div className="form-group">
-                    <label>Student ID</label>
-                    <input
-                      type="text"
-                      value={generalProfile.studentId}
-                      readOnly
-                      style={{ background: "#f5f5f5", cursor: "not-allowed" }}
-                    />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label>Group ID</label>
-                    <input
-                      type="text"
-                      value={profile.groupId}
-                      onChange={(e) =>
-                        updateProfileField("groupId", e.target.value)
-                      }
-                      placeholder="Enter Group ID"
-                      required
-                    />
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label>Project Title</label>
-                  <input
-                    type="text"
-                    value={projectTitle}
-                    onChange={(e) => setProjectTitle(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Brief Description</label>
-                  <textarea
-                    value={projectDesc}
-                    onChange={(e) => setProjectDesc(e.target.value)}
-                    rows="2"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Code File (.py, .java, .js, .cpp)</label>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".py,.java,.js,.cpp,.c"
-                    onChange={onFileChange}
-                    required
-                  />
-                </div>
+          {activePage === "code-submissions" && (
+            <div className="student-dashboard-container">
+              <div className="table-header">
+                <h3>My Code Submissions</h3>
 
                 <button
-                  className="primary-btn wide"
-                  type="submit"
-                  disabled={!projectTitle || !uploadFile}
-                  style={{ marginTop: "10px" }}
+                  className="primary-btn"
+                  onClick={() => setShowCodeSubmitModal(true)}
                 >
-                  Submit Code
+                  + Submit Code Project
                 </button>
-              </form>
-            </div>
+              </div>
+              <div className="filter-bar">
+                <button
+                  className={
+                    statusFilter === "all" ? "filter-btn active" : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("all")}
+                >
+                  All
+                </button>
 
-            {/* 2. List Section for Code */}
-            <h3>My Code Submissions</h3>
-            {codeSubmissions.length === 0 ? (
-              <div className="no-data">No code submissions yet</div>
-            ) : (
-              <table className="submissions-table">
-                <thead>
-                  <tr>
-                    <th>Project Title</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>AI Analysis (CEI)</th>
-                    <th>Feedback</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {codeSubmissions.map((s) => (
-                    <tr key={s._id}>
-                      <td>{s.projectTitle}</td>
-                      <td>{new Date(s.date).toLocaleDateString()}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${s.status.toLowerCase()}`}
+                <button
+                  className={
+                    statusFilter === "pending"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("pending")}
+                >
+                  Pending
+                </button>
+
+                <button
+                  className={
+                    statusFilter === "accepted"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("accepted")}
+                >
+                  Accepted
+                </button>
+
+                <button
+                  className={
+                    statusFilter === "rejected"
+                      ? "filter-btn active"
+                      : "filter-btn"
+                  }
+                  onClick={() => setStatusFilter("rejected")}
+                >
+                  Rejected
+                </button>
+              </div>
+              {showCodeSubmitModal && (
+                <div className="modal-overlay">
+                  <div className="modal-box">
+                    <div className="modal-header">
+                      <h3>Submit Code Project</h3>
+                      <button
+                        className="modal-close"
+                        onClick={() => setShowCodeSubmitModal(false)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="modal-body">
+                      <form onSubmit={submitProject}>
+                        {/* Submission Type */}
+                        <div className="form-group">
+                          <label>Submission Type</label>
+                          <div className="radio-group">
+                            <label>
+                              <input
+                                type="radio"
+                                value="Individual"
+                                checked={profile.profileType === "Individual"}
+                                onChange={(e) =>
+                                  updateProfileField(
+                                    "profileType",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                              Individual
+                            </label>
+
+                            <label>
+                              <input
+                                type="radio"
+                                value="Group"
+                                checked={profile.profileType === "Group"}
+                                onChange={(e) =>
+                                  updateProfileField(
+                                    "profileType",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                              Group
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* ID */}
+                        {profile.profileType === "Individual" ? (
+                          <div className="form-group">
+                            <label>Student ID</label>
+                            <input value={generalProfile.studentId} readOnly />
+                          </div>
+                        ) : (
+                          <div className="form-group">
+                            <label>Group ID</label>
+                            <input
+                              value={profile.groupId}
+                              onChange={(e) =>
+                                updateProfileField("groupId", e.target.value)
+                              }
+                              required
+                            />
+                          </div>
+                        )}
+
+                        <div className="form-group">
+                          <label>Project Title</label>
+                          <input
+                            value={projectTitle}
+                            onChange={(e) => setProjectTitle(e.target.value)}
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Brief Description</label>
+                          <textarea
+                            value={projectDesc}
+                            onChange={(e) => setProjectDesc(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Code File</label>
+                          <input
+                            ref={fileRef}
+                            type="file"
+                            accept=".py,.java,.js,.cpp,.c"
+                            onChange={onFileChange}
+                            required
+                          />
+                        </div>
+
+                        <button
+                          className="primary-btn wide"
+                          type="submit"
+                          disabled={!projectTitle || !uploadFile}
                         >
-                          {s.status}
-                        </span>
-                      </td>
-                      <td>
-                        {s.ceiLabel ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              fontSize: "12px",
-                            }}
+                          Submit Code
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. List Section for Code */}
+              {codeSubmissions.length === 0 ? (
+                <div className="no-data">No code submissions yet</div>
+              ) : (
+                <table className="submissions-table">
+                  <thead>
+                    <tr>
+                      <th>Project Title</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>AI Analysis (CEI)</th>
+                      <th>Feedback</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCodeSubmissions.map((s) => (
+                      <tr key={s._id}>
+                        <td>{s.projectTitle}</td>
+                        <td>{new Date(s.date).toLocaleDateString()}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${s.status.toLowerCase()}`}
                           >
-                            <span
+                            {s.status}
+                          </span>
+                        </td>
+                        <td>
+                          {s.ceiLabel ? (
+                            <div
                               style={{
-                                fontWeight: 600,
-                                color: s.ceiScore > 1.2 ? "#e11d48" : "#059669",
+                                display: "flex",
+                                flexDirection: "column",
+                                fontSize: "12px",
                               }}
                             >
-                              {s.ceiLabel}
-                            </span>
-                            {s.ceiScore && (
-                              <span style={{ color: "#666" }}>
-                                Score: {s.ceiScore}
+                              <span
+                                style={{
+                                  fontWeight: 600,
+                                  color:
+                                    s.ceiScore > 1.2 ? "#e11d48" : "#059669",
+                                }}
+                              >
+                                {s.ceiLabel}
                               </span>
-                            )}
-                          </div>
-                        ) : s.status === "Accepted" ||
-                          s.status === "Reviewed" ? (
-                          "Not Analyze"
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td>{s.teacherFeedback || "-"}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="download-link"
-                          onClick={() => handleDownload(s.fileName)}
-                        >
-                          <Download size={14} /> File
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {activePage === "profile" && (
+                              {s.ceiScore && (
+                                <span style={{ color: "#666" }}>
+                                  Score: {s.ceiScore}
+                                </span>
+                              )}
+                            </div>
+                          ) : s.status === "Accepted" ||
+                            s.status === "Reviewed" ? (
+                            "Not Analyze"
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td>{s.teacherFeedback || "-"}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="download-link"
+                            onClick={() => handleDownload(s.fileName)}
+                          >
+                            <Download size={14} /> File
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+          {activePage === "profile" && (
           <div className="dashboard-content-area">
             <div className="profile-viewer-container">
               <div className="profile-pic-section">
@@ -1201,7 +1329,11 @@ const Student = () => {
                     <span>Username</span>
                     <strong>{localStorage.getItem("username")}</strong>
                   </div>
-                  <button className="logout-btn-alt" onClick={handleLogout}>
+                  <button
+                    className="logout-btn-alt "
+                    style={{ color: "red" }}
+                    onClick={handleLogout}
+                  >
                     Logout Account
                   </button>
                 </div>
@@ -1209,6 +1341,11 @@ const Student = () => {
             </div>
           </div>
         )}
+        </div>
+
+        {/* New Pages within content area or just below if using same padding */}
+
+        
       </main>
     </div>
   );
