@@ -104,6 +104,15 @@ exports.uploadDataset = async (req, res) => {
         // Extract text content from rows.
         const items = [];
 
+        // --- ADDED: Persistent state for Fill-Down logic ---
+        let runningMetadata = {
+            projectTitle: "",
+            projectGuide: "",
+            academicYear: "",
+            problemStatement: "",
+            sourceLink: ""
+        };
+
         // Process rows starting AFTER the header
         for (let i = headerRowIndex + 1; i < rawRows.length; i++) {
             const rowData = rawRows[i];
@@ -115,28 +124,36 @@ exports.uploadDataset = async (req, res) => {
                 if (h) rowObj[h] = rowData[idx] || "";
             });
 
-            // Extract relevant fields (Normalize)
-            const cleanMetadata = {
-                projectTitle: "",
-                groupMembers: "",
-                projectGuide: "",
-                academicYear: "",
-                problemStatement: "",
-                sourceLink: ""
-            };
-
             // Helper to find value loosely
             const findVal = (patterns) => {
                 const key = Object.keys(rowObj).find(k => patterns.some(p => k.toLowerCase().includes(p.toLowerCase())));
-                return key ? rowObj[key] : "";
+                return key ? String(rowObj[key]).trim() : "";
             };
 
-            cleanMetadata.projectTitle = findVal(["Project Title", "Title"]);
-            cleanMetadata.groupMembers = findVal(["Name of the Students", "Student Name", "Group Members", "Members"]);
-            cleanMetadata.projectGuide = findVal(["Guide name", "Guide"]);
-            cleanMetadata.academicYear = findVal(["Year", "Publish Date", "Academic Year"]);
-            // Problem statement might be "Abstract" or "Domain" if problem statement not present
-            cleanMetadata.problemStatement = findVal(["Problem Statement", "Abstract", "Domain"]);
+            // Extract current row fields
+            const currentRowTitle = findVal(["Project Title", "Title"]);
+            const groupMembers = findVal(["Name of the Students", "Student Name", "Group Members", "Members"]);
+            const currentRowGuide = findVal(["Guide name", "Guide"]);
+            const currentRowYear = findVal(["Year", "Publish Date", "Academic Year"]);
+            const currentRowSourceLink = Object.values(rowObj).find(v => typeof v === 'string' && v.trim().match(/^https?:\/\//)) || "";
+            const currentRowProblem = findVal(["Problem Statement", "Abstract", "Domain"]);
+
+            // --- Fill-Down Logic ---
+            if (currentRowTitle) runningMetadata.projectTitle = currentRowTitle;
+            if (currentRowGuide) runningMetadata.projectGuide = currentRowGuide;
+            if (currentRowYear) runningMetadata.academicYear = currentRowYear;
+            if (currentRowProblem) runningMetadata.problemStatement = currentRowProblem;
+            if (currentRowSourceLink) runningMetadata.sourceLink = currentRowSourceLink.replace(/\s/g, "");
+
+            // Build the metadata for THIS row (inherit from runningMetadata if missing)
+            const cleanMetadata = {
+                projectTitle: currentRowTitle || runningMetadata.projectTitle,
+                groupMembers: groupMembers, // Usually unique per row in this structure
+                projectGuide: currentRowGuide || runningMetadata.projectGuide,
+                academicYear: currentRowYear || runningMetadata.academicYear,
+                problemStatement: currentRowProblem || runningMetadata.problemStatement,
+                sourceLink: (currentRowSourceLink || runningMetadata.sourceLink).replace(/\s/g, "")
+            };
 
             // FIX: If academic year is looks like an Excel serial number (digits only) or is missing, 
             // try to extract it from the Dataset Name (e.g., "BE 2025-26 Reports")

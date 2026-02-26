@@ -14,7 +14,7 @@ exports.uploadSubmission = async (req, res) => {
     if (!studentId || !projectTitle || !submissionType) {
       return res.status(400).json({ error: "Missing required fields" });
     }
- 
+
     const uploadDir = "./uploads";
     const path = require("path");
     const fs = require("fs");
@@ -98,7 +98,8 @@ exports.getAllSubmissions = async (req, res) => {
           category: s.category,
           ceiScore: s.ceiScore,
           ceiLabel: s.ceiLabel,
-          ceiMetrics: s.ceiMetrics
+          ceiMetrics: s.ceiMetrics,
+          plagiarismScore: s.plagiarismScore // ✅ FIXED: Added missing field
         };
       })
     );
@@ -127,6 +128,7 @@ exports.updateStatus = async (req, res) => {
         status,
         teacherFeedback,
         similarity,
+        plagiarismScore: req.body.plagiarismScore, // ✅ FIXED: Added missing field
         mostSimilarDoc,
         reviewedAt: new Date()
       },

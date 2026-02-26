@@ -342,6 +342,7 @@ const Teacher = () => {
                   <th>Project</th>
                   <th>Status</th>
                   <th>Similarity</th>
+                  <th>Plagiarism</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -357,6 +358,7 @@ const Teacher = () => {
                       </span>
                     </td>
                     <td>{s.similarity != null ? `${s.similarity}%` : "—"}</td>
+                    <td>{s.plagiarismScore != null ? `${s.plagiarismScore}%` : "—"}</td>
                     <td>
                       <button
                         className="btn ghost small"
@@ -458,7 +460,8 @@ const Teacher = () => {
               similarity: submission.similarity,
               most_similar_doc: submission.mostSimilarDoc,
               matched_snippet: submission.matchedSnippet,
-              matchedMetadata: submission.matchedMetadata
+              matchedMetadata: submission.matchedMetadata,
+              plagiarismScore: submission.plagiarismScore
             });
           }
         }
@@ -485,6 +488,7 @@ const Teacher = () => {
         status: newStatus,
         teacherFeedback: feedback,
         similarity: localResult?.similarity,
+        plagiarismScore: localResult?.plagiarism_score || localResult?.plagiarismScore,
         mostSimilarDoc: localResult?.most_similar_doc
       };
 
@@ -601,7 +605,7 @@ const Teacher = () => {
 
             <div className="confidence-meter">
               <div className="meter-label">
-                <span>Similarity Score</span>
+                <span>Dataset Similarity (Ref Materials)</span>
                 <span>{localResult.similarity}%</span>
               </div>
               <div className="progress-track" style={{ background: '#eee', height: '10px' }}>
@@ -610,6 +614,22 @@ const Teacher = () => {
                   style={{
                     width: `${Math.min(localResult.similarity, 100)}%`,
                     background: localResult.similarity > 50 ? '#f43f5e' : (localResult.similarity > 20 ? '#fbbf24' : '#10b981')
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="confidence-meter" style={{ marginTop: '10px' }}>
+              <div className="meter-label">
+                <span>AI & Web Pattern Detection</span>
+                <span>{localResult.plagiarism_score || localResult.plagiarismScore || 0}%</span>
+              </div>
+              <div className="progress-track" style={{ background: '#eee', height: '10px' }}>
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${Math.min(localResult.plagiarism_score || localResult.plagiarismScore || 0, 100)}%`,
+                    background: (localResult.plagiarism_score || localResult.plagiarismScore || 0) > 40 ? '#f43f5e' : ((localResult.plagiarism_score || localResult.plagiarismScore || 0) > 15 ? '#fbbf24' : '#10b981')
                   }}
                 ></div>
               </div>

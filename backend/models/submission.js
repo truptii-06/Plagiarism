@@ -14,6 +14,7 @@ const submissionSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
 
   similarity: { type: Number, default: null },
+  plagiarismScore: { type: Number, default: null },
   grammarIssues: { type: Number, default: null },
   mostSimilarDoc: { type: String, default: null },
   matchedSnippet: { type: String, default: null },

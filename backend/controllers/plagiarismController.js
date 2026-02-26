@@ -8,7 +8,13 @@ exports.processPlagiarismCheck = async (submissionId) => {
   if (!sub) throw new Error("Submission not found");
 
   // ✅ FIX: use correct field name from DB
-  const filePath = path.resolve(sub.fileUrl);
+  // ✅ ROBUST PATH RESOLUTION
+  let filePath = path.resolve(sub.fileUrl);
+  if (!fs.existsSync(filePath)) {
+    // If absolute path from another machine fails, try looking in local uploads folder
+    const fileName = path.basename(sub.fileUrl);
+    filePath = path.join(__dirname, "../uploads", fileName);
+  }
 
   // Validate file exists
   if (!fs.existsSync(filePath)) {
@@ -71,6 +77,7 @@ exports.processPlagiarismCheck = async (submissionId) => {
 
         // Save results to DB
         sub.similarity = result.similarity;
+        sub.plagiarismScore = result.plagiarism_score || null;
         sub.mostSimilarDoc = result.most_similar_doc || null;
         sub.matchedSnippet = result.matched_snippet || null;
 
@@ -407,7 +414,11 @@ exports.runCEICheck = async (req, res) => {
       return res.status(404).json({ error: "Submission not found" });
     }
 
-    const filePath = path.resolve(sub.fileUrl);
+    let filePath = path.resolve(sub.fileUrl);
+    if (!fs.existsSync(filePath)) {
+      const fileName = path.basename(sub.fileUrl);
+      filePath = path.join(__dirname, "../uploads", fileName);
+    }
 
     // Validate file exists
     if (!fs.existsSync(filePath)) {
