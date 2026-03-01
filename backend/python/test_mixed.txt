@@ -1,0 +1,22 @@
+This is a random student report intro. It has some filler text to see if the similarity dilution is fixed.
+We are talking about code analysis tools.
+-----------------------------------------------------------
+import streamlit as st
+from modules.lexical_similarity import lexical_similarity
+from modules.structural_similarity import structural_similarity
+import difflib
+import matplotlib.pyplot as plt
+from checker import calculate_similarity
+import joblib
+import pandas as pd
+from modules.stylometric_analysis import extract_features
+
+# App title
+st.set_page_config(page_title="Code Analysis Tool", page_icon="💻", layout="wide")
+st.title("💻 Code Analysis Tool")
+
+tab1, tab2 = st.tabs(["👥 Plagiarism Checker", "🤖 AI Code Detector"])
+-----------------------------------------------------------
+The above part was copied. Let's see if the sliding window finds it.
+Some more filler text at the end to dilute it further if we used the old method.
+End of report.
