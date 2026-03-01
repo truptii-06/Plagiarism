@@ -1,7 +1,15 @@
 // src/components/Teacher/Teacher.jsx
 import React, { useState, useEffect } from "react";
-import { NavLink, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import {
+  NavLink,
+  Routes,
+  Route,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import "./Teacher.css";
+import logoIcon from "../../assets/logo.png";
+import logoText from "../../assets/logo-name.png";
 import {
   LayoutDashboard,
   FileText,
@@ -17,7 +25,7 @@ import {
   Code,
   Camera,
   UserCircle,
-  Database
+  Database,
 } from "lucide-react";
 import "../Student/PlagiarismTools.css";
 import CodePlagiarism from "../Student/CodePlagiarism";
@@ -27,15 +35,15 @@ const Teacher = () => {
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
   const [codeSubmissions, setCodeSubmissions] = useState([]);
-  const [activePage, setActivePage] = useState('dashboard'); // Added to manage sub-routes better if needed, but Teacher uses actual Routes.
+  const [activePage, setActivePage] = useState("dashboard"); // Added to manage sub-routes better if needed, but Teacher uses actual Routes.
 
   // GENERAL PROFILE INFO
   const [generalProfile, setGeneralProfile] = useState({
-    teacherName: '',
-    organization: '',
-    email: '',
-    phone: '',
-    profilePic: ''
+    teacherName: "",
+    organization: "",
+    email: "",
+    phone: "",
+    profilePic: "",
   });
 
   // -------------------------------
@@ -47,19 +55,21 @@ const Teacher = () => {
       const userId = localStorage.getItem("userId");
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:5000/api/profile/teacher/${userId}`);
+      const res = await fetch(
+        `http://localhost:5000/api/profile/teacher/${userId}`,
+      );
       const data = await res.json();
       if (data && data._id) {
         setGeneralProfile({
-          teacherName: data.teacherName || '',
-          organization: data.organization || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          profilePic: data.profilePic || ''
+          teacherName: data.teacherName || "",
+          organization: data.organization || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          profilePic: data.profilePic || "",
         });
       }
     } catch (err) {
-      console.error('Error loading general profile:', err);
+      console.error("Error loading general profile:", err);
     }
   };
 
@@ -69,7 +79,7 @@ const Teacher = () => {
       .then((r) => r.json())
       .then((data) => {
         const safeData = Array.isArray(data)
-          ? data.filter(s => s && typeof s === "object")
+          ? data.filter((s) => s && typeof s === "object")
           : [];
 
         setSubmissions(safeData);
@@ -100,9 +110,9 @@ const Teacher = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          role: 'teacher',
-          ...generalProfile
-        })
+          role: "teacher",
+          ...generalProfile,
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -129,11 +139,11 @@ const Teacher = () => {
     try {
       const res = await fetch("http://localhost:5000/api/profile/upload-pic", {
         method: "POST",
-        body: fd
+        body: fd,
       });
       const data = await res.json();
       if (data.success) {
-        setGeneralProfile(prev => ({ ...prev, profilePic: data.profilePic }));
+        setGeneralProfile((prev) => ({ ...prev, profilePic: data.profilePic }));
         alert("Profile picture updated!");
       } else {
         alert(data.error || "Upload failed.");
@@ -150,7 +160,7 @@ const Teacher = () => {
   // Update a submission within UI
   const updateSubmissionUI = (id, updates) => {
     setSubmissions((prev) =>
-      prev.map((s) => (s._id === id ? { ...s, ...updates } : s))
+      prev.map((s) => (s._id === id ? { ...s, ...updates } : s)),
     );
   };
 
@@ -180,11 +190,14 @@ const Teacher = () => {
 
   const runCEICheck = async (subId) => {
     try {
-      const res = await fetch("http://localhost:5000/api/plagiarism/check-cei", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId: subId }),
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/plagiarism/check-cei",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ submissionId: subId }),
+        },
+      );
 
       const data = await res.json();
       if (data.error) {
@@ -205,28 +218,23 @@ const Teacher = () => {
   const DashboardView = () => {
     const total = submissions.length;
     const pending = submissions.filter(
-      (s) => s?.status?.toLowerCase() === "pending"
+      (s) => s?.status?.toLowerCase() === "pending",
     ).length;
 
     const accepted = submissions.filter(
-      (s) => s?.status?.toLowerCase() === "accepted"
+      (s) => s?.status?.toLowerCase() === "accepted",
     ).length;
-
 
     const recent = submissions.filter(
       (s) =>
         s &&
         typeof s === "object" &&
         (!s.category || s.category === "Report") &&
-        s.status?.toLowerCase() === "pending"
+        s.status?.toLowerCase() === "pending",
     );
-
-
 
     return (
       <div>
-        <h1>Teacher Dashboard</h1>
-
         <div className="cards-row">
           <div className="card small">
             <div className="card-title">Total Submissions</div>
@@ -269,7 +277,10 @@ const Teacher = () => {
                     </span>
                   </td>
                   <td>
-                    <button className="btn primary small" onClick={() => navigate(`/teacher/review/${s._id}`)}>
+                    <button
+                      className="btn primary small"
+                      onClick={() => navigate(`/teacher/review/${s._id}`)}
+                    >
                       Review
                     </button>
                   </td>
@@ -290,18 +301,15 @@ const Teacher = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredReports = submissions
-      .filter(
-        (s) =>
-          s &&
-          (!s.category || s.category === "Report")
-      )
+      .filter((s) => s && (!s.category || s.category === "Report"))
       .filter((s) => {
         if (statusFilter === "all") return true;
         return s.status?.toLowerCase() === statusFilter;
       })
-      .filter((s) =>
-        s.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
+      .filter(
+        (s) =>
+          s.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          s.studentName?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
 
     return (
@@ -352,7 +360,9 @@ const Teacher = () => {
                     <td>{s.studentName || "Unknown"}</td>
                     <td>{s.projectTitle}</td>
                     <td>
-                      <span className={`status-badge ${s.status.toLowerCase()}`}>
+                      <span
+                        className={`status-badge ${s.status.toLowerCase()}`}
+                      >
                         {s.status}
                       </span>
                     </td>
@@ -387,7 +397,9 @@ const Teacher = () => {
         <h1>Code Submissions</h1>
         <div className="panel">
           {codeSubs.length === 0 ? (
-            <p style={{ padding: '20px', color: '#666' }}>No code submissions yet.</p>
+            <p style={{ padding: "20px", color: "#666" }}>
+              No code submissions yet.
+            </p>
           ) : (
             <table className="submissions-table wide">
               <thead>
@@ -405,22 +417,48 @@ const Teacher = () => {
                     <td>{s.studentName || "Unknown"}</td>
                     <td>{s.projectTitle}</td>
                     <td>
-                      <span className={`status-badge ${s.status.toLowerCase()}`}>
+                      <span
+                        className={`status-badge ${s.status.toLowerCase()}`}
+                      >
                         {s.status}
                       </span>
                     </td>
                     <td>
                       {s.ceiLabel ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '12px' }}>
-                          <span style={{ fontWeight: 600, color: s.ceiScore > 1.2 ? '#e11d48' : '#059669' }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            fontSize: "12px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: s.ceiScore > 1.2 ? "#e11d48" : "#059669",
+                            }}
+                          >
                             {s.ceiLabel}
                           </span>
-                          {s.ceiScore && <span style={{ color: '#666' }}>Score: {s.ceiScore}</span>}
+                          {s.ceiScore && (
+                            <span style={{ color: "#666" }}>
+                              Score: {s.ceiScore}
+                            </span>
+                          )}
                         </div>
-                      ) : (s.status === 'Accepted' || s.status === 'Reviewed' ? 'Not Analyzed' : '-')}
+                      ) : s.status === "Accepted" || s.status === "Reviewed" ? (
+                        "Not Analyzed"
+                      ) : (
+                        "-"
+                      )}
                     </td>
                     <td>
-                      <button className="btn primary small" onClick={() => navigate(`/teacher/review-code/${s._id}`)}>
+                      <button
+                        className="btn primary small"
+                        onClick={() =>
+                          navigate(`/teacher/review-code/${s._id}`)
+                        }
+                      >
                         Review Code
                       </button>
                     </td>
@@ -439,7 +477,7 @@ const Teacher = () => {
   // ---------------------------------
   const ReviewPageView = () => {
     const { id } = useParams();
-    const submission = submissions.find(s => s._id === id);
+    const submission = submissions.find((s) => s._id === id);
     const [viewResults, setViewResults] = useState(false);
     const [localResult, setLocalResult] = useState(null);
     const [ceiResult, setCeiResult] = useState(null);
@@ -458,7 +496,7 @@ const Teacher = () => {
               similarity: submission.similarity,
               most_similar_doc: submission.mostSimilarDoc,
               matched_snippet: submission.matchedSnippet,
-              matchedMetadata: submission.matchedMetadata
+              matchedMetadata: submission.matchedMetadata,
             });
           }
         }
@@ -466,13 +504,16 @@ const Teacher = () => {
           setCeiResult({
             CEI_score: submission.ceiScore,
             label: submission.ceiLabel,
-            metrics: submission.ceiMetrics
+            metrics: submission.ceiMetrics,
           });
         }
       }
     }, [submission]);
 
-    if (!submission) return <div style={{ padding: '20px' }}>Loading Submission Details...</div>;
+    if (!submission)
+      return (
+        <div style={{ padding: "20px" }}>Loading Submission Details...</div>
+      );
 
     const handleAction = async (newStatus) => {
       if (!submission || !submission._id) {
@@ -485,7 +526,7 @@ const Teacher = () => {
         status: newStatus,
         teacherFeedback: feedback,
         similarity: localResult?.similarity,
-        mostSimilarDoc: localResult?.most_similar_doc
+        mostSimilarDoc: localResult?.most_similar_doc,
       };
 
       try {
@@ -494,8 +535,8 @@ const Teacher = () => {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          }
+            body: JSON.stringify(payload),
+          },
         );
 
         const data = await res.json();
@@ -506,23 +547,21 @@ const Teacher = () => {
         }
 
         // ✅ UPDATE STATUS — DO NOT REMOVE
-        setSubmissions(prev =>
-          prev.map(s =>
+        setSubmissions((prev) =>
+          prev.map((s) =>
             s && s._id === submission._id
               ? { ...s, status: newStatus, teacherFeedback: feedback }
-              : s
-          )
+              : s,
+          ),
         );
 
         alert(`Submission ${newStatus} successfully`);
         navigate("/teacher/dashboard");
-
       } catch (err) {
         console.error(err);
         alert("Server error while saving review");
       }
     };
-
 
     const triggerCheck = async () => {
       setLoading(true);
@@ -532,14 +571,13 @@ const Teacher = () => {
       if (res) {
         setLocalResult({
           ...res,
-          matchedMetadata: res.matchedMetadata
+          matchedMetadata: res.matchedMetadata,
         });
         setViewResults(true); // ✅ show result immediately
       }
 
       setLoading(false);
     };
-
 
     const triggerCEICheck = async () => {
       setCeiLoading(true);
@@ -555,7 +593,7 @@ const Teacher = () => {
         <div className="review-header">
           <h2>Review Submission</h2>
           <button className="back-btn" onClick={() => navigate(-1)}>
-            <ArrowLeft size={16} style={{ marginRight: '8px' }} /> Back
+            <ArrowLeft size={16} style={{ marginRight: "8px" }} /> Back
           </button>
         </div>
 
@@ -566,7 +604,12 @@ const Teacher = () => {
           </div>
           <div className="info-item">
             <label>Student / Group</label>
-            <span>{submission.studentName || submission.customStudentId || submission.customGroupId || "Unknown"}</span>
+            <span>
+              {submission.studentName ||
+                submission.customStudentId ||
+                submission.customGroupId ||
+                "Unknown"}
+            </span>
           </div>
           <div className="info-item">
             <label>Date Submitted</label>
@@ -574,28 +617,50 @@ const Teacher = () => {
           </div>
           <div className="info-item">
             <label>Current Status</label>
-            <span className={`status-badge ${submission.status.toLowerCase()}`}>{submission.status}</span>
+            <span className={`status-badge ${submission.status.toLowerCase()}`}>
+              {submission.status}
+            </span>
           </div>
         </div>
 
         <div className="plag-check-row">
           <div>
             <p style={{ fontWeight: 600 }}>Plagiarism Analysis</p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Check similarity against millions of records.</p>
+            <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
+              Check similarity against millions of records.
+            </p>
           </div>
-          <button className="btn primary" onClick={triggerCheck} disabled={loading}>
-            <Sparkles size={14} /> {loading ? "Analyzing..." : (viewResults && localResult ? "Re-run Plagiarism Check" : "Run Plagiarism Check")}
+          <button
+            className="btn primary"
+            onClick={triggerCheck}
+            disabled={loading}
+          >
+            <Sparkles size={14} />{" "}
+            {loading
+              ? "Analyzing..."
+              : viewResults && localResult
+                ? "Re-run Plagiarism Check"
+                : "Run Plagiarism Check"}
           </button>
         </div>
 
-        {(viewResults && localResult) && (
-          <div className={`result-section ${localResult.similarity > 20 ? 'ai-detected' : 'human-detected'}`} style={{ marginBottom: '30px', animation: 'fadeIn 0.5s' }}>
+        {viewResults && localResult && (
+          <div
+            className={`result-section ${localResult.similarity > 20 ? "ai-detected" : "human-detected"}`}
+            style={{ marginBottom: "30px", animation: "fadeIn 0.5s" }}
+          >
             <div className="result-header">
               <div className="result-icon">
-                {localResult.similarity > 20 ? <AlertTriangle size={24} /> : <CheckCircle size={24} />}
+                {localResult.similarity > 20 ? (
+                  <AlertTriangle size={24} />
+                ) : (
+                  <CheckCircle size={24} />
+                )}
               </div>
               <div className="result-title">
-                {localResult.similarity > 20 ? 'Similarity Detected' : 'No Significant Plagiarism'}
+                {localResult.similarity > 20
+                  ? "Similarity Detected"
+                  : "No Significant Plagiarism"}
               </div>
             </div>
 
@@ -604,45 +669,115 @@ const Teacher = () => {
                 <span>Similarity Score</span>
                 <span>{localResult.similarity}%</span>
               </div>
-              <div className="progress-track" style={{ background: '#eee', height: '10px' }}>
+              <div
+                className="progress-track"
+                style={{ background: "#eee", height: "10px" }}
+              >
                 <div
                   className="progress-fill"
                   style={{
                     width: `${Math.min(localResult.similarity, 100)}%`,
-                    background: localResult.similarity > 50 ? '#f43f5e' : (localResult.similarity > 20 ? '#fbbf24' : '#10b981')
+                    background:
+                      localResult.similarity > 50
+                        ? "#f43f5e"
+                        : localResult.similarity > 20
+                          ? "#fbbf24"
+                          : "#10b981",
                   }}
                 ></div>
               </div>
             </div>
 
-            <div className="result-details" style={{ marginTop: '15px' }}>
-              {localResult.matchedMetadata && (localResult.matchedMetadata.projectTitle || localResult.matchedMetadata.groupMembers) ? (
-                <div style={{ marginBottom: '15px' }}>
-                  <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#333', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>Matched Source Details</h4>
-                  <table className="submissions-table" style={{ width: '100%', fontSize: '13px' }}>
+            <div className="result-details" style={{ marginTop: "15px" }}>
+              {localResult.matchedMetadata &&
+              (localResult.matchedMetadata.projectTitle ||
+                localResult.matchedMetadata.groupMembers) ? (
+                <div style={{ marginBottom: "15px" }}>
+                  <h4
+                    style={{
+                      fontSize: "14px",
+                      marginBottom: "10px",
+                      color: "#333",
+                      borderBottom: "1px solid #eee",
+                      paddingBottom: "5px",
+                    }}
+                  >
+                    Matched Source Details
+                  </h4>
+                  <table
+                    className="submissions-table"
+                    style={{ width: "100%", fontSize: "13px" }}
+                  >
                     <tbody>
                       {localResult.matchedMetadata.projectTitle && (
-                        <tr style={{ background: '#f8fafc' }}>
-                          <td style={{ fontWeight: 600, color: '#334155', padding: '8px', width: '30%' }}>Project Title</td>
-                          <td style={{ padding: '8px', color: '#0f172a', fontWeight: 600 }}>{localResult.matchedMetadata.projectTitle}</td>
+                        <tr style={{ background: "#f8fafc" }}>
+                          <td
+                            style={{
+                              fontWeight: 600,
+                              color: "#334155",
+                              padding: "8px",
+                              width: "30%",
+                            }}
+                          >
+                            Project Title
+                          </td>
+                          <td
+                            style={{
+                              padding: "8px",
+                              color: "#0f172a",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {localResult.matchedMetadata.projectTitle}
+                          </td>
                         </tr>
                       )}
                       {localResult.matchedMetadata.problemStatement && (
                         <tr>
-                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Problem Statement</td>
-                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.problemStatement}</td>
+                          <td
+                            style={{
+                              fontWeight: 600,
+                              color: "#64748b",
+                              padding: "8px",
+                            }}
+                          >
+                            Problem Statement
+                          </td>
+                          <td style={{ padding: "8px", color: "#334155" }}>
+                            {localResult.matchedMetadata.problemStatement}
+                          </td>
                         </tr>
                       )}
                       {localResult.matchedMetadata.projectGuide && (
                         <tr>
-                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Guide Name</td>
-                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.projectGuide}</td>
+                          <td
+                            style={{
+                              fontWeight: 600,
+                              color: "#64748b",
+                              padding: "8px",
+                            }}
+                          >
+                            Guide Name
+                          </td>
+                          <td style={{ padding: "8px", color: "#334155" }}>
+                            {localResult.matchedMetadata.projectGuide}
+                          </td>
                         </tr>
                       )}
                       {localResult.matchedMetadata.groupMembers && (
                         <tr>
-                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Group Members</td>
-                          <td style={{ padding: '8px', color: '#334155' }}>{localResult.matchedMetadata.groupMembers}</td>
+                          <td
+                            style={{
+                              fontWeight: 600,
+                              color: "#64748b",
+                              padding: "8px",
+                            }}
+                          >
+                            Group Members
+                          </td>
+                          <td style={{ padding: "8px", color: "#334155" }}>
+                            {localResult.matchedMetadata.groupMembers}
+                          </td>
                         </tr>
                       )}
                       {/* {localResult.matchedMetadata.academicYear && (
@@ -653,9 +788,28 @@ const Teacher = () => {
                       )} */}
                       {localResult.matchedMetadata.sourceLink && (
                         <tr>
-                          <td style={{ fontWeight: 600, color: '#64748b', padding: '8px' }}>Source Link</td>
-                          <td style={{ padding: '8px', color: '#2563eb' }}>
-                            <a href={localResult.matchedMetadata.sourceLink.replace(/\s/g, "")} target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                          <td
+                            style={{
+                              fontWeight: 600,
+                              color: "#64748b",
+                              padding: "8px",
+                            }}
+                          >
+                            Source Link
+                          </td>
+                          <td style={{ padding: "8px", color: "#2563eb" }}>
+                            <a
+                              href={localResult.matchedMetadata.sourceLink.replace(
+                                /\s/g,
+                                "",
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "#2563eb",
+                                textDecoration: "underline",
+                              }}
+                            >
                               View Source Document
                             </a>
                           </td>
@@ -665,19 +819,59 @@ const Teacher = () => {
                   </table>
                 </div>
               ) : (
-                <div style={{ marginBottom: '15px' }}>
-                  <p><strong>Most Similar Document:</strong> {localResult.most_similar_doc || "None"}</p>
-                  <p style={{ fontSize: '12px', color: '#ef4444', background: '#fef2f2', padding: '8px', borderRadius: '4px', border: '1px solid #fee2e2' }}>
-                    <strong>Metadata Missing:</strong> Detailed info (Title, Students, etc.) isn't available for this match.
-                    Please delete and re-upload the dataset in "Manage Datasets" to capture this information.
+                <div style={{ marginBottom: "15px" }}>
+                  <p>
+                    <strong>Most Similar Document:</strong>{" "}
+                    {localResult.most_similar_doc || "None"}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      background: "#fef2f2",
+                      padding: "8px",
+                      borderRadius: "4px",
+                      border: "1px solid #fee2e2",
+                    }}
+                  >
+                    <strong>Metadata Missing:</strong> Detailed info (Title,
+                    Students, etc.) isn't available for this match. Please
+                    delete and re-upload the dataset in "Manage Datasets" to
+                    capture this information.
                   </p>
                 </div>
               )}
 
               {localResult.matched_snippet && (
-                <div style={{ marginTop: '10px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                  <p style={{ margin: '0 0 5px 0', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>Matched Content Snippet:</p>
-                  <p style={{ margin: 0, fontSize: '13px', fontStyle: 'italic', color: '#334155' }}>"{localResult.matched_snippet}"</p>
+                <div
+                  style={{
+                    marginTop: "10px",
+                    padding: "10px",
+                    background: "#fff",
+                    borderRadius: "6px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: "0 0 5px 0",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#64748b",
+                    }}
+                  >
+                    Matched Content Snippet:
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "13px",
+                      fontStyle: "italic",
+                      color: "#334155",
+                    }}
+                  >
+                    "{localResult.matched_snippet}"
+                  </p>
                 </div>
               )}
             </div>
@@ -693,16 +887,26 @@ const Teacher = () => {
             </div>
 
             <div className="review-actions">
-              <button className="btn success" onClick={() => handleAction("Accepted")}>
+              <button
+                className="btn success"
+                onClick={() => handleAction("Accepted")}
+              >
                 <CheckCircle size={20} /> Accept Project
               </button>
-              <button className="btn danger" onClick={() => handleAction("Rejected")}>
+              <button
+                className="btn danger"
+                onClick={() => handleAction("Rejected")}
+              >
                 <XCircle size={20} /> Reject Project
               </button>
             </div>
 
-            <div style={{ marginTop: '30px', textAlign: 'center' }}>
-              <button className="btn ghost" style={{ margin: '0 auto' }} onClick={() => alert(`Downloading ${submission.fileName}...`)}>
+            <div style={{ marginTop: "30px", textAlign: "center" }}>
+              <button
+                className="btn ghost"
+                style={{ margin: "0 auto" }}
+                onClick={() => alert(`Downloading ${submission.fileName}...`)}
+              >
                 <Download size={14} /> Download Submission File
               </button>
             </div>
@@ -750,7 +954,9 @@ const Teacher = () => {
                   <input
                     type="text"
                     value={generalProfile.teacherName}
-                    onChange={(e) => updateGeneralField('teacherName', e.target.value)}
+                    onChange={(e) =>
+                      updateGeneralField("teacherName", e.target.value)
+                    }
                   />
                 </div>
                 <div className="form-group">
@@ -758,7 +964,9 @@ const Teacher = () => {
                   <input
                     type="text"
                     value={generalProfile.organization}
-                    onChange={(e) => updateGeneralField('organization', e.target.value)}
+                    onChange={(e) =>
+                      updateGeneralField("organization", e.target.value)
+                    }
                   />
                 </div>
                 <div className="form-group">
@@ -767,7 +975,7 @@ const Teacher = () => {
                     type="email"
                     value={generalProfile.email}
                     readOnly
-                    style={{ background: '#eee' }}
+                    style={{ background: "#eee" }}
                   />
                 </div>
                 <div className="form-group">
@@ -775,10 +983,14 @@ const Teacher = () => {
                   <input
                     type="text"
                     value={generalProfile.phone}
-                    onChange={(e) => updateGeneralField('phone', e.target.value)}
+                    onChange={(e) =>
+                      updateGeneralField("phone", e.target.value)
+                    }
                   />
                 </div>
-                <button type="submit" className="primary-btn">Update Profile</button>
+                <button type="submit" className="primary-btn">
+                  Update Profile
+                </button>
               </form>
             </div>
 
@@ -786,7 +998,7 @@ const Teacher = () => {
               <h4>Account Information</h4>
               <div className="settings-item">
                 <span>Username</span>
-                <strong>{localStorage.getItem('username')}</strong>
+                <strong>{localStorage.getItem("username")}</strong>
               </div>
               <div className="settings-item">
                 <span>Role</span>
@@ -795,7 +1007,7 @@ const Teacher = () => {
               <button
                 className="logout-btn-alt"
                 onClick={handleLogout}
-                style={{ marginTop: '50px' }}
+                style={{ marginTop: "50px" }}
               >
                 Logout Account
               </button>
@@ -812,7 +1024,7 @@ const Teacher = () => {
   const ReviewCodePageView = () => {
     const { id } = useParams();
     // Look up in codeSubmissions
-    const submission = codeSubmissions.find(s => s && s._id === id);
+    const submission = codeSubmissions.find((s) => s && s._id === id);
 
     // Local state for results and feedback
     const [ceiResult, setCeiResult] = useState(null);
@@ -826,31 +1038,41 @@ const Teacher = () => {
           setCeiResult({
             CEI_score: submission.ceiScore,
             label: submission.ceiLabel,
-            metrics: submission.ceiMetrics
+            metrics: submission.ceiMetrics,
           });
         }
       }
     }, [submission]);
 
-    if (!submission) return <div style={{ padding: '20px' }}>Loading Code Submission Details...</div>;
+    if (!submission)
+      return (
+        <div style={{ padding: "20px" }}>
+          Loading Code Submission Details...
+        </div>
+      );
 
     const handleCodeAction = async (newStatus) => {
       const body = {
         status: newStatus,
-        teacherFeedback: feedback
+        teacherFeedback: feedback,
       };
 
       try {
-        const res = await fetch(`http://localhost:5000/api/code-submissions/update/${submission._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
+        const res = await fetch(
+          `http://localhost:5000/api/code-submissions/update/${submission._id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        );
         const data = await res.json();
         if (data.success) {
           alert(`Code Submission ${newStatus}!`);
           // Update local state to reflect change without refetch
-          setCodeSubmissions(prev => prev.map(s => s._id === submission._id ? data.submission : s));
+          setCodeSubmissions((prev) =>
+            prev.map((s) => (s._id === submission._id ? data.submission : s)),
+          );
           navigate("/teacher/code-submissions");
         }
       } catch (err) {
@@ -864,20 +1086,43 @@ const Teacher = () => {
       const res = await runCEICheck(submission._id);
       if (res) {
         setCeiResult(res);
-        // We may need to update the backend record explicitly if runCEICheck doesn't save to DB 
+        // We may need to update the backend record explicitly if runCEICheck doesn't save to DB
         // OR reload the code submission to get the saved CEI result.
-        // runCEICheck usually saves to DB. 
+        // runCEICheck usually saves to DB.
         // Let's refetch this specific submission to update our list state or just trust the result.
         // Ideally update the state:
-        setCodeSubmissions(prev => prev.map(s => s._id === submission._id ? { ...s, ceiScore: res.CEI_score, ceiLabel: res.label, ceiMetrics: res.metrics } : s));
+        setCodeSubmissions((prev) =>
+          prev.map((s) =>
+            s._id === submission._id
+              ? {
+                  ...s,
+                  ceiScore: res.CEI_score,
+                  ceiLabel: res.label,
+                  ceiMetrics: res.metrics,
+                }
+              : s,
+          ),
+        );
       }
       setCeiLoading(false);
     };
 
     return (
-      <div className="teacher-dashboard" style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px' }}>
+      <div
+        className="teacher-dashboard"
+        style={{ background: "#f8fafc", minHeight: "100vh", padding: "40px" }}
+      >
         <div className="review-page">
-          <button className="back-btn" onClick={() => navigate("/teacher/code-submissions")} style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            className="back-btn"
+            onClick={() => navigate("/teacher/code-submissions")}
+            style={{
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
             <ArrowLeft size={16} /> Back to List
           </button>
 
@@ -886,26 +1131,70 @@ const Teacher = () => {
             <div className="code-review-hero">
               <div className="hero-title">
                 <h2>{submission.projectTitle}</h2>
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                  <span className="code-badge"><User size={14} /> {submission.studentName}</span>
-                  <span className="code-badge"><Code size={14} /> {new Date(submission.date).toLocaleDateString()}</span>
+                <div
+                  style={{ display: "flex", gap: "15px", alignItems: "center" }}
+                >
+                  <span className="code-badge">
+                    <User size={14} /> {submission.studentName}
+                  </span>
+                  <span className="code-badge">
+                    <Code size={14} />{" "}
+                    {new Date(submission.date).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
               <div>
-                <button className="btn ghost" onClick={() => window.open(`http://localhost:5000/${submission.fileUrl}`, '_blank')} style={{ border: '1px solid #e2e8f0' }}>
+                <button
+                  className="btn ghost"
+                  onClick={() =>
+                    window.open(
+                      `http://localhost:5000/${submission.fileUrl}`,
+                      "_blank",
+                    )
+                  }
+                  style={{ border: "1px solid #e2e8f0" }}
+                >
                   <Download size={18} /> Download Source
                 </button>
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                borderTop: "1px solid #f1f5f9",
+                paddingTop: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div>
-                <h4 style={{ margin: '0 0 5px 0', fontSize: '16px', color: '#334155' }}>AI Content Analysis</h4>
-                <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Run the CEI algorithm to detect AI-generated patterns.</p>
+                <h4
+                  style={{
+                    margin: "0 0 5px 0",
+                    fontSize: "16px",
+                    color: "#334155",
+                  }}
+                >
+                  AI Content Analysis
+                </h4>
+                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                  Run the CEI algorithm to detect AI-generated patterns.
+                </p>
               </div>
-              <button className="ai-analysis-btn" onClick={triggerCEICheck} disabled={ceiLoading}>
-                {ceiLoading ? <Sparkles className="analyzing-pulse" /> : <Sparkles />}
-                {ceiLoading ? "Analyzing Logic..." : "Run Intelligence Analysis"}
+              <button
+                className="ai-analysis-btn"
+                onClick={triggerCEICheck}
+                disabled={ceiLoading}
+              >
+                {ceiLoading ? (
+                  <Sparkles className="analyzing-pulse" />
+                ) : (
+                  <Sparkles />
+                )}
+                {ceiLoading
+                  ? "Analyzing Logic..."
+                  : "Run Intelligence Analysis"}
               </button>
             </div>
           </div>
@@ -914,19 +1203,39 @@ const Teacher = () => {
           {ceiResult && (
             <div className="result-card">
               {/* Header */}
-              <div className={`result-header-modern ${ceiResult.CEI_score > 1.2 ? 'ai' : 'human'}`}>
+              <div
+                className={`result-header-modern ${ceiResult.CEI_score > 1.2 ? "ai" : "human"}`}
+              >
                 <div className="status-icon-large">
-                  {ceiResult.CEI_score > 1.2 ? <AlertTriangle /> : <CheckCircle />}
+                  {ceiResult.CEI_score > 1.2 ? (
+                    <AlertTriangle />
+                  ) : (
+                    <CheckCircle />
+                  )}
                 </div>
                 <div className="result-main-info">
                   <h3>{ceiResult.label}</h3>
-                  <p>{ceiResult.CEI_score > 1.2 ? "High likelihood of AI generation detected." : "Content appears consistent with human styling."}</p>
+                  <p>
+                    {ceiResult.CEI_score > 1.2
+                      ? "High likelihood of AI generation detected."
+                      : "Content appears consistent with human styling."}
+                  </p>
                 </div>
-                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                  <span style={{ fontSize: '32px', fontWeight: '800', color: ceiResult.CEI_score > 1.2 ? '#e11d48' : '#059669' }}>
+                <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                  <span
+                    style={{
+                      fontSize: "32px",
+                      fontWeight: "800",
+                      color: ceiResult.CEI_score > 1.2 ? "#e11d48" : "#059669",
+                    }}
+                  >
                     {ceiResult.CEI_score}
                   </span>
-                  <div style={{ fontSize: '12px', opacity: 0.7, fontWeight: 600 }}>CEI SCORE</div>
+                  <div
+                    style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}
+                  >
+                    CEI SCORE
+                  </div>
                 </div>
               </div>
 
@@ -941,9 +1250,10 @@ const Teacher = () => {
                     className="gauge-fill"
                     style={{
                       width: `${Math.min((ceiResult.CEI_score / 3) * 100, 100)}%`,
-                      background: ceiResult.CEI_score > 1.2
-                        ? 'linear-gradient(90deg, #fbbf24, #ef4444)'
-                        : 'linear-gradient(90deg, #22c55e, #10b981)'
+                      background:
+                        ceiResult.CEI_score > 1.2
+                          ? "linear-gradient(90deg, #fbbf24, #ef4444)"
+                          : "linear-gradient(90deg, #22c55e, #10b981)",
                     }}
                   ></div>
                 </div>
@@ -954,17 +1264,25 @@ const Teacher = () => {
                 <div className="metrics-grid-modern">
                   <div className="metric-card">
                     <div className="metric-title">Complexity Variance</div>
-                    <div className="metric-value">{ceiResult.metrics.complexity_variance}</div>
-                    <div className="metric-desc">Low variance often indicates AI</div>
+                    <div className="metric-value">
+                      {ceiResult.metrics.complexity_variance}
+                    </div>
+                    <div className="metric-desc">
+                      Low variance often indicates AI
+                    </div>
                   </div>
                   <div className="metric-card">
                     <div className="metric-title">Identifier Entropy</div>
-                    <div className="metric-value">{ceiResult.metrics.identifier_entropy}</div>
+                    <div className="metric-value">
+                      {ceiResult.metrics.identifier_entropy}
+                    </div>
                     <div className="metric-desc">Naming uniqueness score</div>
                   </div>
                   <div className="metric-card">
                     <div className="metric-title">Indent Pattern</div>
-                    <div className="metric-value">{ceiResult.metrics.indent_variance}</div>
+                    <div className="metric-value">
+                      {ceiResult.metrics.indent_variance}
+                    </div>
                     <div className="metric-desc">Structural consistency</div>
                   </div>
                 </div>
@@ -973,20 +1291,30 @@ const Teacher = () => {
           )}
 
           {/* FEEDBACK SECTION */}
-          <div className="glass-card" style={{ marginTop: '25px' }}>
-            <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>Instructor Feedback</h3>
+          <div className="glass-card" style={{ marginTop: "25px" }}>
+            <h3 style={{ marginBottom: "15px", color: "#1e293b" }}>
+              Instructor Feedback
+            </h3>
             <textarea
               className="feedback-textarea"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Provide constructive feedback for the student..."
-              style={{ background: '#f8fafc' }}
+              style={{ background: "#f8fafc" }}
             />
             <div className="review-actions">
-              <button className="btn danger" onClick={() => handleCodeAction("Rejected")} style={{ flex: 1, height: '45px', fontSize: '15px' }}>
+              <button
+                className="btn danger"
+                onClick={() => handleCodeAction("Rejected")}
+                style={{ flex: 1, height: "45px", fontSize: "15px" }}
+              >
                 <XCircle size={18} /> Reject Submission
               </button>
-              <button className="btn success" onClick={() => handleCodeAction("Accepted")} style={{ flex: 1, height: '45px', fontSize: '15px' }}>
+              <button
+                className="btn success"
+                onClick={() => handleCodeAction("Accepted")}
+                style={{ flex: 1, height: "45px", fontSize: "15px" }}
+              >
                 <CheckCircle size={18} /> Approve Submission
               </button>
             </div>
@@ -1002,28 +1330,61 @@ const Teacher = () => {
   return (
     <div className="teacher-dashboard">
       <aside className="sidebar">
-        <div className="sidebar-header">
-          <h3>PlagiX</h3>
-          <span className="role-badge">Teacher</span>
+        <div className="sidebar-logo">
+          <img
+            src={logoIcon}
+            alt="SmartPlag Logo Icon"
+            className="sidebar-logo-icon"
+          />
+          <img
+            src={logoText}
+            alt="SmartPlag Logo Text"
+            className="sidebar-logo-text"
+          />
         </div>
         <nav className="sidebar-nav">
-          <NavLink to="/teacher/dashboard" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+          <NavLink
+            to="/teacher/dashboard"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <LayoutDashboard size={18} />
             <span>Dashboard</span>
           </NavLink>
-          <NavLink to="/teacher/submissions" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+          <NavLink
+            to="/teacher/submissions"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <FileText size={18} />
             <span>Report Submissions</span>
           </NavLink>
-          <NavLink to="/teacher/code-submissions" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+          <NavLink
+            to="/teacher/code-submissions"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <Code size={18} />
             <span>Code Submissions</span>
           </NavLink>
-          <NavLink to="/teacher/manual-check" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+          <NavLink
+            to="/teacher/manual-check"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <ScanText size={18} />
             <span>Manual Check</span>
           </NavLink>
-          <NavLink to="/teacher/datasets" className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}>
+          <NavLink
+            to="/teacher/datasets"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
             <Database size={18} />
             <span>Manage Datasets</span>
           </NavLink>
@@ -1037,7 +1398,16 @@ const Teacher = () => {
       <main className="main-content">
         <div className="navbar">
           <div className="nav-centre">Teacher Dashboard</div>
-          <div className="nav-right" onClick={() => navigate("/teacher/profile")} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            className="nav-right"
+            onClick={() => navigate("/teacher/profile")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
             {generalProfile.profilePic ? (
               <img
                 src={`http://localhost:5000/${generalProfile.profilePic}`}
@@ -1054,7 +1424,14 @@ const Teacher = () => {
             <Route path="dashboard" element={<DashboardView />} />
             <Route path="submissions" element={<SubmissionsView />} />
             <Route path="code-submissions" element={<CodeSubmissionsView />} />
-            <Route path="manual-check" element={<div className="dashboard-content-area"><CodePlagiarism /></div>} />
+            <Route
+              path="manual-check"
+              element={
+                <div className="dashboard-content-area">
+                  <CodePlagiarism />
+                </div>
+              }
+            />
             <Route path="datasets" element={<DatasetManagement />} />
             <Route path="review/:id" element={<ReviewPageView />} />
             <Route path="review-code/:id" element={<ReviewCodePageView />} />

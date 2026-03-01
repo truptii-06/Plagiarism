@@ -13,68 +13,65 @@
 }
 
 /* =========================================
-   SIDEBAR
+   SIDEBAR (MATCH STUDENT EXACTLY)
 ========================================= */
+
 .sidebar {
-  width: 250px;
+  width: 240px;
   background: #ffffff;
-  padding: 20px 15px;
-  border-right: 1px solid #e8e8e8;
-  flex-shrink: 0;
-  /* ⭐ prevents sidebar shrinking */
-}
-
-.sidebar-header h3 {
-  font-size: 22px;
-  margin-bottom: 5px;
-  font-weight: 600;
-}
-
-.role-badge {
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  background: #d1e7ff;
-  color: #0072ff;
-}
-
-/* Sidebar Nav */
-.sidebar-nav {
-  margin-top: 25px;
+  border-right: 1px solid #e6e6e6;
+  padding: 22px 15px;
   display: flex;
   flex-direction: column;
+}
+
+/* Navigation container */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
   gap: 12px;
 }
 
+/* Navigation item */
 .nav-item {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  text-align: left;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #f1f4f7;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.2s;
+  gap: 12px;
+  font-size: 15px;
+  color: #333;
+  transition: 0.25s;
+  background: transparent;
+  text-decoration: none;
 }
 
 .nav-item:hover {
-  background: #e3edf9;
+  background: #e1ecfb;
 }
 
 .nav-item.active {
-  background: #d0e7ff;
-  color: #0072ff;
+  background: #cfe3ff;
   font-weight: 600;
+  color: #006fff;
 }
 
+/* Logout at bottom */
 .logout-btn {
-  margin-top: 20px;
-  background: #ffe1e1 !important;
-  color: #c62828 !important;
+  margin-top: auto;
+  background: rgb(252, 189, 189) !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca;
 }
 
+.logout-btn:hover {
+  background: rgb(252, 189, 189) !important;
+  color: #b91c1c !important;
+}
 /* =========================================
    TOP NAVBAR 
 ========================================= */

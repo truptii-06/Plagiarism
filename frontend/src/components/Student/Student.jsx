@@ -546,11 +546,7 @@ const Student = () => {
             <span>Check Similarity</span>
           </button>
 
-          <button
-            type="button"
-            className="nav-item logout-item"
-            onClick={handleLogout}
-          >
+          <button className="nav-item logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
             <span>Logout</span>
           </button>
