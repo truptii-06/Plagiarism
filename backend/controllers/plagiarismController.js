@@ -9,7 +9,7 @@ exports.processPlagiarismCheck = async (submissionId) => {
 
   // ✅ FIX: use correct field name from DB
   // ✅ ROBUST PATH RESOLUTION
-  let filePath = path.resolve(sub.fileUrl);
+  let filePath = path.join(__dirname, "../uploads", path.basename(sub.fileUrl));
   if (!fs.existsSync(filePath)) {
     // If absolute path from another machine fails, try looking in local uploads folder
     const fileName = path.basename(sub.fileUrl);
