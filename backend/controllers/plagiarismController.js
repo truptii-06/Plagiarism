@@ -414,7 +414,16 @@ exports.runCEICheck = async (req, res) => {
       return res.status(404).json({ error: "Submission not found" });
     }
 
-    let filePath = path.resolve(sub.fileUrl);
+    let filePath;
+    
+    // First try the custom student/code submission fallback
+    if (sub.fileUrl && sub.fileUrl.startsWith("./uploads/")) {
+      const fileName = sub.fileUrl.replace("./uploads/", "");
+      filePath = path.join(__dirname, "../uploads", fileName);
+    } else {
+      filePath = path.resolve(sub.fileUrl);
+    }
+
     if (!fs.existsSync(filePath)) {
       const fileName = path.basename(sub.fileUrl);
       filePath = path.join(__dirname, "../uploads", fileName);

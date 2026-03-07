@@ -8,6 +8,36 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # --------------------------------------
+# 0. Multilingual Support Imports
+# --------------------------------------
+try:
+    from multilingual.language_utils import detect_language
+    from multilingual.translation_utils import translate_to_english
+    MULTILINGUAL_AVAILABLE = True
+except ImportError:
+    MULTILINGUAL_AVAILABLE = False
+
+def translate_if_needed(text):
+    if not text or not text.strip(): return text
+    if not MULTILINGUAL_AVAILABLE: return text
+    
+    try:
+        lang = detect_language(text)
+        if lang != 'en' and lang != 'unknown':
+            # googletrans allows up to 5000 characters per request, splitting into 4000 char chunks to be safe
+            chunks = [text[i:i+4000] for i in range(0, len(text), 4000)]
+            
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                translated_chunks = list(executor.map(translate_to_english, chunks))
+                
+            return " ".join(translated_chunks)
+    except Exception as e:
+        sys.stderr.write(f"Translation Error: {str(e)}\n")
+    
+    return text
+
+# --------------------------------------
 # 1. Extract text
 # --------------------------------------
 def extract_text(file_path):
@@ -98,6 +128,7 @@ def calculate_containment(new_text, ref_text):
 # --------------------------------------
 def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
     new_text_raw = extract_text(new_doc_path)
+    new_text_raw = translate_if_needed(new_text_raw)
     new_text = preprocess(new_text_raw)
 
     if not new_text:
@@ -118,6 +149,7 @@ def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
                 if os.path.abspath(path) == os.path.abspath(new_doc_path):
                     continue
                 text_raw = extract_text(path)
+                text_raw = translate_if_needed(text_raw)
                 text = preprocess(text_raw)
                 if text:
                     old_texts.append(text)
@@ -130,7 +162,9 @@ def check_plagiarism(new_doc_path, old_docs_folder, extra_dataset_path=None):
             with open(extra_dataset_path, "r", encoding="utf-8") as f:
                 extra_data = json.load(f)
                 for item in extra_data:
-                    text = preprocess(item.get("content", ""))
+                    raw_content = item.get("content", "")
+                    raw_content = translate_if_needed(raw_content)
+                    text = preprocess(raw_content)
                     if text:
                         old_texts.append(text)
                         filenames.append(item.get("sourceInfo", "Reference Item"))
