@@ -490,26 +490,7 @@ const Teacher = () => {
     useEffect(() => {
       if (submission) {
         setFeedback(submission.teacherFeedback || "");
-        if (submission.similarity !== null) {
-          // FORCE CLEAN: If the most similar doc is the old default one, ignore it so user re-runs it
-          // This fixes the issue where user sees "default result" first
-          if (submission.mostSimilarDoc !== "PlagixSurvey 1.docx") {
-            setLocalResult({
-              similarity: submission.similarity,
-              most_similar_doc: submission.mostSimilarDoc,
-              matched_snippet: submission.matchedSnippet,
-              matchedMetadata: submission.matchedMetadata,
-              plagiarismScore: submission.plagiarismScore
-            });
-          }
-        }
-        if (submission.ceiScore !== undefined && submission.ceiScore !== null) {
-          setCeiResult({
-            CEI_score: submission.ceiScore,
-            label: submission.ceiLabel,
-            metrics: submission.ceiMetrics,
-          });
-        }
+        // Do not preload `localResult` or `ceiResult` here so the teacher must click the Run button first.
       }
     }, [submission]);
 
@@ -1051,16 +1032,15 @@ const Teacher = () => {
     const [ceiLoading, setCeiLoading] = useState(false);
     const [feedback, setFeedback] = useState("");
 
+    // Peer-to-Peer comparison state
+    const [referenceFile, setReferenceFile] = useState(null);
+    const [compareResult, setCompareResult] = useState(null);
+    const [compareLoading, setCompareLoading] = useState(false);
+
     useEffect(() => {
       if (submission) {
         setFeedback(submission.teacherFeedback || "");
-        if (submission.ceiScore !== undefined && submission.ceiScore !== null) {
-          setCeiResult({
-            CEI_score: submission.ceiScore,
-            label: submission.ceiLabel,
-            metrics: submission.ceiMetrics,
-          });
-        }
+        // Wait until the user explicitly runs "Intelligence Analysis" to show the score.
       }
     }, [submission]);
 
@@ -1106,25 +1086,40 @@ const Teacher = () => {
       const res = await runCEICheck(submission._id);
       if (res) {
         setCeiResult(res);
-        // We may need to update the backend record explicitly if runCEICheck doesn't save to DB
-        // OR reload the code submission to get the saved CEI result.
-        // runCEICheck usually saves to DB.
-        // Let's refetch this specific submission to update our list state or just trust the result.
-        // Ideally update the state:
-        setCodeSubmissions((prev) =>
-          prev.map((s) =>
-            s._id === submission._id
-              ? {
-                  ...s,
-                  ceiScore: res.CEI_score,
-                  ceiLabel: res.label,
-                  ceiMetrics: res.metrics,
-                }
-              : s,
-          ),
-        );
+        // We do NOT call setCodeSubmissions here because ReviewCodePageView is defined
+        // inside Teacher, meaning setting parent state will cause this component to
+        // completely unmount and remount, destroying the local ceiResult state we just set!
       }
       setCeiLoading(false);
+    };
+
+    const triggerCodeComparison = async () => {
+      if (!referenceFile) {
+        alert("Please upload a reference file first.");
+        return;
+      }
+      setCompareLoading(true);
+      
+      const formData = new FormData();
+      formData.append("submissionId", submission._id);
+      formData.append("referenceFile", referenceFile);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/plagiarism/compare-code", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCompareResult(data.similarity);
+        } else {
+          alert("Error: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error connecting to comparison API");
+      }
+      setCompareLoading(false);
     };
 
     return (
@@ -1309,6 +1304,70 @@ const Teacher = () => {
               )}
             </div>
           )}
+
+          {/* REFERENCE CODE COMPARISON CARD */}
+          <div className="glass-card" style={{ marginTop: "25px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "15px",
+                borderBottom: "1px solid #f1f5f9",
+                paddingBottom: "15px"
+              }}
+            >
+              <div>
+                <h4 style={{ margin: "0 0 5px 0", fontSize: "16px", color: "#334155" }}>
+                  Peer-to-Peer Code Comparison
+                </h4>
+                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                  Upload a reference file to check for structural logic and token similarity.
+                </p>
+              </div>
+              
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <input 
+                  type="file" 
+                  onChange={(e) => setReferenceFile(e.target.files[0])}
+                  style={{ fontSize: "13px" }}
+                />
+                <button
+                  className="ai-analysis-btn"
+                  onClick={triggerCodeComparison}
+                  disabled={compareLoading}
+                  style={{ background: "#4f46e5" }}
+                >
+                  <Code size={16} /> 
+                  {compareLoading ? " Comparing..." : " Run Comparison"}
+                </button>
+              </div>
+            </div>
+
+            {compareResult !== null && (
+              <div className="result-header-modern" style={{ background: compareResult > 50 ? "#fef2f2" : "#f0fdf4", marginTop: "15px" }}>
+                <div className="status-icon-large">
+                  {compareResult > 50 ? <AlertTriangle color="#ef4444" /> : <CheckCircle color="#22c55e" />}
+                </div>
+                <div className="result-main-info">
+                  <h3 style={{ color: compareResult > 50 ? "#991b1b" : "#166534" }}>
+                    {compareResult > 50 ? "High Structural Similarity" : "Unique Structure"}
+                  </h3>
+                  <p style={{ color: compareResult > 50 ? "#991b1b" : "#166534" }}>
+                    {compareResult > 50 
+                      ? "The code logic closely mirrors the reference file." 
+                      : "The logic appears structurally independent."}
+                  </p>
+                </div>
+                <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                  <span style={{ fontSize: "32px", fontWeight: "800", color: compareResult > 50 ? "#e11d48" : "#059669" }}>
+                    {compareResult}%
+                  </span>
+                  <div style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>MATCH</div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* FEEDBACK SECTION */}
           <div className="glass-card" style={{ marginTop: "25px" }}>

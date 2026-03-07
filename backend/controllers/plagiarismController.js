@@ -500,4 +500,112 @@ exports.runCEICheck = async (req, res) => {
   }
 };
 
+exports.compareCodeSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.body;
+    const path = require("path");
+    const fs = require("fs");
+    const { spawn } = require("child_process");
+    const CodeSubmission = require("../models/CodeSubmission");
+    const Submission = require("../models/submission");
 
+    if (!req.files || !req.files.referenceFile) {
+      return res.status(400).json({ error: "Reference file is required" });
+    }
+    const referenceFile = req.files.referenceFile;
+
+    // Find submission
+    let sub = await CodeSubmission.findById(submissionId);
+    if (!sub) {
+      sub = await Submission.findById(submissionId);
+    }
+
+    if (!sub) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+
+    let studentFilePath;
+    
+    // Resolve student file path
+    if (sub.fileUrl && sub.fileUrl.startsWith("./uploads/")) {
+      const fileName = sub.fileUrl.replace("./uploads/", "");
+      studentFilePath = path.join(__dirname, "../uploads", fileName);
+    } else {
+      studentFilePath = path.resolve(sub.fileUrl);
+    }
+
+    if (!fs.existsSync(studentFilePath)) {
+      const fileName = path.basename(sub.fileUrl);
+      studentFilePath = path.join(__dirname, "../uploads", fileName);
+    }
+
+    if (!fs.existsSync(studentFilePath)) {
+      return res.status(400).json({ error: "Student uploaded file not found" });
+    }
+
+    // Write the in-memory reference file buffer to a temporary file so Python can read it
+    const tempFileName = `ref_${Date.now()}_${referenceFile.name}`;
+    const referenceFilePath = path.join(__dirname, "../uploads", tempFileName);
+    fs.writeFileSync(referenceFilePath, referenceFile.data);
+
+    const pyScript = path.join(__dirname, "../python/code_comparator.py");
+
+    const py = spawn("python", [pyScript, studentFilePath, referenceFilePath]);
+
+    let output = "";
+    let errorOutput = "";
+
+    py.stdout.on("data", (data) => {
+      output += data.toString();
+    });
+
+    py.stderr.on("data", (data) => {
+      errorOutput += data.toString();
+    });
+
+    py.on("close", async (code) => {
+      // Clean up the uploaded reference file since it was only needed for comparison
+      fs.unlink(referenceFilePath, (err) => {
+        if (err) console.error("Could not delete reference file:", err);
+      });
+
+      if (errorOutput) {
+        console.error("🔥 PYTHON ERROR (Code Comparison):", errorOutput);
+      }
+
+      try {
+        const jsonMatch = output.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error("No JSON found in python output: " + output);
+        }
+
+        const result = JSON.parse(jsonMatch[0]);
+
+        if (result.error) {
+          return res.status(400).json({ error: result.error });
+        }
+
+        return res.json({
+          success: true,
+          similarity: result.similarity
+        });
+
+      } catch (err) {
+        console.error("❌ JSON PARSE ERROR (Code Comparison):", err);
+        return res.status(500).json({
+          error: "Invalid JSON returned by code comparator",
+          rawOutput: output,
+          pythonError: errorOutput
+        });
+      }
+    });
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    // Cleanup if file was uploaded but server crashed before spawn
+    if (req.file && require('fs').existsSync(req.file.path)) {
+       require('fs').unlinkSync(req.file.path);
+    }
+    res.status(500).json({ error: "Server crashed during code comparison" });
+  }
+};

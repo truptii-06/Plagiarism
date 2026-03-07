@@ -11,10 +11,8 @@ import {
   Download,
   Code,
   ScanText,
-  Camera,
 } from "lucide-react";
 import "./Student.css";
-import CodePlagiarism from "./CodePlagiarism";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -535,17 +533,6 @@ const Student = () => {
             <span>Code Submissions</span>
           </button>
 
-          <button
-            type="button"
-            className={
-              activePage === "code-plagiarism" ? "nav-item active" : "nav-item"
-            }
-            onClick={() => setActivePage("code-plagiarism")}
-          >
-            <MdOutlineContentPasteSearch size={18} />
-            <span>Check Similarity</span>
-          </button>
-
           <button className="nav-item logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
             <span>Logout</span>
@@ -989,11 +976,7 @@ const Student = () => {
               )}
             </div>
           )}
-          {activePage === "code-plagiarism" && (
-            <div className="dashboard-content-area">
-              <CodePlagiarism showSimilarity={false} />
-            </div>
-          )}
+
 
           {activePage === "code-submissions" && (
             <div className="student-dashboard-container">
