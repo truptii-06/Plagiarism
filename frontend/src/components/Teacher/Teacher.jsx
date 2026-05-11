@@ -1,15 +1,15 @@
 // src/components/Teacher/Teacher.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   NavLink,
   Routes,
   Route,
   useNavigate,
   useParams,
-} from "react-router-dom";
-import "./Teacher.css";
-import logoIcon from "../../assets/logo.png";
-import logoText from "../../assets/logo-name.png";
+} from 'react-router-dom';
+import './Teacher.css';
+import logoIcon from '../../assets/logo.png';
+import logoText from '../../assets/logo-name.png';
 import {
   LayoutDashboard,
   FileText,
@@ -26,24 +26,24 @@ import {
   Camera,
   UserCircle,
   Database,
-} from "lucide-react";
-import "../Student/PlagiarismTools.css";
-import CodePlagiarism from "../Student/CodePlagiarism";
-import DatasetManagement from "./DatasetManagement";
+} from 'lucide-react';
+import '../Student/PlagiarismTools.css';
+import CodePlagiarism from '../Student/CodePlagiarism';
+import DatasetManagement from './DatasetManagement';
 
 const Teacher = () => {
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
   const [codeSubmissions, setCodeSubmissions] = useState([]);
-  const [activePage, setActivePage] = useState("dashboard"); // Added to manage sub-routes better if needed, but Teacher uses actual Routes.
+  const [activePage, setActivePage] = useState('dashboard'); // Added to manage sub-routes better if needed, but Teacher uses actual Routes.
 
   // GENERAL PROFILE INFO
   const [generalProfile, setGeneralProfile] = useState({
-    teacherName: "",
-    organization: "",
-    email: "",
-    phone: "",
-    profilePic: "",
+    teacherName: '',
+    organization: '',
+    email: '',
+    phone: '',
+    profilePic: '',
   });
 
   // -------------------------------
@@ -52,47 +52,47 @@ const Teacher = () => {
   // LOAD GENERAL PROFILE
   const loadGeneralProfile = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem('userId');
       if (!userId) return;
 
       const res = await fetch(
-        `http://localhost:5000/api/profile/teacher/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/profile/teacher/${userId}`,
       );
       const data = await res.json();
       if (data && data._id) {
         setGeneralProfile({
-          teacherName: data.teacherName || "",
-          organization: data.organization || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          profilePic: data.profilePic || "",
+          teacherName: data.teacherName || '',
+          organization: data.organization || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          profilePic: data.profilePic || '',
         });
       }
     } catch (err) {
-      console.error("Error loading general profile:", err);
+      console.error('Error loading general profile:', err);
     }
   };
 
   useEffect(() => {
     // Fetch Report Submissions
-    fetch("http://localhost:5000/api/submissions/all")
+    fetch('${import.meta.env.VITE_API_URL}/api/submissions/all')
       .then((r) => r.json())
       .then((data) => {
         const safeData = Array.isArray(data)
-          ? data.filter((s) => s && typeof s === "object")
+          ? data.filter((s) => s && typeof s === 'object')
           : [];
 
         setSubmissions(safeData);
       })
-      .catch((err) => console.error("Fetch error:", err));
+      .catch((err) => console.error('Fetch error:', err));
 
     // Fetch Code Submissions
-    fetch("http://localhost:5000/api/code-submissions/all")
+    fetch('${import.meta.env.VITE_API_URL}/api/code-submissions/all')
       .then((r) => r.json())
       .then((data) => {
         setCodeSubmissions(data);
       })
-      .catch((err) => console.error("Fetch code subs error:", err));
+      .catch((err) => console.error('Fetch code subs error:', err));
 
     loadGeneralProfile();
   }, []);
@@ -103,26 +103,29 @@ const Teacher = () => {
 
   const handleUpdateGeneralProfile = async (e) => {
     e.preventDefault();
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch("http://localhost:5000/api/profile/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          role: "teacher",
-          ...generalProfile,
-        }),
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/profile/update',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            role: 'teacher',
+            ...generalProfile,
+          }),
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        alert("Profile updated!");
+        alert('Profile updated!');
       } else {
-        alert(data.error || "Update failed.");
+        alert(data.error || 'Update failed.');
       }
     } catch (err) {
       console.error(err);
-      alert("Error updating profile.");
+      alert('Error updating profile.');
     }
   };
 
@@ -130,32 +133,35 @@ const Teacher = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     const fd = new FormData();
-    fd.append("profilePic", file);
-    fd.append("userId", userId);
-    fd.append("role", "teacher");
+    fd.append('profilePic', file);
+    fd.append('userId', userId);
+    fd.append('role', 'teacher');
 
     try {
-      const res = await fetch("http://localhost:5000/api/profile/upload-pic", {
-        method: "POST",
-        body: fd,
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/profile/upload-pic',
+        {
+          method: 'POST',
+          body: fd,
+        },
+      );
       const data = await res.json();
       if (data.success) {
         setGeneralProfile((prev) => ({ ...prev, profilePic: data.profilePic }));
-        alert("Profile picture updated!");
+        alert('Profile picture updated!');
       } else {
-        alert(data.error || "Upload failed.");
+        alert(data.error || 'Upload failed.');
       }
     } catch (err) {
       console.error(err);
-      alert("Error uploading picture.");
+      alert('Error uploading picture.');
     }
   };
 
   // Logout
-  const handleLogout = () => navigate("/homepage");
+  const handleLogout = () => navigate('/homepage');
 
   // Update a submission within UI
   const updateSubmissionUI = (id, updates) => {
@@ -169,21 +175,24 @@ const Teacher = () => {
   // ---------------------------------
   const runPlagiarismCheck = async (subId) => {
     try {
-      const res = await fetch("http://localhost:5000/api/plagiarism/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId: subId }),
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/plagiarism/check',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissionId: subId }),
+        },
+      );
 
       const data = await res.json();
       if (data.error) {
-        alert("Python error: " + data.error);
+        alert('Python error: ' + data.error);
         return null;
       }
       return data.result || data;
     } catch (err) {
       console.error(err);
-      alert("Error running plagiarism check");
+      alert('Error running plagiarism check');
       return null;
     }
   };
@@ -191,23 +200,23 @@ const Teacher = () => {
   const runCEICheck = async (subId) => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/plagiarism/check-cei",
+        '${import.meta.env.VITE_API_URL}/api/plagiarism/check-cei',
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ submissionId: subId }),
         },
       );
 
       const data = await res.json();
       if (data.error) {
-        alert("CEI Analysis error: " + data.error);
+        alert('CEI Analysis error: ' + data.error);
         return null;
       }
       return data.result;
     } catch (err) {
       console.error(err);
-      alert("Error running CEI analysis");
+      alert('Error running CEI analysis');
       return null;
     }
   };
@@ -218,19 +227,19 @@ const Teacher = () => {
   const DashboardView = () => {
     const total = submissions.length;
     const pending = submissions.filter(
-      (s) => s?.status?.toLowerCase() === "pending",
+      (s) => s?.status?.toLowerCase() === 'pending',
     ).length;
 
     const accepted = submissions.filter(
-      (s) => s?.status?.toLowerCase() === "accepted",
+      (s) => s?.status?.toLowerCase() === 'accepted',
     ).length;
 
     const recent = submissions.filter(
       (s) =>
         s &&
-        typeof s === "object" &&
-        (!s.category || s.category === "Report") &&
-        s.status?.toLowerCase() === "pending",
+        typeof s === 'object' &&
+        (!s.category || s.category === 'Report') &&
+        s.status?.toLowerCase() === 'pending',
     );
 
     return (
@@ -268,9 +277,9 @@ const Teacher = () => {
             <tbody>
               {recent.map((s) => (
                 <tr key={s._id}>
-                  <td>{s.studentName || "Unknown"}</td>
+                  <td>{s.studentName || 'Unknown'}</td>
                   <td>{s.projectTitle}</td>
-                  <td>{s.groupId || "-"}</td>
+                  <td>{s.groupId || '-'}</td>
                   <td>
                     <span className={`status-badge ${s.status.toLowerCase()}`}>
                       {s.status}
@@ -297,13 +306,13 @@ const Teacher = () => {
   // Report Submissions View
   // ---------------------------------
   const SubmissionsView = () => {
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const filteredReports = submissions
-      .filter((s) => s && (!s.category || s.category === "Report"))
+      .filter((s) => s && (!s.category || s.category === 'Report'))
       .filter((s) => {
-        if (statusFilter === "all") return true;
+        if (statusFilter === 'all') return true;
         return s.status?.toLowerCase() === statusFilter;
       })
       .filter(
@@ -358,7 +367,7 @@ const Teacher = () => {
               <tbody>
                 {filteredReports.map((s) => (
                   <tr key={s._id}>
-                    <td>{s.studentName || "Unknown"}</td>
+                    <td>{s.studentName || 'Unknown'}</td>
                     <td>{s.projectTitle}</td>
                     <td>
                       <span
@@ -367,8 +376,12 @@ const Teacher = () => {
                         {s.status}
                       </span>
                     </td>
-                    <td>{s.similarity != null ? `${s.similarity}%` : "—"}</td>
-                    <td>{s.plagiarismScore != null ? `${s.plagiarismScore}%` : "—"}</td>
+                    <td>{s.similarity != null ? `${s.similarity}%` : '—'}</td>
+                    <td>
+                      {s.plagiarismScore != null
+                        ? `${s.plagiarismScore}%`
+                        : '—'}
+                    </td>
                     <td>
                       <button
                         className="btn ghost small"
@@ -399,7 +412,7 @@ const Teacher = () => {
         <h1>Code Submissions</h1>
         <div className="panel">
           {codeSubs.length === 0 ? (
-            <p style={{ padding: "20px", color: "#666" }}>
+            <p style={{ padding: '20px', color: '#666' }}>
               No code submissions yet.
             </p>
           ) : (
@@ -416,7 +429,7 @@ const Teacher = () => {
               <tbody>
                 {codeSubs.map((s) => (
                   <tr key={s._id}>
-                    <td>{s.studentName || "Unknown"}</td>
+                    <td>{s.studentName || 'Unknown'}</td>
                     <td>{s.projectTitle}</td>
                     <td>
                       <span
@@ -429,29 +442,29 @@ const Teacher = () => {
                       {s.ceiLabel ? (
                         <div
                           style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            fontSize: "12px",
+                            display: 'flex',
+                            flexDirection: 'column',
+                            fontSize: '12px',
                           }}
                         >
                           <span
                             style={{
                               fontWeight: 600,
-                              color: s.ceiScore > 1.2 ? "#e11d48" : "#059669",
+                              color: s.ceiScore > 1.2 ? '#e11d48' : '#059669',
                             }}
                           >
                             {s.ceiLabel}
                           </span>
                           {s.ceiScore && (
-                            <span style={{ color: "#666" }}>
+                            <span style={{ color: '#666' }}>
                               Score: {s.ceiScore}
                             </span>
                           )}
                         </div>
-                      ) : s.status === "Accepted" || s.status === "Reviewed" ? (
-                        "Not Analyzed"
+                      ) : s.status === 'Accepted' || s.status === 'Reviewed' ? (
+                        'Not Analyzed'
                       ) : (
-                        "-"
+                        '-'
                       )}
                     </td>
                     <td>
@@ -485,23 +498,23 @@ const Teacher = () => {
     const [ceiResult, setCeiResult] = useState(null);
     const [loading, setLoading] = useState(false);
     const [ceiLoading, setCeiLoading] = useState(false);
-    const [feedback, setFeedback] = useState("");
+    const [feedback, setFeedback] = useState('');
 
     useEffect(() => {
       if (submission) {
-        setFeedback(submission.teacherFeedback || "");
+        setFeedback(submission.teacherFeedback || '');
         // Do not preload `localResult` or `ceiResult` here so the teacher must click the Run button first.
       }
     }, [submission]);
 
     if (!submission)
       return (
-        <div style={{ padding: "20px" }}>Loading Submission Details...</div>
+        <div style={{ padding: '20px' }}>Loading Submission Details...</div>
       );
 
     const handleAction = async (newStatus) => {
       if (!submission || !submission._id) {
-        alert("Submission not loaded");
+        alert('Submission not loaded');
         return;
       }
 
@@ -510,16 +523,17 @@ const Teacher = () => {
         status: newStatus,
         teacherFeedback: feedback,
         similarity: localResult?.similarity,
-        plagiarismScore: localResult?.plagiarism_score || localResult?.plagiarismScore,
-        mostSimilarDoc: localResult?.most_similar_doc
+        plagiarismScore:
+          localResult?.plagiarism_score || localResult?.plagiarismScore,
+        mostSimilarDoc: localResult?.most_similar_doc,
       };
 
       try {
         const res = await fetch(
-          "http://localhost:5000/api/submissions/review/save",
+          '${import.meta.env.VITE_API_URL}/api/submissions/review/save',
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           },
         );
@@ -527,7 +541,7 @@ const Teacher = () => {
         const data = await res.json();
 
         if (!data.success) {
-          alert(data.error || "Failed to update submission");
+          alert(data.error || 'Failed to update submission');
           return;
         }
 
@@ -541,10 +555,10 @@ const Teacher = () => {
         );
 
         alert(`Submission ${newStatus} successfully`);
-        navigate("/teacher/dashboard");
+        navigate('/teacher/dashboard');
       } catch (err) {
         console.error(err);
-        alert("Server error while saving review");
+        alert('Server error while saving review');
       }
     };
 
@@ -578,7 +592,7 @@ const Teacher = () => {
         <div className="review-header">
           <h2>Review Submission</h2>
           <button className="back-btn" onClick={() => navigate(-1)}>
-            <ArrowLeft size={16} style={{ marginRight: "8px" }} /> Back
+            <ArrowLeft size={16} style={{ marginRight: '8px' }} /> Back
           </button>
         </div>
 
@@ -593,7 +607,7 @@ const Teacher = () => {
               {submission.studentName ||
                 submission.customStudentId ||
                 submission.customGroupId ||
-                "Unknown"}
+                'Unknown'}
             </span>
           </div>
           <div className="info-item">
@@ -611,7 +625,7 @@ const Teacher = () => {
         <div className="plag-check-row">
           <div>
             <p style={{ fontWeight: 600 }}>Plagiarism Analysis</p>
-            <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
               Check similarity against millions of records.
             </p>
           </div>
@@ -620,19 +634,19 @@ const Teacher = () => {
             onClick={triggerCheck}
             disabled={loading}
           >
-            <Sparkles size={14} />{" "}
+            <Sparkles size={14} />{' '}
             {loading
-              ? "Analyzing..."
+              ? 'Analyzing...'
               : viewResults && localResult
-                ? "Re-run Plagiarism Check"
-                : "Run Plagiarism Check"}
+                ? 'Re-run Plagiarism Check'
+                : 'Run Plagiarism Check'}
           </button>
         </div>
 
         {viewResults && localResult && (
           <div
-            className={`result-section ${localResult.similarity > 20 ? "ai-detected" : "human-detected"}`}
-            style={{ marginBottom: "30px", animation: "fadeIn 0.5s" }}
+            className={`result-section ${localResult.similarity > 20 ? 'ai-detected' : 'human-detected'}`}
+            style={{ marginBottom: '30px', animation: 'fadeIn 0.5s' }}
           >
             <div className="result-header">
               <div className="result-icon">
@@ -644,8 +658,8 @@ const Teacher = () => {
               </div>
               <div className="result-title">
                 {localResult.similarity > 20
-                  ? "Similarity Detected"
-                  : "No Significant Plagiarism"}
+                  ? 'Similarity Detected'
+                  : 'No Significant Plagiarism'}
               </div>
             </div>
 
@@ -656,7 +670,7 @@ const Teacher = () => {
               </div>
               <div
                 className="progress-track"
-                style={{ background: "#eee", height: "10px" }}
+                style={{ background: '#eee', height: '10px' }}
               >
                 <div
                   className="progress-fill"
@@ -664,10 +678,10 @@ const Teacher = () => {
                     width: `${Math.min(localResult.similarity, 100)}%`,
                     background:
                       localResult.similarity > 50
-                        ? "#f43f5e"
+                        ? '#f43f5e'
                         : localResult.similarity > 20
-                          ? "#fbbf24"
-                          : "#10b981",
+                          ? '#fbbf24'
+                          : '#10b981',
                   }}
                 ></div>
               </div>
@@ -676,56 +690,73 @@ const Teacher = () => {
             <div className="confidence-meter" style={{ marginTop: '10px' }}>
               <div className="meter-label">
                 <span>AI & Web Pattern Detection</span>
-                <span>{localResult.plagiarism_score || localResult.plagiarismScore || 0}%</span>
+                <span>
+                  {localResult.plagiarism_score ||
+                    localResult.plagiarismScore ||
+                    0}
+                  %
+                </span>
               </div>
-              <div className="progress-track" style={{ background: '#eee', height: '10px' }}>
+              <div
+                className="progress-track"
+                style={{ background: '#eee', height: '10px' }}
+              >
                 <div
                   className="progress-fill"
                   style={{
                     width: `${Math.min(localResult.plagiarism_score || localResult.plagiarismScore || 0, 100)}%`,
-                    background: (localResult.plagiarism_score || localResult.plagiarismScore || 0) > 40 ? '#f43f5e' : ((localResult.plagiarism_score || localResult.plagiarismScore || 0) > 15 ? '#fbbf24' : '#10b981')
+                    background:
+                      (localResult.plagiarism_score ||
+                        localResult.plagiarismScore ||
+                        0) > 40
+                        ? '#f43f5e'
+                        : (localResult.plagiarism_score ||
+                              localResult.plagiarismScore ||
+                              0) > 15
+                          ? '#fbbf24'
+                          : '#10b981',
                   }}
                 ></div>
               </div>
             </div>
 
-            <div className="result-details" style={{ marginTop: "15px" }}>
+            <div className="result-details" style={{ marginTop: '15px' }}>
               {localResult.matchedMetadata &&
               (localResult.matchedMetadata.projectTitle ||
                 localResult.matchedMetadata.groupMembers) ? (
-                <div style={{ marginBottom: "15px" }}>
+                <div style={{ marginBottom: '15px' }}>
                   <h4
                     style={{
-                      fontSize: "14px",
-                      marginBottom: "10px",
-                      color: "#333",
-                      borderBottom: "1px solid #eee",
-                      paddingBottom: "5px",
+                      fontSize: '14px',
+                      marginBottom: '10px',
+                      color: '#333',
+                      borderBottom: '1px solid #eee',
+                      paddingBottom: '5px',
                     }}
                   >
                     Matched Source Details
                   </h4>
                   <table
                     className="submissions-table"
-                    style={{ width: "100%", fontSize: "13px" }}
+                    style={{ width: '100%', fontSize: '13px' }}
                   >
                     <tbody>
                       {localResult.matchedMetadata.projectTitle && (
-                        <tr style={{ background: "#f8fafc" }}>
+                        <tr style={{ background: '#f8fafc' }}>
                           <td
                             style={{
                               fontWeight: 600,
-                              color: "#334155",
-                              padding: "8px",
-                              width: "30%",
+                              color: '#334155',
+                              padding: '8px',
+                              width: '30%',
                             }}
                           >
                             Project Title
                           </td>
                           <td
                             style={{
-                              padding: "8px",
-                              color: "#0f172a",
+                              padding: '8px',
+                              color: '#0f172a',
                               fontWeight: 600,
                             }}
                           >
@@ -738,13 +769,13 @@ const Teacher = () => {
                           <td
                             style={{
                               fontWeight: 600,
-                              color: "#64748b",
-                              padding: "8px",
+                              color: '#64748b',
+                              padding: '8px',
                             }}
                           >
                             Problem Statement
                           </td>
-                          <td style={{ padding: "8px", color: "#334155" }}>
+                          <td style={{ padding: '8px', color: '#334155' }}>
                             {localResult.matchedMetadata.problemStatement}
                           </td>
                         </tr>
@@ -754,13 +785,13 @@ const Teacher = () => {
                           <td
                             style={{
                               fontWeight: 600,
-                              color: "#64748b",
-                              padding: "8px",
+                              color: '#64748b',
+                              padding: '8px',
                             }}
                           >
                             Guide Name
                           </td>
-                          <td style={{ padding: "8px", color: "#334155" }}>
+                          <td style={{ padding: '8px', color: '#334155' }}>
                             {localResult.matchedMetadata.projectGuide}
                           </td>
                         </tr>
@@ -770,13 +801,13 @@ const Teacher = () => {
                           <td
                             style={{
                               fontWeight: 600,
-                              color: "#64748b",
-                              padding: "8px",
+                              color: '#64748b',
+                              padding: '8px',
                             }}
                           >
                             Group Members
                           </td>
-                          <td style={{ padding: "8px", color: "#334155" }}>
+                          <td style={{ padding: '8px', color: '#334155' }}>
                             {localResult.matchedMetadata.groupMembers}
                           </td>
                         </tr>
@@ -792,23 +823,23 @@ const Teacher = () => {
                           <td
                             style={{
                               fontWeight: 600,
-                              color: "#64748b",
-                              padding: "8px",
+                              color: '#64748b',
+                              padding: '8px',
                             }}
                           >
                             Source Link
                           </td>
-                          <td style={{ padding: "8px", color: "#2563eb" }}>
+                          <td style={{ padding: '8px', color: '#2563eb' }}>
                             <a
                               href={localResult.matchedMetadata.sourceLink.replace(
                                 /\s/g,
-                                "",
+                                '',
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{
-                                color: "#2563eb",
-                                textDecoration: "underline",
+                                color: '#2563eb',
+                                textDecoration: 'underline',
                               }}
                             >
                               View Source Document
@@ -820,19 +851,19 @@ const Teacher = () => {
                   </table>
                 </div>
               ) : (
-                <div style={{ marginBottom: "15px" }}>
+                <div style={{ marginBottom: '15px' }}>
                   <p>
-                    <strong>Most Similar Document:</strong>{" "}
-                    {localResult.most_similar_doc || "None"}
+                    <strong>Most Similar Document:</strong>{' '}
+                    {localResult.most_similar_doc || 'None'}
                   </p>
                   <p
                     style={{
-                      fontSize: "12px",
-                      color: "#ef4444",
-                      background: "#fef2f2",
-                      padding: "8px",
-                      borderRadius: "4px",
-                      border: "1px solid #fee2e2",
+                      fontSize: '12px',
+                      color: '#ef4444',
+                      background: '#fef2f2',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid #fee2e2',
                     }}
                   >
                     <strong>Metadata Missing:</strong> Detailed info (Title,
@@ -846,19 +877,19 @@ const Teacher = () => {
               {localResult.matched_snippet && (
                 <div
                   style={{
-                    marginTop: "10px",
-                    padding: "10px",
-                    background: "#fff",
-                    borderRadius: "6px",
-                    border: "1px solid #e2e8f0",
+                    marginTop: '10px',
+                    padding: '10px',
+                    background: '#fff',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
                   }}
                 >
                   <p
                     style={{
-                      margin: "0 0 5px 0",
-                      fontSize: "12px",
+                      margin: '0 0 5px 0',
+                      fontSize: '12px',
                       fontWeight: 600,
-                      color: "#64748b",
+                      color: '#64748b',
                     }}
                   >
                     Matched Content Snippet:
@@ -866,9 +897,9 @@ const Teacher = () => {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: "13px",
-                      fontStyle: "italic",
-                      color: "#334155",
+                      fontSize: '13px',
+                      fontStyle: 'italic',
+                      color: '#334155',
                     }}
                   >
                     "{localResult.matched_snippet}"
@@ -890,22 +921,22 @@ const Teacher = () => {
             <div className="review-actions">
               <button
                 className="btn success"
-                onClick={() => handleAction("Accepted")}
+                onClick={() => handleAction('Accepted')}
               >
                 <CheckCircle size={20} /> Accept Project
               </button>
               <button
                 className="btn danger"
-                onClick={() => handleAction("Rejected")}
+                onClick={() => handleAction('Rejected')}
               >
                 <XCircle size={20} /> Reject Project
               </button>
             </div>
 
-            <div style={{ marginTop: "30px", textAlign: "center" }}>
+            <div style={{ marginTop: '30px', textAlign: 'center' }}>
               <button
                 className="btn ghost"
-                style={{ margin: "0 auto" }}
+                style={{ margin: '0 auto' }}
                 onClick={() => alert(`Downloading ${submission.fileName}...`)}
               >
                 <Download size={14} /> Download Submission File
@@ -925,7 +956,7 @@ const Teacher = () => {
             <div className="pic-wrapper">
               {generalProfile.profilePic ? (
                 <img
-                  src={`http://localhost:5000/${generalProfile.profilePic}`}
+                  src={`${import.meta.env.VITE_API_URL}/${generalProfile.profilePic}`}
                   alt="Profile"
                   className="large-profile-pic"
                 />
@@ -956,7 +987,7 @@ const Teacher = () => {
                     type="text"
                     value={generalProfile.teacherName}
                     onChange={(e) =>
-                      updateGeneralField("teacherName", e.target.value)
+                      updateGeneralField('teacherName', e.target.value)
                     }
                   />
                 </div>
@@ -966,7 +997,7 @@ const Teacher = () => {
                     type="text"
                     value={generalProfile.organization}
                     onChange={(e) =>
-                      updateGeneralField("organization", e.target.value)
+                      updateGeneralField('organization', e.target.value)
                     }
                   />
                 </div>
@@ -976,7 +1007,7 @@ const Teacher = () => {
                     type="email"
                     value={generalProfile.email}
                     readOnly
-                    style={{ background: "#eee" }}
+                    style={{ background: '#eee' }}
                   />
                 </div>
                 <div className="form-group">
@@ -985,7 +1016,7 @@ const Teacher = () => {
                     type="text"
                     value={generalProfile.phone}
                     onChange={(e) =>
-                      updateGeneralField("phone", e.target.value)
+                      updateGeneralField('phone', e.target.value)
                     }
                   />
                 </div>
@@ -999,7 +1030,7 @@ const Teacher = () => {
               <h4>Account Information</h4>
               <div className="settings-item">
                 <span>Username</span>
-                <strong>{localStorage.getItem("username")}</strong>
+                <strong>{localStorage.getItem('username')}</strong>
               </div>
               <div className="settings-item">
                 <span>Role</span>
@@ -1008,7 +1039,7 @@ const Teacher = () => {
               <button
                 className="logout-btn-alt"
                 onClick={handleLogout}
-                style={{ marginTop: "50px" }}
+                style={{ marginTop: '50px' }}
               >
                 Logout Account
               </button>
@@ -1030,7 +1061,7 @@ const Teacher = () => {
     // Local state for results and feedback
     const [ceiResult, setCeiResult] = useState(null);
     const [ceiLoading, setCeiLoading] = useState(false);
-    const [feedback, setFeedback] = useState("");
+    const [feedback, setFeedback] = useState('');
 
     // Peer-to-Peer comparison state
     const [referenceFile, setReferenceFile] = useState(null);
@@ -1039,14 +1070,14 @@ const Teacher = () => {
 
     useEffect(() => {
       if (submission) {
-        setFeedback(submission.teacherFeedback || "");
+        setFeedback(submission.teacherFeedback || '');
         // Wait until the user explicitly runs "Intelligence Analysis" to show the score.
       }
     }, [submission]);
 
     if (!submission)
       return (
-        <div style={{ padding: "20px" }}>
+        <div style={{ padding: '20px' }}>
           Loading Code Submission Details...
         </div>
       );
@@ -1059,10 +1090,10 @@ const Teacher = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/code-submissions/update/${submission._id}`,
+          `${import.meta.env.VITE_API_URL}/api/code-submissions/update/${submission._id}`,
           {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
           },
         );
@@ -1073,10 +1104,10 @@ const Teacher = () => {
           setCodeSubmissions((prev) =>
             prev.map((s) => (s._id === submission._id ? data.submission : s)),
           );
-          navigate("/teacher/code-submissions");
+          navigate('/teacher/code-submissions');
         }
       } catch (err) {
-        alert("Error updating code review");
+        alert('Error updating code review');
       }
     };
 
@@ -1095,29 +1126,32 @@ const Teacher = () => {
 
     const triggerCodeComparison = async () => {
       if (!referenceFile) {
-        alert("Please upload a reference file first.");
+        alert('Please upload a reference file first.');
         return;
       }
       setCompareLoading(true);
-      
+
       const formData = new FormData();
-      formData.append("submissionId", submission._id);
-      formData.append("referenceFile", referenceFile);
+      formData.append('submissionId', submission._id);
+      formData.append('referenceFile', referenceFile);
 
       try {
-        const res = await fetch("http://localhost:5000/api/plagiarism/compare-code", {
-          method: "POST",
-          body: formData,
-        });
+        const res = await fetch(
+          '${import.meta.env.VITE_API_URL}/api/plagiarism/compare-code',
+          {
+            method: 'POST',
+            body: formData,
+          },
+        );
         const data = await res.json();
         if (data.success) {
           setCompareResult(data.similarity);
         } else {
-          alert("Error: " + data.error);
+          alert('Error: ' + data.error);
         }
       } catch (err) {
         console.error(err);
-        alert("Error connecting to comparison API");
+        alert('Error connecting to comparison API');
       }
       setCompareLoading(false);
     };
@@ -1125,17 +1159,17 @@ const Teacher = () => {
     return (
       <div
         className="teacher-dashboard"
-        style={{ background: "#f8fafc", minHeight: "100vh", padding: "40px" }}
+        style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px' }}
       >
         <div className="review-page">
           <button
             className="back-btn"
-            onClick={() => navigate("/teacher/code-submissions")}
+            onClick={() => navigate('/teacher/code-submissions')}
             style={{
-              marginBottom: "20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
             <ArrowLeft size={16} /> Back to List
@@ -1147,13 +1181,13 @@ const Teacher = () => {
               <div className="hero-title">
                 <h2>{submission.projectTitle}</h2>
                 <div
-                  style={{ display: "flex", gap: "15px", alignItems: "center" }}
+                  style={{ display: 'flex', gap: '15px', alignItems: 'center' }}
                 >
                   <span className="code-badge">
                     <User size={14} /> {submission.studentName}
                   </span>
                   <span className="code-badge">
-                    <Code size={14} />{" "}
+                    <Code size={14} />{' '}
                     {new Date(submission.date).toLocaleDateString()}
                   </span>
                 </div>
@@ -1163,11 +1197,11 @@ const Teacher = () => {
                   className="btn ghost"
                   onClick={() =>
                     window.open(
-                      `http://localhost:5000/${submission.fileUrl}`,
-                      "_blank",
+                      `${import.meta.env.VITE_API_URL}/${submission.fileUrl}`,
+                      '_blank',
                     )
                   }
-                  style={{ border: "1px solid #e2e8f0" }}
+                  style={{ border: '1px solid #e2e8f0' }}
                 >
                   <Download size={18} /> Download Source
                 </button>
@@ -1176,24 +1210,24 @@ const Teacher = () => {
 
             <div
               style={{
-                borderTop: "1px solid #f1f5f9",
-                paddingTop: "20px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                borderTop: '1px solid #f1f5f9',
+                paddingTop: '20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
               <div>
                 <h4
                   style={{
-                    margin: "0 0 5px 0",
-                    fontSize: "16px",
-                    color: "#334155",
+                    margin: '0 0 5px 0',
+                    fontSize: '16px',
+                    color: '#334155',
                   }}
                 >
                   AI Content Analysis
                 </h4>
-                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
                   Run the CEI algorithm to detect AI-generated patterns.
                 </p>
               </div>
@@ -1208,8 +1242,8 @@ const Teacher = () => {
                   <Sparkles />
                 )}
                 {ceiLoading
-                  ? "Analyzing Logic..."
-                  : "Run Intelligence Analysis"}
+                  ? 'Analyzing Logic...'
+                  : 'Run Intelligence Analysis'}
               </button>
             </div>
           </div>
@@ -1219,7 +1253,7 @@ const Teacher = () => {
             <div className="result-card">
               {/* Header */}
               <div
-                className={`result-header-modern ${ceiResult.CEI_score > 1.2 ? "ai" : "human"}`}
+                className={`result-header-modern ${ceiResult.CEI_score > 1.2 ? 'ai' : 'human'}`}
               >
                 <div className="status-icon-large">
                   {ceiResult.CEI_score > 1.2 ? (
@@ -1232,22 +1266,22 @@ const Teacher = () => {
                   <h3>{ceiResult.label}</h3>
                   <p>
                     {ceiResult.CEI_score > 1.2
-                      ? "High likelihood of AI generation detected."
-                      : "Content appears consistent with human styling."}
+                      ? 'High likelihood of AI generation detected.'
+                      : 'Content appears consistent with human styling.'}
                   </p>
                 </div>
-                <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
                   <span
                     style={{
-                      fontSize: "32px",
-                      fontWeight: "800",
-                      color: ceiResult.CEI_score > 1.2 ? "#e11d48" : "#059669",
+                      fontSize: '32px',
+                      fontWeight: '800',
+                      color: ceiResult.CEI_score > 1.2 ? '#e11d48' : '#059669',
                     }}
                   >
                     {ceiResult.CEI_score}
                   </span>
                   <div
-                    style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}
+                    style={{ fontSize: '12px', opacity: 0.7, fontWeight: 600 }}
                   >
                     CEI SCORE
                   </div>
@@ -1267,8 +1301,8 @@ const Teacher = () => {
                       width: `${Math.min((ceiResult.CEI_score / 3) * 100, 100)}%`,
                       background:
                         ceiResult.CEI_score > 1.2
-                          ? "linear-gradient(90deg, #fbbf24, #ef4444)"
-                          : "linear-gradient(90deg, #22c55e, #10b981)",
+                          ? 'linear-gradient(90deg, #fbbf24, #ef4444)'
+                          : 'linear-gradient(90deg, #22c55e, #10b981)',
                     }}
                   ></div>
                 </div>
@@ -1306,72 +1340,111 @@ const Teacher = () => {
           )}
 
           {/* REFERENCE CODE COMPARISON CARD */}
-          <div className="glass-card" style={{ marginTop: "25px" }}>
+          <div className="glass-card" style={{ marginTop: '25px' }}>
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "15px",
-                borderBottom: "1px solid #f1f5f9",
-                paddingBottom: "15px"
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '15px',
+                borderBottom: '1px solid #f1f5f9',
+                paddingBottom: '15px',
               }}
             >
               <div>
-                <h4 style={{ margin: "0 0 5px 0", fontSize: "16px", color: "#334155" }}>
+                <h4
+                  style={{
+                    margin: '0 0 5px 0',
+                    fontSize: '16px',
+                    color: '#334155',
+                  }}
+                >
                   Peer-to-Peer Code Comparison
                 </h4>
-                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
-                  Upload a reference file to check for structural logic and token similarity.
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
+                  Upload a reference file to check for structural logic and
+                  token similarity.
                 </p>
               </div>
-              
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                <input 
-                  type="file" 
+
+              <div
+                style={{ display: 'flex', gap: '10px', alignItems: 'center' }}
+              >
+                <input
+                  type="file"
                   onChange={(e) => setReferenceFile(e.target.files[0])}
-                  style={{ fontSize: "13px" }}
+                  style={{ fontSize: '13px' }}
                 />
                 <button
                   className="ai-analysis-btn"
                   onClick={triggerCodeComparison}
                   disabled={compareLoading}
-                  style={{ background: "#4f46e5" }}
+                  style={{ background: '#4f46e5' }}
                 >
-                  <Code size={16} /> 
-                  {compareLoading ? " Comparing..." : " Run Comparison"}
+                  <Code size={16} />
+                  {compareLoading ? ' Comparing...' : ' Run Comparison'}
                 </button>
               </div>
             </div>
 
             {compareResult !== null && (
-              <div className="result-header-modern" style={{ background: compareResult > 50 ? "#fef2f2" : "#f0fdf4", marginTop: "15px" }}>
+              <div
+                className="result-header-modern"
+                style={{
+                  background: compareResult > 50 ? '#fef2f2' : '#f0fdf4',
+                  marginTop: '15px',
+                }}
+              >
                 <div className="status-icon-large">
-                  {compareResult > 50 ? <AlertTriangle color="#ef4444" /> : <CheckCircle color="#22c55e" />}
+                  {compareResult > 50 ? (
+                    <AlertTriangle color="#ef4444" />
+                  ) : (
+                    <CheckCircle color="#22c55e" />
+                  )}
                 </div>
                 <div className="result-main-info">
-                  <h3 style={{ color: compareResult > 50 ? "#991b1b" : "#166534" }}>
-                    {compareResult > 50 ? "High Structural Similarity" : "Unique Structure"}
+                  <h3
+                    style={{
+                      color: compareResult > 50 ? '#991b1b' : '#166534',
+                    }}
+                  >
+                    {compareResult > 50
+                      ? 'High Structural Similarity'
+                      : 'Unique Structure'}
                   </h3>
-                  <p style={{ color: compareResult > 50 ? "#991b1b" : "#166534" }}>
-                    {compareResult > 50 
-                      ? "The code logic closely mirrors the reference file." 
-                      : "The logic appears structurally independent."}
+                  <p
+                    style={{
+                      color: compareResult > 50 ? '#991b1b' : '#166534',
+                    }}
+                  >
+                    {compareResult > 50
+                      ? 'The code logic closely mirrors the reference file.'
+                      : 'The logic appears structurally independent.'}
                   </p>
                 </div>
-                <div style={{ marginLeft: "auto", textAlign: "right" }}>
-                  <span style={{ fontSize: "32px", fontWeight: "800", color: compareResult > 50 ? "#e11d48" : "#059669" }}>
+                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  <span
+                    style={{
+                      fontSize: '32px',
+                      fontWeight: '800',
+                      color: compareResult > 50 ? '#e11d48' : '#059669',
+                    }}
+                  >
                     {compareResult}%
                   </span>
-                  <div style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>MATCH</div>
+                  <div
+                    style={{ fontSize: '12px', opacity: 0.7, fontWeight: 600 }}
+                  >
+                    MATCH
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
           {/* FEEDBACK SECTION */}
-          <div className="glass-card" style={{ marginTop: "25px" }}>
-            <h3 style={{ marginBottom: "15px", color: "#1e293b" }}>
+          <div className="glass-card" style={{ marginTop: '25px' }}>
+            <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>
               Instructor Feedback
             </h3>
             <textarea
@@ -1379,20 +1452,20 @@ const Teacher = () => {
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Provide constructive feedback for the student..."
-              style={{ background: "#f8fafc" }}
+              style={{ background: '#f8fafc' }}
             />
             <div className="review-actions">
               <button
                 className="btn danger"
-                onClick={() => handleCodeAction("Rejected")}
-                style={{ flex: 1, height: "45px", fontSize: "15px" }}
+                onClick={() => handleCodeAction('Rejected')}
+                style={{ flex: 1, height: '45px', fontSize: '15px' }}
               >
                 <XCircle size={18} /> Reject Submission
               </button>
               <button
                 className="btn success"
-                onClick={() => handleCodeAction("Accepted")}
-                style={{ flex: 1, height: "45px", fontSize: "15px" }}
+                onClick={() => handleCodeAction('Accepted')}
+                style={{ flex: 1, height: '45px', fontSize: '15px' }}
               >
                 <CheckCircle size={18} /> Approve Submission
               </button>
@@ -1425,7 +1498,7 @@ const Teacher = () => {
           <NavLink
             to="/teacher/dashboard"
             className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
+              isActive ? 'nav-item active' : 'nav-item'
             }
           >
             <LayoutDashboard size={18} />
@@ -1434,7 +1507,7 @@ const Teacher = () => {
           <NavLink
             to="/teacher/submissions"
             className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
+              isActive ? 'nav-item active' : 'nav-item'
             }
           >
             <FileText size={18} />
@@ -1443,7 +1516,7 @@ const Teacher = () => {
           <NavLink
             to="/teacher/code-submissions"
             className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
+              isActive ? 'nav-item active' : 'nav-item'
             }
           >
             <Code size={18} />
@@ -1452,7 +1525,7 @@ const Teacher = () => {
           <NavLink
             to="/teacher/manual-check"
             className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
+              isActive ? 'nav-item active' : 'nav-item'
             }
           >
             <ScanText size={18} />
@@ -1461,7 +1534,7 @@ const Teacher = () => {
           <NavLink
             to="/teacher/datasets"
             className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
+              isActive ? 'nav-item active' : 'nav-item'
             }
           >
             <Database size={18} />
@@ -1479,17 +1552,17 @@ const Teacher = () => {
           <div className="nav-centre">Teacher Dashboard</div>
           <div
             className="nav-right"
-            onClick={() => navigate("/teacher/profile")}
+            onClick={() => navigate('/teacher/profile')}
             style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
             {generalProfile.profilePic ? (
               <img
-                src={`http://localhost:5000/${generalProfile.profilePic}`}
+                src={`${import.meta.env.VITE_API_URL}/${generalProfile.profilePic}`}
                 alt="Profile"
                 className="nav-profile-pic"
               />

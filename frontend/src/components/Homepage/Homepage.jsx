@@ -1,36 +1,36 @@
-import React, { useState } from "react";
-import "./Homepage.css";
-import { Search, Globe, BarChart } from "lucide-react";
+import React, { useState } from 'react';
+import './Homepage.css';
+import { Search, Globe, BarChart } from 'lucide-react';
 import {
   FaFacebookF,
   FaTwitter,
   FaLinkedinIn,
   FaInstagram,
-} from "react-icons/fa";
-import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+} from 'react-icons/fa';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 // Import all image assets
-import vrushaliImage from "../../assets/vrushali.jpg";
-import sanikaImage from "../../assets/sanika.jpg";
-import truptiImage from "../../assets/trupti.jpg";
-import aiCardImage from "../../assets/AI-card.png";
-import multilingualImage from "../../assets/multilingual.jpg";
-import logoIcon from "../../assets/logo.png"; // symbol / mark
-import logoText from "../../assets/logo-name.png";
+import vrushaliImage from '../../assets/vrushali.jpg';
+import sanikaImage from '../../assets/sanika.jpg';
+import truptiImage from '../../assets/trupti.jpg';
+import aiCardImage from '../../assets/AI-card.png';
+import multilingualImage from '../../assets/multilingual.jpg';
+import logoIcon from '../../assets/logo.png'; // symbol / mark
+import logoText from '../../assets/logo-name.png';
 
 const Homepage = () => {
   const navigate = useNavigate();
 
   // Login states
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginRole, setLoginRole] = useState("");
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginRole, setLoginRole] = useState('');
 
   // Contact Form states
-  const [contactName, setContactName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactMessage, setContactMessage] = useState("");
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
 
   // =====================================================
   // ⭐ FIXED LOGIN FUNCTION (ONLY CHANGE YOU NEEDED)
@@ -39,13 +39,13 @@ const Homepage = () => {
     e.preventDefault();
 
     if (!loginRole) {
-      alert("Please select a role.");
+      alert('Please select a role.');
       return;
     }
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        '${import.meta.env.VITE_API_URL}/api/auth/login',
         {
           username: loginUsername,
           password: loginPassword,
@@ -54,28 +54,28 @@ const Homepage = () => {
       );
 
       // Save token + user info
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.user.id);
-      localStorage.setItem("role", response.data.user.role);
-      localStorage.setItem("studentId", response.data.user.id); // ADD THIS
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.user.id);
+      localStorage.setItem('role', response.data.user.role);
+      localStorage.setItem('studentId', response.data.user.id); // ADD THIS
 
       // ⭐ VERY IMPORTANT FIX → Store studentId
-      if (response.data.user.role === "student") {
-        localStorage.setItem("studentId", response.data.user.studentId);
+      if (response.data.user.role === 'student') {
+        localStorage.setItem('studentId', response.data.user.studentId);
       }
 
-      alert("Login successful!");
+      alert('Login successful!');
 
       // Redirect
-      if (response.data.user.role === "student") {
-        navigate("/student");
-      } else if (response.data.user.role === "teacher") {
-        navigate("/teacher");
+      if (response.data.user.role === 'student') {
+        navigate('/student');
+      } else if (response.data.user.role === 'teacher') {
+        navigate('/teacher');
       } else {
-        alert("Invalid role received!");
+        alert('Invalid role received!');
       }
     } catch (err) {
-      alert(err.response?.data?.error || "Login failed. Please try again.");
+      alert(err.response?.data?.error || 'Login failed. Please try again.');
     }
   };
 
@@ -84,9 +84,9 @@ const Homepage = () => {
     e.preventDefault();
     alert("Thank you for your message! We'll get back to you soon.");
 
-    setContactName("");
-    setContactEmail("");
-    setContactMessage("");
+    setContactName('');
+    setContactEmail('');
+    setContactMessage('');
   };
 
   return (
@@ -119,7 +119,6 @@ const Homepage = () => {
                 <a href="#contact" className="contact">
                   Contact
                 </a>
-                
               </div>
             </div>
 
@@ -171,7 +170,7 @@ const Homepage = () => {
                           type="radio"
                           name="role"
                           value="student"
-                          checked={loginRole === "student"}
+                          checked={loginRole === 'student'}
                           onChange={(e) => setLoginRole(e.target.value)}
                           required
                           className="role-radio"
@@ -184,7 +183,7 @@ const Homepage = () => {
                           type="radio"
                           name="role"
                           value="teacher"
-                          checked={loginRole === "teacher"}
+                          checked={loginRole === 'teacher'}
                           onChange={(e) => setLoginRole(e.target.value)}
                         />
                         Teacher
@@ -194,8 +193,6 @@ const Homepage = () => {
                     <button type="submit" className="login-btn">
                       Login
                     </button>
-
-              
 
                     <div className="forgot-password">
                       <a href="/forgot-password">Forgot Password?</a>

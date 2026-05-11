@@ -387,9 +387,16 @@ const StudentDashboard = () => {
           <div className="card ai-inspector-card">
             <div className="card-head">
               <div className="ai-title">
-                <h3><span role="img" aria-label="robot">🤖</span> AI Code Inspector</h3>
+                <h3>
+                  <span role="img" aria-label="robot">
+                    🤖
+                  </span>{' '}
+                  AI Code Inspector
+                </h3>
               </div>
-              <p className="muted">Check if your code looks AI-generated before submitting.</p>
+              <p className="muted">
+                Check if your code looks AI-generated before submitting.
+              </p>
             </div>
 
             <AICodeInspector />
@@ -398,9 +405,7 @@ const StudentDashboard = () => {
           <div className="card submit-card">
             <div className="card-head">
               <h3>Submit Assignment</h3>
-              <p className="muted">
-                Upload your work for final grading.
-              </p>
+              <p className="muted">Upload your work for final grading.</p>
             </div>
 
             <form className="submit-form" onSubmit={handleSubmit}>
@@ -609,10 +614,13 @@ const AICodeInspector = () => {
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://localhost:5000/api/plagiarism/ai-check', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/plagiarism/ai-check',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
       const data = await res.json();
 
       if (data.success && data.result) {
@@ -632,23 +640,36 @@ const AICodeInspector = () => {
     <div className="ai-inspector-body">
       <div className="ai-upload-row">
         <input type="file" onChange={handleFile} accept=".py,.java,.js,.cpp" />
-        <button className="btn-primary" onClick={runCheck} disabled={!file || loading}>
+        <button
+          className="btn-primary"
+          onClick={runCheck}
+          disabled={!file || loading}
+        >
           {loading ? 'Analyzing...' : 'Check Code'}
         </button>
       </div>
 
       {result && (
-        <div className={`ai-result ${result.prediction === 'AI' ? 'is-ai' : 'is-human'}`}>
+        <div
+          className={`ai-result ${result.prediction === 'AI' ? 'is-ai' : 'is-human'}`}
+        >
           <div className="ai-res-header">
-            {result.prediction === 'AI' ? '⚠️ AI-Generated' : '✅ Human-Written'}
+            {result.prediction === 'AI'
+              ? '⚠️ AI-Generated'
+              : '✅ Human-Written'}
           </div>
           <div className="ai-confidence">
             Confidence: <strong>{result.confidence.toFixed(1)}%</strong>
           </div>
           <div className="ai-bar-wrap">
-            <div className="ai-bar" style={{ width: `${result.confidence}%` }}></div>
+            <div
+              className="ai-bar"
+              style={{ width: `${result.confidence}%` }}
+            ></div>
           </div>
-          <div className="ai-note">Based on stylometric analysis (naming, comments, structure).</div>
+          <div className="ai-note">
+            Based on stylometric analysis (naming, comments, structure).
+          </div>
         </div>
       )}
 

@@ -1,7 +1,7 @@
 // src/components/Student/Student.jsx
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { MdOutlineContentPasteSearch } from "react-icons/md";
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MdOutlineContentPasteSearch } from 'react-icons/md';
 
 import {
   LayoutDashboard,
@@ -11,8 +11,8 @@ import {
   Download,
   Code,
   ScanText,
-} from "lucide-react";
-import "./Student.css";
+} from 'lucide-react';
+import './Student.css';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,9 +21,9 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-} from "chart.js";
+} from 'chart.js';
 
-import { Bar, Doughnut } from "react-chartjs-2";
+import { Bar, Doughnut } from 'react-chartjs-2';
 
 // FEEDBACK VIEW TRACKING (UI ONLY)
 
@@ -36,36 +36,36 @@ ChartJS.register(
   Legend,
 );
 
-import logoIcon from "../../assets/logo.png";
-import logoText from "../../assets/logo-name.png";
+import logoIcon from '../../assets/logo.png';
+import logoText from '../../assets/logo-name.png';
 
 const Student = () => {
   const navigate = useNavigate();
   const [unreadFeedbackIds, setUnreadFeedbackIds] = useState([]);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState('all');
   const [showCodeSubmitModal, setShowCodeSubmitModal] = useState(false);
   // PAGE STATE
-  const [activePage, setActivePage] = useState("dashboard");
+  const [activePage, setActivePage] = useState('dashboard');
 
   // PROJECT PROFILE INFO (Project specific)
   const [profile, setProfile] = useState({
-    profileType: "Individual", // 'Individual' | 'Group'
-    fullName: "",
-    studentId: "",
-    guideName: "",
-    groupId: "",
-    groupMembers: [""],
+    profileType: 'Individual', // 'Individual' | 'Group'
+    fullName: '',
+    studentId: '',
+    guideName: '',
+    groupId: '',
+    groupMembers: [''],
   });
 
   // GENERAL PROFILE INFO (Personal details)
   const [generalProfile, setGeneralProfile] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    profilePic: "",
-    studentId: "", // Auth studentId
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    profilePic: '',
+    studentId: '', // Auth studentId
   });
 
   // SUBMISSIONS
@@ -74,25 +74,25 @@ const Student = () => {
 
   // FILTERED LISTS
   const reportSubmissions = submissions.filter(
-    (s) => !s.category || s.category === "Report",
+    (s) => !s.category || s.category === 'Report',
   );
   const filteredReports =
-    statusFilter === "all"
+    statusFilter === 'all'
       ? reportSubmissions
       : reportSubmissions.filter(
           (s) => s.status?.toLowerCase() === statusFilter,
         );
   const codeSubmissions = codeSubmissionsList; // Now fetching directly from separate DB collection
   const filteredCodeSubmissions =
-    statusFilter === "all"
+    statusFilter === 'all'
       ? codeSubmissions
       : codeSubmissions.filter((s) => s.status?.toLowerCase() === statusFilter);
 
   // FILE UPLOAD
   const fileRef = useRef(null);
   const [uploadFile, setUploadFile] = useState(null);
-  const [projectTitle, setProjectTitle] = useState("");
-  const [projectDesc, setProjectDesc] = useState("");
+  const [projectTitle, setProjectTitle] = useState('');
+  const [projectDesc, setProjectDesc] = useState('');
   // New States removed (submissionType, projectIdInput moved to profile)
 
   // LOAD STUDENT SUBMISSIONS
@@ -102,70 +102,70 @@ const Student = () => {
       if (!studentMongoId) return;
 
       const resReports = await fetch(
-        `http://localhost:5000/api/submissions/student/${studentMongoId}`,
+        `${import.meta.env.VITE_API_URL}/api/submissions/student/${studentMongoId}`,
       );
       const dataReports = await resReports.json();
       setSubmissions(dataReports);
 
       const resCode = await fetch(
-        `http://localhost:5000/api/code-submissions/student/${studentMongoId}`,
+        `${import.meta.env.VITE_API_URL}/api/code-submissions/student/${studentMongoId}`,
       );
       const dataCode = await resCode.json();
       setCodeSubmissionsList(dataCode);
     } catch (err) {
-      console.error("Error loading submissions:", err);
+      console.error('Error loading submissions:', err);
     }
   };
 
   // LOAD STUDENT PROFILE
   const loadProfile = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem('userId');
       if (!userId) return;
 
       const res = await fetch(
-        `http://localhost:5000/api/student/profile/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/student/profile/${userId}`,
       );
       const data = await res.json();
       if (data && data.userId) {
         setProfile({
-          profileType: data.profileType || "Individual",
-          fullName: data.fullName || "",
-          studentId: data.studentId || "",
-          guideName: data.guideName || "",
-          groupId: data.groupId || "",
+          profileType: data.profileType || 'Individual',
+          fullName: data.fullName || '',
+          studentId: data.studentId || '',
+          guideName: data.guideName || '',
+          groupId: data.groupId || '',
           groupMembers:
-            data.members && data.members.length ? data.members : [""],
+            data.members && data.members.length ? data.members : [''],
         });
       }
     } catch (err) {
-      console.error("Error loading profile:", err);
+      console.error('Error loading profile:', err);
     }
   };
 
   // LOAD GENERAL PROFILE (Personal details)
   const loadGeneralProfile = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem('userId');
       if (!userId) return;
 
       const res = await fetch(
-        `http://localhost:5000/api/profile/student/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/profile/student/${userId}`,
       );
       const data = await res.json();
       if (data && data._id) {
         setGeneralProfile({
           _id: data._id, // ✅ ADD THIS
-          firstName: data.firstName || "",
-          lastName: data.lastName || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          profilePic: data.profilePic || "",
-          studentId: data.studentId || "",
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          profilePic: data.profilePic || '',
+          studentId: data.studentId || '',
         });
       }
     } catch (err) {
-      console.error("Error loading general profile:", err);
+      console.error('Error loading general profile:', err);
     }
   };
 
@@ -181,7 +181,7 @@ const Student = () => {
   }, [generalProfile._id]);
 
   useEffect(() => {
-    const viewed = JSON.parse(localStorage.getItem("viewedFeedback") || "[]");
+    const viewed = JSON.parse(localStorage.getItem('viewedFeedback') || '[]');
 
     const unread = reportSubmissions
       .filter((s) => s.teacherFeedback && !viewed.includes(s._id))
@@ -204,18 +204,18 @@ const Student = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
 
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     if (!userId) {
-      alert("Login error: userId missing.");
+      alert('Login error: userId missing.');
       return;
     }
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/student/profile/save",
+        '${import.meta.env.VITE_API_URL}/api/student/profile/save',
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId,
             fullName: profile.fullName,
@@ -231,13 +231,13 @@ const Student = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Profile saved successfully!");
+        alert('Profile saved successfully!');
       } else {
-        alert(data.error || "Save failed.");
+        alert(data.error || 'Save failed.');
       }
     } catch (err) {
-      console.error("Save error:", err);
-      alert("Server error");
+      console.error('Save error:', err);
+      alert('Server error');
     }
   };
 
@@ -248,26 +248,29 @@ const Student = () => {
 
   const handleUpdateGeneralProfile = async (e) => {
     e.preventDefault();
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch("http://localhost:5000/api/profile/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          role: "student",
-          ...generalProfile,
-        }),
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/profile/update',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            role: 'student',
+            ...generalProfile,
+          }),
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        alert("Personal profile updated!");
+        alert('Personal profile updated!');
       } else {
-        alert(data.error || "Update failed.");
+        alert(data.error || 'Update failed.');
       }
     } catch (err) {
       console.error(err);
-      alert("Error updating profile.");
+      alert('Error updating profile.');
     }
   };
 
@@ -275,27 +278,30 @@ const Student = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     const fd = new FormData();
-    fd.append("profilePic", file);
-    fd.append("userId", userId);
-    fd.append("role", "student");
+    fd.append('profilePic', file);
+    fd.append('userId', userId);
+    fd.append('role', 'student');
 
     try {
-      const res = await fetch("http://localhost:5000/api/profile/upload-pic", {
-        method: "POST",
-        body: fd,
-      });
+      const res = await fetch(
+        '${import.meta.env.VITE_API_URL}/api/profile/upload-pic',
+        {
+          method: 'POST',
+          body: fd,
+        },
+      );
       const data = await res.json();
       if (data.success) {
         setGeneralProfile((prev) => ({ ...prev, profilePic: data.profilePic }));
-        alert("Profile picture updated!");
+        alert('Profile picture updated!');
       } else {
-        alert(data.error || "Upload failed.");
+        alert(data.error || 'Upload failed.');
       }
     } catch (err) {
       console.error(err);
-      alert("Error uploading picture.");
+      alert('Error uploading picture.');
     }
   };
 
@@ -309,74 +315,74 @@ const Student = () => {
     e.preventDefault();
 
     if (!projectTitle || !uploadFile) {
-      alert("Please provide a project title and file.");
+      alert('Please provide a project title and file.');
       return;
     }
 
-    const studentId = localStorage.getItem("userId");
-    if (!studentId) return alert("Login error. Student ID missing.");
+    const studentId = localStorage.getItem('userId');
+    if (!studentId) return alert('Login error. Student ID missing.');
 
-    let customId = "";
-    if (profile.profileType === "Individual") {
+    let customId = '';
+    if (profile.profileType === 'Individual') {
       customId = generalProfile.studentId;
     } else {
       if (!profile.groupId) {
-        alert("Please provide a Group ID for group submission.");
+        alert('Please provide a Group ID for group submission.');
         return;
       }
       customId = profile.groupId;
     }
 
     const fd = new FormData();
-    fd.append("file", uploadFile);
-    fd.append("studentId", studentId);
-    fd.append("projectTitle", projectTitle);
-    fd.append("description", projectDesc);
-    fd.append("submissionType", profile.profileType);
-    fd.append("customId", customId);
+    fd.append('file', uploadFile);
+    fd.append('studentId', studentId);
+    fd.append('projectTitle', projectTitle);
+    fd.append('description', projectDesc);
+    fd.append('submissionType', profile.profileType);
+    fd.append('customId', customId);
     // Determine Endpoint based on Active Page
-    let endpoint = "http://localhost:5000/api/submissions/upload";
-    if (activePage === "code-submissions") {
-      endpoint = "http://localhost:5000/api/code-submissions/upload";
+    let endpoint = '${import.meta.env.VITE_API_URL}/api/submissions/upload';
+    if (activePage === 'code-submissions') {
+      endpoint = '${import.meta.env.VITE_API_URL}/api/code-submissions/upload';
     }
 
     try {
       const res = await fetch(endpoint, {
-        method: "POST",
+        method: 'POST',
         body: fd,
         // no Content-Type header when sending FormData
       });
 
       const data = await res.json();
       if (data.success) {
-        if (activePage === "code-submissions") {
+        if (activePage === 'code-submissions') {
           setCodeSubmissionsList((prev) => [data.submission, ...prev]);
         } else {
           setSubmissions((prev) => [data.submission, ...prev]);
         }
-        setProjectTitle("");
-        setProjectDesc("");
+        setProjectTitle('');
+        setProjectDesc('');
         setUploadFile(null);
-        if (fileRef.current) fileRef.current.value = "";
+        if (fileRef.current) fileRef.current.value = '';
 
         setUploadFile(null);
-        if (fileRef.current) fileRef.current.value = "";
+        if (fileRef.current) fileRef.current.value = '';
 
-        if (activePage === "code-submissions") {
+        if (activePage === 'code-submissions') {
           setShowCodeSubmitModal(false);
           // Stay on code submissions or maybe show success message
-          alert("Code Project uploaded!");
+          alert('Code Project uploaded!');
         } else {
           setShowSubmitModal(false);
-          setActivePage("submissions"); // Go to report submissions
-          alert("Project Report uploaded!");
+          setActivePage('submissions'); // Go to report submissions
+          alert('Project Report uploaded!');
         }
       } else {
-        alert(data.error || "Upload failed.");
+        alert(data.error || 'Upload failed.');
       }
     } catch (err) {
       console.error(err);
-      alert("Upload error.");
+      alert('Upload error.');
     }
   };
 
@@ -384,31 +390,31 @@ const Student = () => {
   const handleResubmit = (id) => {
     // For now, just redirect to upload page to create a NEW submission
     // The old one remains as history (Rejected)
-    setActivePage("dashboard");
-    alert("Please upload the corrected version as a new submission.");
+    setActivePage('dashboard');
+    alert('Please upload the corrected version as a new submission.');
   };
 
   // DOWNLOAD FILE
   const handleDownload = (fileName) => {
     window.open(
-      `http://localhost:5000/api/submissions/download/${fileName}`,
-      "_blank",
+      `${import.meta.env.VITE_API_URL}/api/submissions/download/${fileName}`,
+      '_blank',
     );
   };
 
   const handleDownloadReport = (subId) => {
     window.open(
-      `http://localhost:5000/api/plagiarism/report/${subId}`,
-      "_blank",
+      `${import.meta.env.VITE_API_URL}/api/plagiarism/report/${subId}`,
+      '_blank',
     );
   };
 
   // LOGOUT
   const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("token");
-    window.location.replace("/homepage");
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
+    window.location.replace('/homepage');
   };
 
   // ===== DASHBOARD GRAPH DATA (UI ONLY) =====
@@ -422,18 +428,18 @@ const Student = () => {
   };
 
   [...reportSubmissions, ...codeSubmissions].forEach((s) => {
-    const status = (s.status || "").toLowerCase();
+    const status = (s.status || '').toLowerCase();
 
-    if (status === "pending") {
+    if (status === 'pending') {
       statusCounts.Pending++;
     }
 
-    if (status === "accepted") {
+    if (status === 'accepted') {
       statusCounts.Accepted++;
       statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
     }
 
-    if (status === "rejected") {
+    if (status === 'rejected') {
       statusCounts.Rejected++;
       statusCounts.Reviewed++; // ✅ ADD TO REVIEWED
     }
@@ -444,9 +450,9 @@ const Student = () => {
     labels: Object.keys(statusCounts),
     datasets: [
       {
-        label: "Submissions",
+        label: 'Submissions',
         data: Object.values(statusCounts),
-        backgroundColor: ["#3b82f6", "#10b981", "#22c55e", "#ef4444"],
+        backgroundColor: ['#3b82f6', '#10b981', '#22c55e', '#ef4444'],
         borderRadius: 6,
       },
     ],
@@ -454,11 +460,11 @@ const Student = () => {
 
   // Doughnut chart: report vs code
   const typeDoughnutData = {
-    labels: ["Project Reports", "Code Submissions"],
+    labels: ['Project Reports', 'Code Submissions'],
     datasets: [
       {
         data: [reportSubmissions.length, codeSubmissions.length],
-        backgroundColor: ["#6366f1", "#f59e0b"],
+        backgroundColor: ['#6366f1', '#f59e0b'],
       },
     ],
   };
@@ -488,9 +494,9 @@ const Student = () => {
           <button
             type="button"
             className={
-              activePage === "dashboard" ? "nav-item active" : "nav-item"
+              activePage === 'dashboard' ? 'nav-item active' : 'nav-item'
             }
-            onClick={() => setActivePage("dashboard")}
+            onClick={() => setActivePage('dashboard')}
           >
             <LayoutDashboard size={18} />
             <span>Dashboard</span>
@@ -499,23 +505,23 @@ const Student = () => {
           <button
             type="button"
             className={
-              activePage === "submissions" ? "nav-item active" : "nav-item"
+              activePage === 'submissions' ? 'nav-item active' : 'nav-item'
             }
             onClick={() => {
               const viewed = JSON.parse(
-                localStorage.getItem("viewedFeedback") || "[]",
+                localStorage.getItem('viewedFeedback') || '[]',
               );
               const allFeedbackIds = reportSubmissions
                 .filter((s) => s.teacherFeedback)
                 .map((s) => s._id);
 
               localStorage.setItem(
-                "viewedFeedback",
+                'viewedFeedback',
                 JSON.stringify([...new Set([...viewed, ...allFeedbackIds])]),
               );
 
               setUnreadFeedbackIds([]);
-              setActivePage("submissions");
+              setActivePage('submissions');
             }}
           >
             <FileText size={18} />
@@ -525,9 +531,9 @@ const Student = () => {
           <button
             type="button"
             className={
-              activePage === "code-submissions" ? "nav-item active" : "nav-item"
+              activePage === 'code-submissions' ? 'nav-item active' : 'nav-item'
             }
-            onClick={() => setActivePage("code-submissions")}
+            onClick={() => setActivePage('code-submissions')}
           >
             <Code size={18} />
             <span>Code Submissions</span>
@@ -547,13 +553,13 @@ const Student = () => {
 
           <div
             className="nav-right"
-            onClick={() => setActivePage("profile")}
-            style={{ cursor: "pointer" }}
+            onClick={() => setActivePage('profile')}
+            style={{ cursor: 'pointer' }}
           >
             <span className="welcome">Welcome back!</span>
             {generalProfile.profilePic ? (
               <img
-                src={`http://localhost:5000/${generalProfile.profilePic}`}
+                src={`${import.meta.env.VITE_API_URL}/${generalProfile.profilePic}`}
                 alt="Profile"
                 className="nav-profile-pic"
               />
@@ -565,7 +571,7 @@ const Student = () => {
 
         <div className="dashboard-content-area">
           {/* Main Dashboard View */}
-          {activePage === "dashboard" && (
+          {activePage === 'dashboard' && (
             <div className="ui-dashboard">
               <div className="ui-stats">
                 <div className="ui-stat blue">
@@ -581,8 +587,8 @@ const Student = () => {
                     {
                       [...reportSubmissions, ...codeSubmissions].filter(
                         (s) =>
-                          s.status?.toLowerCase() === "accepted" ||
-                          s.status?.toLowerCase() === "rejected",
+                          s.status?.toLowerCase() === 'accepted' ||
+                          s.status?.toLowerCase() === 'rejected',
                       ).length
                     }
                   </strong>
@@ -593,7 +599,7 @@ const Student = () => {
                   <strong>
                     {
                       [...reportSubmissions, ...codeSubmissions].filter(
-                        (s) => s.status?.toLowerCase() === "pending",
+                        (s) => s.status?.toLowerCase() === 'pending',
                       ).length
                     }
                   </strong>
@@ -629,17 +635,17 @@ const Student = () => {
                   ) : (
                     unreadFeedbackList.slice(0, 3).map((s) => (
                       <div key={s._id} className="ui-feedback unread">
-                        <div style={{ fontWeight: 600, marginBottom: "4px" }}>
+                        <div style={{ fontWeight: 600, marginBottom: '4px' }}>
                           {s.projectTitle}
                         </div>
-                        <div style={{ fontSize: "13px", color: "#374151" }}>
+                        <div style={{ fontSize: '13px', color: '#374151' }}>
                           {s.teacherFeedback}
                         </div>
                         <div
                           style={{
-                            fontSize: "12px",
-                            color: "#6b7280",
-                            marginTop: "6px",
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            marginTop: '6px',
                           }}
                         >
                           Status: {s.status}
@@ -652,13 +658,13 @@ const Student = () => {
                 <div className="ui-panel">
                   <h3>Pending Actions</h3>
 
-                  {reportSubmissions.filter((s) => s.status === "Rejected")
+                  {reportSubmissions.filter((s) => s.status === 'Rejected')
                     .length === 0 ? (
                     <p className="ui-muted">Nothing pending 🎉</p>
                   ) : (
                     <ul className="ui-tasks">
                       {reportSubmissions
-                        .filter((s) => s.status?.toLowerCase() === "rejected")
+                        .filter((s) => s.status?.toLowerCase() === 'rejected')
                         .map((s) => (
                           <li key={s._id}>{s.projectTitle}</li>
                         ))}
@@ -684,7 +690,7 @@ const Student = () => {
                       data={typeDoughnutData}
                       options={{
                         responsive: true,
-                        plugins: { legend: { position: "bottom" } },
+                        plugins: { legend: { position: 'bottom' } },
                       }}
                     />
                   </div>
@@ -694,7 +700,7 @@ const Student = () => {
           )}
 
           {/* Submissions List View (REPORTS ONLY) */}
-          {activePage === "submissions" && (
+          {activePage === 'submissions' && (
             <div className="student-dashboard-container">
               <div className="table-header">
                 <h3>My Project Reports</h3>
@@ -709,42 +715,42 @@ const Student = () => {
               <div className="filter-bar">
                 <button
                   className={
-                    statusFilter === "all" ? "filter-btn active" : "filter-btn"
+                    statusFilter === 'all' ? 'filter-btn active' : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("all")}
+                  onClick={() => setStatusFilter('all')}
                 >
                   All
                 </button>
 
                 <button
                   className={
-                    statusFilter === "pending"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'pending'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("pending")}
+                  onClick={() => setStatusFilter('pending')}
                 >
                   Pending
                 </button>
 
                 <button
                   className={
-                    statusFilter === "accepted"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'accepted'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("accepted")}
+                  onClick={() => setStatusFilter('accepted')}
                 >
                   Accepted
                 </button>
 
                 <button
                   className={
-                    statusFilter === "rejected"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'rejected'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("rejected")}
+                  onClick={() => setStatusFilter('rejected')}
                 >
                   Rejected
                 </button>
@@ -770,61 +776,61 @@ const Student = () => {
                           <div
                             className="radio-group"
                             style={{
-                              display: "flex",
-                              gap: "20px",
-                              marginBottom: "15px",
+                              display: 'flex',
+                              gap: '20px',
+                              marginBottom: '15px',
                             }}
                           >
                             <label
                               style={{
-                                display: "flex",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                fontWeight: "normal",
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                fontWeight: 'normal',
                               }}
                             >
                               <input
                                 type="radio"
                                 name="profileType"
                                 value="Individual"
-                                checked={profile.profileType === "Individual"}
+                                checked={profile.profileType === 'Individual'}
                                 onChange={(e) =>
                                   updateProfileField(
-                                    "profileType",
+                                    'profileType',
                                     e.target.value,
                                   )
                                 }
-                                style={{ width: "auto", marginRight: "8px" }}
-                              />{" "}
+                                style={{ width: 'auto', marginRight: '8px' }}
+                              />{' '}
                               Individual
                             </label>
                             <label
                               style={{
-                                display: "flex",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                fontWeight: "normal",
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                fontWeight: 'normal',
                               }}
                             >
                               <input
                                 type="radio"
                                 name="profileType"
                                 value="Group"
-                                checked={profile.profileType === "Group"}
+                                checked={profile.profileType === 'Group'}
                                 onChange={(e) =>
                                   updateProfileField(
-                                    "profileType",
+                                    'profileType',
                                     e.target.value,
                                   )
                                 }
-                                style={{ width: "auto", marginRight: "8px" }}
-                              />{" "}
+                                style={{ width: 'auto', marginRight: '8px' }}
+                              />{' '}
                               Group
                             </label>
                           </div>
                         </div>
 
-                        {profile.profileType === "Individual" ? (
+                        {profile.profileType === 'Individual' ? (
                           <div className="form-group">
                             <label>Student ID (Reference)</label>
                             <input
@@ -832,8 +838,8 @@ const Student = () => {
                               value={generalProfile.studentId}
                               readOnly
                               style={{
-                                background: "#f5f5f5",
-                                cursor: "not-allowed",
+                                background: '#f5f5f5',
+                                cursor: 'not-allowed',
                               }}
                             />
                           </div>
@@ -844,7 +850,7 @@ const Student = () => {
                               type="text"
                               value={profile.groupId}
                               onChange={(e) =>
-                                updateProfileField("groupId", e.target.value)
+                                updateProfileField('groupId', e.target.value)
                               }
                               placeholder="Enter your Group ID"
                               required
@@ -888,7 +894,7 @@ const Student = () => {
                           className="primary-btn wide"
                           type="submit"
                           disabled={!projectTitle || !uploadFile}
-                          style={{ marginTop: "10px" }}
+                          style={{ marginTop: '10px' }}
                         >
                           Submit for Review
                         </button>
@@ -922,12 +928,12 @@ const Student = () => {
                         <td>{new Date(s.date).toLocaleDateString()}</td>
                         <td>
                           <span
-                            className={`status-badge ${s.status.toLowerCase().replace(/\s+/g, "-")}`}
+                            className={`status-badge ${s.status.toLowerCase().replace(/\s+/g, '-')}`}
                           >
                             {s.status}
                           </span>
                         </td>
-                        <td>{s.similarity ? `${s.similarity}%` : "-"}</td>
+                        <td>{s.similarity ? `${s.similarity}%` : '-'}</td>
                         <td>
                           <button
                             type="button"
@@ -936,28 +942,28 @@ const Student = () => {
                           >
                             <Download size={14} /> File
                           </button>
-                          {s.status !== "Pending" && (
+                          {s.status !== 'Pending' && (
                             <button
                               type="button"
                               className="report-link"
                               onClick={() => handleDownloadReport(s._id)}
                               style={{
-                                display: "block",
-                                marginTop: "5px",
-                                color: "#2563eb",
-                                border: "none",
-                                background: "none",
-                                cursor: "pointer",
-                                fontSize: "13px",
+                                display: 'block',
+                                marginTop: '5px',
+                                color: '#2563eb',
+                                border: 'none',
+                                background: 'none',
+                                cursor: 'pointer',
+                                fontSize: '13px',
                               }}
                             >
                               <FileText size={14} /> Report
                             </button>
                           )}
                         </td>
-                        <td>{s.teacherFeedback || "-"}</td>
+                        <td>{s.teacherFeedback || '-'}</td>
                         <td>
-                          {["Rejected"].includes(s.status) ? (
+                          {['Rejected'].includes(s.status) ? (
                             <button
                               type="button"
                               className="small-btn"
@@ -977,8 +983,7 @@ const Student = () => {
             </div>
           )}
 
-
-          {activePage === "code-submissions" && (
+          {activePage === 'code-submissions' && (
             <div className="student-dashboard-container">
               <div className="table-header">
                 <h3>My Code Submissions</h3>
@@ -993,42 +998,42 @@ const Student = () => {
               <div className="filter-bar">
                 <button
                   className={
-                    statusFilter === "all" ? "filter-btn active" : "filter-btn"
+                    statusFilter === 'all' ? 'filter-btn active' : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("all")}
+                  onClick={() => setStatusFilter('all')}
                 >
                   All
                 </button>
 
                 <button
                   className={
-                    statusFilter === "pending"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'pending'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("pending")}
+                  onClick={() => setStatusFilter('pending')}
                 >
                   Pending
                 </button>
 
                 <button
                   className={
-                    statusFilter === "accepted"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'accepted'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("accepted")}
+                  onClick={() => setStatusFilter('accepted')}
                 >
                   Accepted
                 </button>
 
                 <button
                   className={
-                    statusFilter === "rejected"
-                      ? "filter-btn active"
-                      : "filter-btn"
+                    statusFilter === 'rejected'
+                      ? 'filter-btn active'
+                      : 'filter-btn'
                   }
-                  onClick={() => setStatusFilter("rejected")}
+                  onClick={() => setStatusFilter('rejected')}
                 >
                   Rejected
                 </button>
@@ -1056,10 +1061,10 @@ const Student = () => {
                               <input
                                 type="radio"
                                 value="Individual"
-                                checked={profile.profileType === "Individual"}
+                                checked={profile.profileType === 'Individual'}
                                 onChange={(e) =>
                                   updateProfileField(
-                                    "profileType",
+                                    'profileType',
                                     e.target.value,
                                   )
                                 }
@@ -1071,10 +1076,10 @@ const Student = () => {
                               <input
                                 type="radio"
                                 value="Group"
-                                checked={profile.profileType === "Group"}
+                                checked={profile.profileType === 'Group'}
                                 onChange={(e) =>
                                   updateProfileField(
-                                    "profileType",
+                                    'profileType',
                                     e.target.value,
                                   )
                                 }
@@ -1085,7 +1090,7 @@ const Student = () => {
                         </div>
 
                         {/* ID */}
-                        {profile.profileType === "Individual" ? (
+                        {profile.profileType === 'Individual' ? (
                           <div className="form-group">
                             <label>Student ID</label>
                             <input value={generalProfile.studentId} readOnly />
@@ -1096,7 +1101,7 @@ const Student = () => {
                             <input
                               value={profile.groupId}
                               onChange={(e) =>
-                                updateProfileField("groupId", e.target.value)
+                                updateProfileField('groupId', e.target.value)
                               }
                               required
                             />
@@ -1175,34 +1180,34 @@ const Student = () => {
                           {s.ceiLabel ? (
                             <div
                               style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                fontSize: "12px",
+                                display: 'flex',
+                                flexDirection: 'column',
+                                fontSize: '12px',
                               }}
                             >
                               <span
                                 style={{
                                   fontWeight: 600,
                                   color:
-                                    s.ceiScore > 1.2 ? "#e11d48" : "#059669",
+                                    s.ceiScore > 1.2 ? '#e11d48' : '#059669',
                                 }}
                               >
                                 {s.ceiLabel}
                               </span>
                               {s.ceiScore && (
-                                <span style={{ color: "#666" }}>
+                                <span style={{ color: '#666' }}>
                                   Score: {s.ceiScore}
                                 </span>
                               )}
                             </div>
-                          ) : s.status === "Accepted" ||
-                            s.status === "Reviewed" ? (
-                            "Not Analyze"
+                          ) : s.status === 'Accepted' ||
+                            s.status === 'Reviewed' ? (
+                            'Not Analyze'
                           ) : (
-                            "-"
+                            '-'
                           )}
                         </td>
-                        <td>{s.teacherFeedback || "-"}</td>
+                        <td>{s.teacherFeedback || '-'}</td>
                         <td>
                           <button
                             type="button"
@@ -1219,112 +1224,110 @@ const Student = () => {
               )}
             </div>
           )}
-          {activePage === "profile" && (
-          <div className="dashboard-content-area">
-            <div className="profile-viewer-container">
-              <div className="profile-pic-section">
-                <div className="pic-wrapper">
-                  {generalProfile.profilePic ? (
-                    <img
-                      src={`http://localhost:5000/${generalProfile.profilePic}`}
-                      alt="Profile"
-                      className="large-profile-pic"
-                    />
-                  ) : (
-                    <UserCircle size={120} color="#ccc" />
-                  )}
-                  <label className="upload-icon-btn">
-                    <Camera size={20} />
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleProfilePicUpload}
-                    />
-                  </label>
+          {activePage === 'profile' && (
+            <div className="dashboard-content-area">
+              <div className="profile-viewer-container">
+                <div className="profile-pic-section">
+                  <div className="pic-wrapper">
+                    {generalProfile.profilePic ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}/${generalProfile.profilePic}`}
+                        alt="Profile"
+                        className="large-profile-pic"
+                      />
+                    ) : (
+                      <UserCircle size={120} color="#ccc" />
+                    )}
+                    <label className="upload-icon-btn">
+                      <Camera size={20} />
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={handleProfilePicUpload}
+                      />
+                    </label>
+                  </div>
+                  <h3>
+                    {generalProfile.firstName} {generalProfile.lastName}
+                  </h3>
+                  <p className="role-text">Student</p>
                 </div>
-                <h3>
-                  {generalProfile.firstName} {generalProfile.lastName}
-                </h3>
-                <p className="role-text">Student</p>
-              </div>
 
-              <div className="profile-details-grid">
-                <div className="details-card">
-                  <h4>Personal Details</h4>
-                  <form onSubmit={handleUpdateGeneralProfile}>
-                    <div className="form-group">
-                      <label>First Name</label>
-                      <input
-                        type="text"
-                        value={generalProfile.firstName}
-                        onChange={(e) =>
-                          updateGeneralField("firstName", e.target.value)
-                        }
-                      />
+                <div className="profile-details-grid">
+                  <div className="details-card">
+                    <h4>Personal Details</h4>
+                    <form onSubmit={handleUpdateGeneralProfile}>
+                      <div className="form-group">
+                        <label>First Name</label>
+                        <input
+                          type="text"
+                          value={generalProfile.firstName}
+                          onChange={(e) =>
+                            updateGeneralField('firstName', e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Last Name</label>
+                        <input
+                          type="text"
+                          value={generalProfile.lastName}
+                          onChange={(e) =>
+                            updateGeneralField('lastName', e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Email Address</label>
+                        <input
+                          type="email"
+                          value={generalProfile.email}
+                          readOnly
+                          style={{ background: '#eee' }}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Phone Number</label>
+                        <input
+                          type="text"
+                          value={generalProfile.phone}
+                          onChange={(e) =>
+                            updateGeneralField('phone', e.target.value)
+                          }
+                        />
+                      </div>
+                      <button type="submit" className="primary-btn">
+                        Update Details
+                      </button>
+                    </form>
+                  </div>
+
+                  <div className="details-card">
+                    <h4>Account Settings</h4>
+                    <div className="settings-item">
+                      <span>Student ID</span>
+                      <strong>{generalProfile.studentId}</strong>
                     </div>
-                    <div className="form-group">
-                      <label>Last Name</label>
-                      <input
-                        type="text"
-                        value={generalProfile.lastName}
-                        onChange={(e) =>
-                          updateGeneralField("lastName", e.target.value)
-                        }
-                      />
+                    <div className="settings-item">
+                      <span>Username</span>
+                      <strong>{localStorage.getItem('username')}</strong>
                     </div>
-                    <div className="form-group">
-                      <label>Email Address</label>
-                      <input
-                        type="email"
-                        value={generalProfile.email}
-                        readOnly
-                        style={{ background: "#eee" }}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Phone Number</label>
-                      <input
-                        type="text"
-                        value={generalProfile.phone}
-                        onChange={(e) =>
-                          updateGeneralField("phone", e.target.value)
-                        }
-                      />
-                    </div>
-                    <button type="submit" className="primary-btn">
-                      Update Details
+                    <button
+                      className="logout-btn-alt "
+                      style={{ color: 'red' }}
+                      onClick={handleLogout}
+                    >
+                      Logout Account
                     </button>
-                  </form>
-                </div>
-
-                <div className="details-card">
-                  <h4>Account Settings</h4>
-                  <div className="settings-item">
-                    <span>Student ID</span>
-                    <strong>{generalProfile.studentId}</strong>
                   </div>
-                  <div className="settings-item">
-                    <span>Username</span>
-                    <strong>{localStorage.getItem("username")}</strong>
-                  </div>
-                  <button
-                    className="logout-btn-alt "
-                    style={{ color: "red" }}
-                    onClick={handleLogout}
-                  >
-                    Logout Account
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
 
         {/* New Pages within content area or just below if using same padding */}
-
-        
       </main>
     </div>
   );
